@@ -118,7 +118,7 @@ At the end of the scipt a few counters will be displayed in order to keep you in
 ```text
 Directory scanned: /var/www/lychee/Lychee/dirsync/test/
 Created albums:  4
-9 photos imported on 10 discovered
+10 photos imported on 10 discovered
 ```
 
 #  Advanced usage

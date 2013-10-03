@@ -1,15 +1,15 @@
 # Context
 
 This project was created to syncronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).
-It turns out it can, totally or partially, enslave Lychee with a given directory structure.
+It turns out it can, totally or partially, enslave Lychee with any given directory structure.
 
-The program is simple it scans a directory for files and sub-directories:
+The program is simple it scans a directory for files and subdirectories:
 - subdirectories are converted to Lychee albums
 - files are imported in Lychee as photos
 
 You can choose between 3 behaviours:
 - **Lychee as a slave**: Lychee db is drop before each run `-d option`
-- **Lychee as a slave only for album in the source directories**: others albums existing in
+- **Lychee as a slave only for album in the source directories**: albums existing in
   Lychee but not in the source directory will be kept `-r option`
 - **Keep existing Lychee albums and photos** The program will try to know if a photo in the
   source directory has already been imported in Lychee and does nothing in this case, this is the default behaviour
@@ -125,16 +125,16 @@ Created albums:  4
 
 You can choose between the following options to adjust the program behaviour:
 
-- `-v`: verbose mode, a little more output
-- `-r`: replace album mode, if an pre-existing album is found in Lychee that match a soon to
+- `-v` **verbose mode**. A little more output
+- `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to
   be imported album. The pre-existing album is removed before hand. Usefull if you wan't to have lychee in slave mode only for a few albums
-- `-d`: drop all mode. Everything in Lychee is dropped before import. Usefull to make lychee
-  a slave of another repositorie
+- `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee
+  a slave of another repository
 
 
 # Technical doc
 
-This code is pep8 compliant and well documeented, if you wan't to contribute, thanks to
+This code is pep8 compliant and well documented, if you wan't to contribute, thanks to
 keep it this way.
 
 This project files are:

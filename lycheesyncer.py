@@ -25,19 +25,17 @@ class LycheeSyncer:
         """
         self.conf = conf
 
-    def getAlbumNameFromPath(self, albumpath):
+    def getAlbumNameFromPath(self, album):
         """
         build a lychee compatible albumname from an albumpath (relative to the srcdir main argument)
-        Takes a string  as input (relative albumpath)
+        Takes an album properties list  as input. At least the path sould be specified (relative albumpath)
         Returns a string, the lychee album name
         """
         #make a list with directory and sub dirs
-        path = albumpath.split(os.sep)
-        #remove the first directory (the containes)
-        albumname = path[2:]
+        path = album['relpath'].split(os.sep)
         #join the rest: no subfolders in lychee yet
-        albumname = "_".join(albumname)
-        return albumname
+        album['name'] = "_".join(path).lower()
+        return album['name']
 
     def isAPhoto(self, file):
         """
@@ -49,26 +47,24 @@ class LycheeSyncer:
         ext = os.path.splitext(file)[-1].lower()
         return (ext in validimgext)
 
-    def albumExists(self, albumpath):
+    def albumExists(self, album):
         """
-        Takes a string  as input (relative albumpath)
+        Takes an album properties list  as input. At least the relpath sould be specified (relative albumpath)
         Returns an albumid or None if album does not exists
         """
-        albumname = self.getAlbumNameFromPath(albumpath)
-        return self.dao.albumExists(albumname.lower())
 
-    def createAlbum(self, albumpath):
+    def createAlbum(self, album):
         """
         Creates an album
         Inputs:
-        - albumpath: a string (relative albumpath)
+        - album: an album properties list. at least path should be specified (relative albumpath)
         Returns an albumid or None if album does not exists
         """
-        albumid = None
-        albumname = self.getAlbumNameFromPath(albumpath)
-        if albumname != "":
-            albumid = self.dao.createAlbum(albumname.lower())
-        return albumid
+        album['id'] = None
+        album['name'] = self.getAlbumNameFromPath(album)
+        if album['name'] != "":
+            album['id'] = self.dao.createAlbum(album)
+        return album['id']
 
     def thumbIt(self, res, photo, destinationpath, destfile):
         """
@@ -177,35 +173,49 @@ class LycheeSyncer:
         createdalbums = 0
         discoveredphotos = 0
         importedphotos = 0
-
+        album = {}
         #walkthroug each file / dir of the srcdir
         for root, dirs, files in os.walk(self.conf['srcdir']):
 
-            for f in files:
-                if self.isAPhoto(f):
+            # Init album data
+            album['id'] = None
+            album['name'] = None
+            album['path'] = None
+            album['relpath'] = None  # path relative to srcdir
 
-                    discoveredphotos += 1
-                    albumpath = root
+            # if a there is at least one photo in the files
+            if any([self.isAPhoto(f) for f in files]):
+                    album['path'] = root
 
                     # don't know what to do with theses photo
                     # and don't wan't to create a default album
-                    if albumpath == self.conf['srcdir']:
+                    if album['path'] == self.conf['srcdir']:
                         msg = ("WARN: file at srcdir root won't be added to lychee, " +
                                "please move them in a subfolder"), os.path.join(root, f)
                         print msg
                         continue
 
-                    albumid = self.albumExists(albumpath)
-                    if not(albumid):
+                    # Fill in other album properties
+                    # albumnames start at srcdir (to avoid absolute path albumname)
+                    album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
+                    album['name'] = self.getAlbumNameFromPath(album)
+                    album['id'] = self.dao.albumExists(album)
+
+                    if not(album['id']):
                         #create album
-                        albumid = self.createAlbum(albumpath)
+                        album['id'] = self.createAlbum(album)
                         createdalbums += 1
                     elif self.conf['replace']:
                         #drop album photos
-                        filelist = self.dao.eraseAlbum(albumid)
+                        filelist = self.dao.eraseAlbum(album)
                         self.deleteFiles(filelist)
 
-                    photo = LycheePhoto(self.conf, f, albumpath, albumid)
+            # Albums are created or emptied, now take care of photos
+            for f in files:
+                if self.isAPhoto(f):
+
+                    discoveredphotos += 1
+                    photo = LycheePhoto(self.conf, f, album)
 
                     if not(self.dao.photoExists(photo)):
                         if self.conf['verbose']:

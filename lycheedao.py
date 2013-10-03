@@ -47,14 +47,15 @@ class LycheeDAO:
             print "INFO album list in db:", self.albumslist
         return self.albumslist
 
-    def albumExists(self, albumname):
+    def albumExists(self, album):
         """
         Check if an album exists based on its name
+        Parameters: an album properties list. At least the name should be specified
         Returns None or the albumid if it exists
         """
 
-        if albumname in self.albumslist.keys():
-            return self.albumslist[albumname]
+        if album['name'] in self.albumslist.keys():
+            return self.albumslist[album['name']]
         else:
             return None
 
@@ -82,16 +83,16 @@ class LycheeDAO:
         finally:
             return res
 
-    def createAlbum(self, name):
+    def createAlbum(self, album):
         """
         Creates an album
         Parameter:
-        - name: the album name
+        - album: the album properties list, at least the name should be specified
         Returns the created albumid or None
         """
-        id = None
+        album['id'] = None
         query = ("insert into lychee_albums (title, sysdate, public, password) values ('" +
-                 name + "','" + datetime.date.today().isoformat() + "'," +
+                 album['name'] + "','" + datetime.date.today().isoformat() + "'," +
                  str(self.conf["publicAlbum"]) + ", NULL)")
         try:
             cur = self.db.cursor()
@@ -99,31 +100,31 @@ class LycheeDAO:
             self.db.commit()
 
             #cur.execute(query, (name, self.conf["publicAlbum"]))
-            query = "select id from lychee_albums where title='" + name + "'"
+            query = "select id from lychee_albums where title='" + album['name'] + "'"
             cur.execute(query)
             row = cur.fetchone()
-            self.albumslist[name] = row[0]
-            id = row[0]
+            self.albumslist['name'] = row[0]
+            album['id'] = row[0]
             if self.conf["verbose"]:
-                print "INFO album created:", name
+                print "INFO album created:", album
 
         except Exception:
             print "createAlbum", Exception
             traceback.print_exc()
-            id = None
+            album['id'] = None
         finally:
-            return id
+            return album['id']
 
-    def eraseAlbum(self, albumid):
+    def eraseAlbum(self, album):
         """
         Deletes all photos of an album but don't delete the album itself
         Parameters:
-        - albumid: the album to erase id
+        - album: the album properties list to erase.  At least its id must be provided
         Return list of the erased photo url
         """
         res = []
-        query = "delete from lychee_photos where album = " + str(albumid) + ''
-        selquery = "select url from lychee_photos where album = " + str(albumid) + ''
+        query = "delete from lychee_photos where album = " + str(album['id']) + ''
+        selquery = "select url from lychee_photos where album = " + str(album['id']) + ''
         try:
             cur = self.db.cursor()
             cur.execute(selquery)
@@ -132,6 +133,8 @@ class LycheeDAO:
                 res.append(row[0])
             cur.execute(query)
             self.db.commit()
+            if self.conf["verbose"]:
+                print "INFO album erased: ", album
         except Exception:
             print "eraseAlbum", Exception
             traceback.print_exc()

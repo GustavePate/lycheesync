@@ -63,12 +63,13 @@ class LycheePhoto:
     sysdate = ""
     systime = ""
 
-    def __init__(self, conf, photoname, photopath, albumid):
+    def __init__(self, conf, photoname, album):
         # Parameters storage
         self.conf = conf
         self.originalname = photoname
-        self.originalpath = photopath
-        self.albumid = albumid
+        self.originalpath = album['path']
+        self.albumid = album['id']
+        self.albumname = album['name']
 
         # Compute Photo ID
         self.id = str(time.time())

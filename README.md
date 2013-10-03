@@ -27,7 +27,7 @@ On debian based Linux:
 
 Then retrieve the project:
 
-`git clone xxx`
+`git clone https://github.com/GustavePate/lycheesync`
 
 Finally, adjust the `conf.json` file to you use case.
 
@@ -56,6 +56,7 @@ publicAlbum and starPhoto should be set to 1 if you wan't to make public or star
 
 Given the following  source tree
 
+```text
 _srcdir
  |_album1
   |_a1p1.jpg
@@ -66,7 +67,7 @@ _srcdir
    |_a21p2.jpg
   |_album22
    |_a22p1.jpg
-
+```
 
 And this lychee prexisting structure
 

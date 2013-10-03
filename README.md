@@ -140,3 +140,7 @@ This project files are:
 * lycheedao: database operations
 * lycheemodel: a lychee photo representation, manage exif tag parsing too
 * conf.json: the configuration file
+
+# Licence
+
+[MIT License][./LICENSE]

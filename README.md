@@ -23,6 +23,7 @@ First you have to install the following dependencies:
 - git
 
 On debian based Linux:
+
 `sudo apt-get install python python-mysql python-imaging git`
 
 Then retrieve the project:
@@ -115,7 +116,11 @@ The resulting lychee structure will be:
 At the end of the scipt a few counters will be displayed in order to keep you informed of what have been done.
 
 ```text
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Directory scanned: /var/www/lychee/Lychee/dirsync/test/
+Created albums:  4
+9 photos imported on 10 discovered
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
 
 #  Advanced usage

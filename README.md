@@ -8,10 +8,10 @@ The program is simple it scans a directory for files and sub-directories:
 - files are imported in Lychee as photos
 
 You can choose between 3 behaviours:
-- *Lychee as a slave*: Lychee db is drop before each run `-d option`
-- *Lychee as a slave only for album in the source directories*: others albums existing in
+- **Lychee as a slave**: Lychee db is drop before each run `-d option`
+- **Lychee as a slave only for album in the source directories**: others albums existing in
   Lychee but not in the source directory will be kept `-r option`
-- *Keep existing Lychee albums and photos* The program will try to know if a photo in the
+- **Keep existing Lychee albums and photos** The program will try to know if a photo in the
   source directory has already been imported in Lychee and does nothing in this case, this is the default behaviour
 
 # Install

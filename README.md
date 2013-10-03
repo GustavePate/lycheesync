@@ -39,6 +39,8 @@ The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
 publicAlbum and starPhoto should be set to 1 if you wan't to make public or star all your photos.
 
+
+```json
 {
     "db":"lychee",
     "dbUser":"lychee",
@@ -48,6 +50,7 @@ publicAlbum and starPhoto should be set to 1 if you wan't to make public or star
     "publicAlbum": 0,
     "starPhoto": 0
 }
+```
 
 ## Run example
 

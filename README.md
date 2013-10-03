@@ -52,52 +52,9 @@ publicAlbum and starPhoto should be set to 1 if you wan't to make public or star
 }
 ```
 
-## Run example
-
-Given the following  source tree
-
-```text
-_srcdir
- |_album1
-  |_a1p1.jpg
-  |_a1p2.jpg
- |_album2
-  |_album21
-   |_a21p1.jpg
-   |_a21p2.jpg
-  |_album22
-   |_a22p1.jpg
-```
-
-And this lychee prexisting structure
-
-|_album1
- |_a1p1.jpg
- |_a1p3.jpg
-|_album3
- |_a3p1.jpg
-
-The resulting lychee structure will be
+## Command line parameters
 
 
-|_album1
- |_a1p1.jpg (won't be re-imported by default)
- |_a1p2.jpg
- |_a1p3.jpg
-|_album2_album21
-  |_a21p1.jpg
-  |_a21p2.jpg
-|_album2_album22
-  |_a22p1.jpg
-|_album3
- |_a3p1.jpg
-
-
-* counters
-
-#  Usage
-
-## Basic
 
 The basic usage is `python main.py srcdir lycheepath conf`
 
@@ -106,7 +63,62 @@ Where:
 - `lycheepath` is the path were you installed Lychee (usually /var/ww/lychee)
 - `conf` is the full path to your configuration file
 
-## Advanced
+## Explanation
+
+
+Given the following source tree:
+
+```text
+_srcdir
+    |_album1
+        |_a1p1.jpg
+        |_a1p2.jpg
+    |_album2
+        |_album21
+            |_a21p1.jpg
+            |_a21p2.jpg
+        |_album22
+            |_a22p1.jpg
+```
+
+And this lychee prexisting structure:
+
+```text
+|_album1
+    |_a1p1.jpg
+    |_a1p3.jpg
+|_album3
+    |_a3p1.jpg
+```
+
+Lychee doesn't support yet sub-albums so any sub-directory in your source directory will be flat-out
+The resulting lychee structure will be:
+
+
+```text
+|_album1
+    |_a1p1.jpg (won't be re-imported by default)
+    |_a1p2.jpg
+    |_a1p3.jpg
+|_album2_album21 (notice directory / subdirectory concatenation)
+    |_a21p1.jpg
+    |_a21p2.jpg
+|_album2_album22
+    |_a22p1.jpg
+|_album3
+    |_a3p1.jpg
+```
+
+
+## Counters
+
+At the end of the scipt a few counters will be displayed in order to keep you informed of what have been done.
+
+```text
+
+```
+
+#  Advanced usage
 
 You can choose between the following options to adjust the program behaviour:
 

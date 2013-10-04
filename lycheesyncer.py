@@ -78,8 +78,8 @@ class LycheeSyncer:
         """
         destimage = os.path.join(destinationpath, destfile)
         img = Image.open(photo.srcfullpath)
-        img.thumbnail(res)
-        img.save(destimage)
+        img.thumbnail(res, Image.ANTIALIAS)
+        img.save(destimage, quality=99)
         return destimage
 
     def makeThumbnail(self, photo):
@@ -142,6 +142,31 @@ class LycheeSyncer:
                 os.remove(thumbpath)
                 os.remove(thumb2path)
                 os.remove(bigpath)
+
+    def rotatephoto(self, photo, rotation):
+        # rotate main photo
+        img = Image.open(photo.destfullpath)
+        img2 = img.rotate(rotation)
+        img2.save(photo.destfullpath, quality=99)
+        # rotate Thumbnails
+        img = Image.open(photo.thumbnailx2fullpath)
+        img2 = img.rotate(rotation)
+        img2.save(photo.thumbnailx2fullpath, quality=99)
+        img = Image.open(photo.thumbnailfullpath)
+        img2.rotate(rotation)
+        img2.save(photo.thumbnailfullpath, quality=99)
+
+    def adjustRotation(self, photo):
+        """
+        Rotates photos according to the exif orienttaion tag
+        Returns nothing
+        """
+        if photo.exif.orientation not in (0, 1):
+            # There is somthing to do
+            if photo.exif.orientation == 6:
+                # rotate 90° clockwise
+                # AND LOOSE EXIF DATA
+                self.rotatephoto(photo, -90)
 
     def deleteAllFiles(self):
         """
@@ -222,6 +247,7 @@ class LycheeSyncer:
                             print "INFO: adding to lychee", os.path.join(root, f)
                         self.makeThumbnail(photo)
                         res = self.addFileToAlbum(photo)
+                        self.adjustRotation(photo)
                         #increment counter
                         if res:
                                 importedphotos += 1

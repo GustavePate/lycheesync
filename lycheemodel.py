@@ -21,6 +21,7 @@ class ExifData:
     focal = ""
     takedate = ""
     taketime = ""
+    orientation = 0
 
     def __str__(self):
         res = ""
@@ -32,6 +33,7 @@ class ExifData:
         res += "focal: " + str(self.focal) + "\n"
         res += "takedate: " + str(self.takedate) + "\n"
         res += "taketime: " + str(self.taketime) + "\n"
+        res += "orientation: " + str(self.orientation) + "\n"
         return res
 
 
@@ -109,7 +111,10 @@ class LycheePhoto:
                 if exifinfo is not None:
                     for tag, value in exifinfo.items():
                         decode = TAGS.get(tag, tag)
-
+                        #if decode != "MakerNote":
+                        #    print decode, value
+                        if decode == "Orientation":
+                            self.exif.orientation = value
                         if decode == "Make":
                             self.exif.make = value
                         if decode == "MaxApertureValue":

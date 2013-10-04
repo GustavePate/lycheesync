@@ -34,5 +34,6 @@ nosetests.xml
 .project
 .pydevproject
 
+exiftest.py
 myconf.json
 test/

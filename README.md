@@ -24,7 +24,8 @@ First you have to install the following dependencies:
 
 On debian based Linux:
 
-`sudo apt-get install python python-mysql python-imaging git`
+`sudo apt-get install imagemagick python python-mysql python-imaging git`
+
 
 Then retrieve the project:
 
@@ -143,6 +144,12 @@ This project files are:
 * lycheedao: database operations
 * lycheemodel: a lychee photo representation, manage exif tag parsing too
 * conf.json: the configuration file
+
+# Known limitation
+
+When a photo has an [exif orientation](http://sylvana.net/jpegcrop/exif_orientation.html) equals 6, which is produce by some cameras, the photo is rotated to display correctly on lychee.
+Thanks to PIL, all exif data is lost in the process :(
+
 
 # Licence
 

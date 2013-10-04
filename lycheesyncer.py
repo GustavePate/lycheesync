@@ -76,8 +76,23 @@ class LycheeSyncer:
         - destfile: the thumbnail filename
         Returns the fullpath of the thuumbnail
         """
+
+        if photo.width > photo.height:
+            delta = photo.width - photo.height
+            left = int(delta/2)
+            upper = 0
+            right = photo.height + left
+            lower = photo.height
+        else:
+            delta = photo.height - photo.width
+            left = 0
+            upper = int(delta/2)
+            right = photo.width
+            lower = photo.width + upper
+
         destimage = os.path.join(destinationpath, destfile)
         img = Image.open(photo.srcfullpath)
+        img = img.crop((left, upper, right, lower))
         img.thumbnail(res, Image.ANTIALIAS)
         img.save(destimage, quality=99)
         return destimage
@@ -167,6 +182,10 @@ class LycheeSyncer:
                 # rotate 90° clockwise
                 # AND LOOSE EXIF DATA
                 self.rotatephoto(photo, -90)
+            if photo.exif.orientation == 8:
+                # rotate 90° counterclockwise
+                # AND LOOSE EXIF DATA
+                self.rotatephoto(photo, 90)
 
     def deleteAllFiles(self):
         """

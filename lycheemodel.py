@@ -129,8 +129,10 @@ class LycheePhoto:
                             self.exif.shutter = value
                         if decode == "DateTime":
                             self.exif.takedate = value.split(" ")[0]
+                            self.sysdate = self.exif.takedate
                         if decode == "DateTime":
                             self.exif.taketime = value.split(" ")[1]
+                            self.systime = self.exif.taketime
         except IOError:
             print 'IOERROR ' + self.srcfullpath
 

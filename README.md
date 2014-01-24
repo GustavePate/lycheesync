@@ -39,7 +39,7 @@ Finally, adjust the `conf.json` file to you use case.
 
 The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
-publicAlbum and starPhoto should be set to 1 if you wan't to make public or star all your photos.
+publicAlbum and starPhoto should be set to 1 if you want to make public or star all your photos.
 
 
 ```json
@@ -61,7 +61,7 @@ publicAlbum and starPhoto should be set to 1 if you wan't to make public or star
 The basic usage is `python main.py srcdir lycheepath conf`
 
 Where:
-- `srcdir` is the directory containing photos you wan't to add to leeche
+- `srcdir` is the directory containing photos you want to add to leeche
 - `lycheepath` is the path were you installed Lychee (usually /var/ww/lychee)
 - `conf` is the full path to your configuration file
 
@@ -114,7 +114,7 @@ The resulting lychee structure will be:
 
 ## Counters
 
-At the end of the scipt a few counters will be displayed in order to keep you informed of what have been done.
+At the end of the script a few counters will be displayed in order to keep you informed of what have been done.
 
 ```text
 Directory scanned: /var/www/lychee/Lychee/dirsync/test/
@@ -128,14 +128,14 @@ You can choose between the following options to adjust the program behaviour:
 
 - `-v` **verbose mode**. A little more output
 - `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to
-  be imported album. The pre-existing album is removed before hand. Usefull if you wan't to have lychee in slave mode only for a few albums
+  be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
 - `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee
   a slave of another repository
 
 
 # Technical doc
 
-This code is pep8 compliant and well documented, if you wan't to contribute, thanks to
+This code is pep8 compliant and well documented, if you want to contribute, thanks to
 keep it this way.
 
 This project files are:
@@ -148,7 +148,7 @@ This project files are:
 # Known limitation
 
 When a photo has an [exif orientation](http://sylvana.net/jpegcrop/exif_orientation.html) equals 6, which is produce by some cameras, the photo is rotated to display correctly on lychee.
-Thanks to PIL, all exif data is lost in the process :(
+Due to PIL, all exif data is lost in the process :(
 
 
 # Licence

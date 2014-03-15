@@ -30,6 +30,81 @@ class LycheeDAO:
 
         self.loadAlbumList()
 
+    def getAlbumMinMaxIds(self):
+        """
+        returns min, max album ids
+        """
+        min_album_query = "select min(id) from lychee_albums"
+        max_album_query = "select max(id) from lychee_albums"
+        try:
+            min = -1
+            max = -1
+            cur = self.db.cursor()
+            cur.execute(min_album_query)
+            rows = cur.fetchall()
+            for row in rows:
+                min = row[0]
+
+            cur.execute(max_album_query)
+            rows = cur.fetchall()
+            for row in rows:
+                max = row[0]
+
+            if self.conf["verbose"]:
+                print "INFO min, max album id: ", min, " to ", max
+
+            res = min, max
+        except Exception:
+            res = -1, -1
+            print "getAlbumMinMaxIds", Exception
+            traceback.print_exc()
+        finally:
+            return res
+
+    def updateAlbumDate(self, albumid, newdate):
+        """
+        Update album date to an arbitrary date
+        """
+        res = True
+        qry = "update lychee_albums set sysdate= '" + str(newdate) + "' where id=" + str(albumid)
+        try:
+            cur = self.db.cursor()
+            cur.execute(qry)
+            self.db.commit()
+            if self.conf["verbose"]:
+                print "INFO album id sysdate changed to: ", newdate
+        except Exception:
+            res = False
+            print "updateAlbumDate", Exception
+            traceback.print_exc()
+        finally:
+            return res
+
+
+
+
+    def changeAlbumId(self, oldid, newid):
+        """
+        Change albums id based on album titles (to affect display order)
+        """
+        res = True
+        photo_query = "update lychee_photos set album = " + str(newid) + " where album = " + str(oldid)
+        album_query = "update lychee_albums set id = " + str(newid) + " where id = " + str(oldid)
+        try:
+            cur = self.db.cursor()
+            cur.execute(photo_query)
+            cur.execute(album_query)
+            self.db.commit()
+            if self.conf["verbose"]:
+                print "INFO album id changed: ", oldid, " to ", newid
+        except Exception:
+            res = False
+            print "changeAlbumId", Exception
+            print "ERROR album id changed: ", oldid, " to ", newid
+            traceback.print_exc()
+        finally:
+            return res
+
     def loadAlbumList(self):
         """
         retrieve all albums in a dictionnary key=title value=id
@@ -185,7 +260,7 @@ class LycheeDAO:
                           photo.size, photo.sysdate, photo.systime, self.conf["starPhoto"],
                           photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, photo.exif.takedate,
-                          photo.exif.taketime, photo.originalname, '', '')
+                          photo.exif.taketime, photo.originalname, photo.description, '')
         #print query
 
         try:
@@ -198,6 +273,21 @@ class LycheeDAO:
             res = False
         finally:
             return res
+
+
+    def reinitAlbumAutoIncrement(self):
+
+        min, max = self.getAlbumMinMaxIds()
+        qry = "alter table lychee_albums AUTO_INCREMENT=" + str(max+1)
+        try:
+            cur = self.db.cursor()
+            cur.execute(qry)
+            self.db.commit()
+            if self.conf['verbose']:
+                print "INFO: reinit auto increment to", str(max+1)
+        except Exception:
+            print "reinitAlbumAutoIncrement", Exception
+            traceback.print_exc()
 
     def close(self):
         """

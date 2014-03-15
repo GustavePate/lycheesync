@@ -145,11 +145,17 @@ This project files are:
 * lycheemodel: a lychee photo representation, manage exif tag parsing too
 * conf.json: the configuration file
 
-# Known limitation
+# Changelog
 
-When a photo has an [exif orientation](http://sylvana.net/jpegcrop/exif_orientation.html) equals 6, which is produce by some cameras, the photo is rotated to display correctly on lychee.
-Thanks to PIL, all exif data is lost in the process :(
+## v1.0
+- initial version
 
+## v1.1
+- added suport for lychee 2.1
+- removed exif orientation support (fixed in lychee 2.0)
+- added takedate and taketime in photo description in order to be able to use the sort by description functionality of lychee 2.0
+- albums display order is "sorted by name"
+- album date is now the max takedate/taketime of its photos if exif data exists (if no, import date is used)
 
 # Licence
 

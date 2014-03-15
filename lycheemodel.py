@@ -13,13 +13,24 @@ class ExifData:
     Use to store ExifData
     """
 
+    @property
+    def takedate(self):
+        """I'm the 'x' property."""
+        #print "ROOOOOOHHHHHHHHHHHHHHHHHHHHHHH"
+        return self._takedate.replace(':', '-')
+
+    @takedate.setter
+    def takedate(self, value):
+        #print "RAHHHHHHHHHHHHHHHHHHHHHHH"
+        self._takedate = value.replace(':', '-')
+
     iso = ""
     aperture = ""
     make = ""
     model = ""
     shutter = ""
     focal = ""
-    takedate = ""
+    _takedate = ""
     taketime = ""
     orientation = 0
 
@@ -31,6 +42,7 @@ class ExifData:
         res += "model: " + str(self.model) + "\n"
         res += "shutter: " + str(self.shutter) + "\n"
         res += "focal: " + str(self.focal) + "\n"
+        res += "_takedate: " + str(self._takedate) + "\n"
         res += "takedate: " + str(self.takedate) + "\n"
         res += "taketime: " + str(self.taketime) + "\n"
         res += "orientation: " + str(self.orientation) + "\n"
@@ -111,6 +123,7 @@ class LycheePhoto:
                 if exifinfo is not None:
                     for tag, value in exifinfo.items():
                         decode = TAGS.get(tag, tag)
+                        #print tag, decode, value
                         #if decode != "MakerNote":
                         #    print decode, value
                         if decode == "Orientation":
@@ -128,11 +141,12 @@ class LycheePhoto:
                         if decode == "ExposureTime":
                             self.exif.shutter = value
                         if decode == "DateTime":
-                            self.exif.takedate = value.split(" ")[0]
+                            self.exif._takedate = value.split(" ")[0]
                             self.sysdate = self.exif.takedate
                         if decode == "DateTime":
                             self.exif.taketime = value.split(" ")[1]
                             self.systime = self.exif.taketime
+                    self.description = self.sysdate + " " + self.systime
         except IOError:
             print 'IOERROR ' + self.srcfullpath
 

@@ -187,6 +187,34 @@ class LycheeSyncer:
                 # AND LOOSE EXIF DATA
                 self.rotatephoto(photo, 90)
 
+    def reorderalbumids(self, albums):
+
+        # sort albums by title
+        def getName(album):
+            return album['name']
+
+        sortedalbums = sorted(albums, key=getName)
+
+        # count albums
+        nbalbum = len(albums)
+        # get higher album id + 1 as a first new album id
+        min, max = self.dao.getAlbumMinMaxIds()
+
+        if nbalbum+1 < min:
+            newid = 1
+        else:
+            newid = max + 1
+
+        for a in sortedalbums:
+            self.dao.changeAlbumId(a['id'], newid)
+            newid = newid + 1
+
+    def updateAlbumsDate(self, albums):
+
+        for a in albums:
+            maxdate = max(photo.sysdate for photo in a['photos'])
+            self.dao.updateAlbumDate(a['id'], maxdate.replace(':','-'))
+
     def deleteAllFiles(self):
         """
         Deletes every photo file in Lychee
@@ -218,6 +246,7 @@ class LycheeSyncer:
         discoveredphotos = 0
         importedphotos = 0
         album = {}
+        albums = []
         #walkthroug each file / dir of the srcdir
         for root, dirs, files in os.walk(self.conf['srcdir']):
 
@@ -226,6 +255,7 @@ class LycheeSyncer:
             album['name'] = None
             album['path'] = None
             album['relpath'] = None  # path relative to srcdir
+            album['photos'] = []  # path relative to srcdir
 
             # if a there is at least one photo in the files
             if any([self.isAPhoto(f) for f in files]):
@@ -254,32 +284,39 @@ class LycheeSyncer:
                         filelist = self.dao.eraseAlbum(album)
                         self.deleteFiles(filelist)
 
-            # Albums are created or emptied, now take care of photos
-            for f in files:
-                if self.isAPhoto(f):
+                    # Albums are created or emptied, now take care of photos
+                    for f in files:
+                        if self.isAPhoto(f):
 
-                    discoveredphotos += 1
-                    photo = LycheePhoto(self.conf, f, album)
+                            discoveredphotos += 1
+                            photo = LycheePhoto(self.conf, f, album)
 
-                    if not(self.dao.photoExists(photo)):
-                        if self.conf['verbose']:
-                            print "INFO: adding to lychee", os.path.join(root, f)
-                        self.makeThumbnail(photo)
-                        res = self.addFileToAlbum(photo)
-                        self.adjustRotation(photo)
-                        #increment counter
-                        if res:
-                                importedphotos += 1
-                        #report
-                        if self.conf['verbose']:
-                            if res:
-                                print "INFO: successfully added to lychee", os.path.join(root, f)
+                            if not(self.dao.photoExists(photo)):
+                                if self.conf['verbose']:
+                                    print "INFO: adding to lychee", os.path.join(root, f)
+                                self.makeThumbnail(photo)
+                                res = self.addFileToAlbum(photo)
+                                #self.adjustRotation(photo)
+                                #increment counter
+                                if res:
+                                        importedphotos += 1
+                                #report
+                                if self.conf['verbose']:
+                                    if res:
+                                        album['photos'].append(photo)
+                                        print "INFO: successfully added to lychee", os.path.join(root, f)
+                                    else:
+                                        print "ERROR: while adding to lychee", os.path.join(root, f)
                             else:
-                                print "ERROR: while adding to lychee", os.path.join(root, f)
-                    else:
-                        if self.conf['verbose']:
-                            print "WARN: photo already exists in lychee: ", photo.srcfullpath
+                                if self.conf['verbose']:
+                                    print "WARN: photo already exists in lychee: ", photo.srcfullpath
 
+                    a = album.copy()
+                    albums.append(a)
+
+        self.updateAlbumsDate(albums)
+        self.reorderalbumids(albums)
+        self.dao.reinitAlbumAutoIncrement()
         self.dao.close()
 
         # Final report

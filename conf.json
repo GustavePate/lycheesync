@@ -4,6 +4,5 @@
     "dbPassword":"cheely",
     "dbHost":"localhost",
     "thumbQuality":80,
-    "publicAlbum": 0,
-    "starPhoto": 0
+    "publicAlbum": 0
 }

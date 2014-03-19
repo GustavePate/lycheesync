@@ -1,7 +1,9 @@
 # Changelog
 
-## v1.0
-- initial version
+## v1.2
+- added exif orienattion support which was not really fixed in luchee 2.0 ;)
+- a photo containing 'star' or 'cover' in its file namewill be automatically starred, thus making it the album cover
+- photo titles now equals original filenames
 
 ## v1.1
 - added suport for lychee 2.1
@@ -9,6 +11,9 @@
 - added takedate and taketime in photo description in order to be able to use the sort by description functionality of lychee 2.0
 - albums display order is "sorted by name"
 - album date is now the max takedate/taketime of its photos if exif data exists (if no, import date is used)
+
+## v1.0
+- initial version
 
 # Context
 
@@ -51,7 +56,7 @@ Finally, adjust the `conf.json` file to you use case.
 
 The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
-publicAlbum and starPhoto should be set to 1 if you want to make public or star all your photos.
+publicAlbum should be set to 1 if you want to make public all your photos.
 
 
 ```json
@@ -61,13 +66,11 @@ publicAlbum and starPhoto should be set to 1 if you want to make public or star 
     "dbPassword":"cheely",
     "dbHost":"localhost",
     "thumbQuality":80,
-    "publicAlbum": 0,
-    "starPhoto": 0
+    "publicAlbum": 0
 }
 ```
 
 ## Command line parameters
-
 
 
 The basic usage is `python main.py srcdir lycheepath conf`
@@ -79,6 +82,7 @@ Where:
 
 ## Explanation
 
+The default mod is a **merge** mode.
 
 Given the following source tree:
 

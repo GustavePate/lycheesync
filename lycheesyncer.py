@@ -296,7 +296,7 @@ class LycheeSyncer:
                                     print "INFO: adding to lychee", os.path.join(root, f)
                                 self.makeThumbnail(photo)
                                 res = self.addFileToAlbum(photo)
-                                #self.adjustRotation(photo)
+                                self.adjustRotation(photo)
                                 #increment counter
                                 if res:
                                         importedphotos += 1
@@ -304,7 +304,6 @@ class LycheeSyncer:
                                 if self.conf['verbose']:
                                     if res:
                                         album['photos'].append(photo)
-                                        print "INFO: successfully added to lychee", os.path.join(root, f)
                                     else:
                                         print "ERROR: while adding to lychee", os.path.join(root, f)
                             else:

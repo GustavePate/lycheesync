@@ -257,10 +257,10 @@ class LycheeDAO:
                  "'{}', '{}', '{}', '{}', " +
                  "'{}', '{}', '{}', '{}')"
                  ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
-                          photo.size, photo.sysdate, photo.systime, self.conf["starPhoto"],
+                          photo.size, photo.sysdate, photo.systime, photo.star,
                           photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, photo.exif.takedate,
-                          photo.exif.taketime, photo.originalname, photo.description, '')
+                          photo.exif.taketime, photo.originalname, photo.description, photo.originalname)
         #print query
 
         try:

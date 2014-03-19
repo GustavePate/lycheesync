@@ -71,7 +71,6 @@ if __name__ == '__main__':
         print "* dbPassword:" + conf_data['dbPassword']
         print "* thumbQuality:" + str(conf_data['thumbQuality'])
         print "* publicAlbum:" + str(conf_data['publicAlbum'])
-        print "* starPhoto:" + str(conf_data['starPhoto'])
         print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     if shouldquit:

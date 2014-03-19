@@ -85,6 +85,10 @@ class LycheePhoto:
         self.albumid = album['id']
         self.albumname = album['name']
 
+        # if star in file name, photo is starred
+        if ('star' in self.originalname) or ('cover' in self.originalname):
+            self.star = 1
+
         # Compute Photo ID
         self.id = str(time.time())
         self.id = self.id.replace('.', '')

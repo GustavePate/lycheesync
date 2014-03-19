@@ -1,8 +1,8 @@
 # Changelog
 
 ## v1.2
-- added exif orienattion support which was not really fixed in luchee 2.0 ;)
-- a photo containing 'star' or 'cover' in its file namewill be automatically starred, thus making it the album cover
+- added exif orientation support which was not totally fixed in luchee 2.0 ;)
+- a photo containing 'star' or 'cover' in its filename will be automatically starred, thus making it the album cover
 - photo titles now equals original filenames
 
 ## v1.1

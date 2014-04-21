@@ -9,6 +9,7 @@ from PIL import Image
 
 
 class LycheeSyncer:
+
     """
     This class contains the logic behind this program
     It consist mainly in filesystem operations
@@ -31,9 +32,9 @@ class LycheeSyncer:
         Takes an album properties list  as input. At least the path sould be specified (relative albumpath)
         Returns a string, the lychee album name
         """
-        #make a list with directory and sub dirs
+        # make a list with directory and sub dirs
         path = album['relpath'].split(os.sep)
-        #join the rest: no subfolders in lychee yet
+        # join the rest: no subfolders in lychee yet
         album['name'] = "_".join(path).lower()
         return album['name']
 
@@ -79,14 +80,14 @@ class LycheeSyncer:
 
         if photo.width > photo.height:
             delta = photo.width - photo.height
-            left = int(delta/2)
+            left = int(delta / 2)
             upper = 0
             right = photo.height + left
             lower = photo.height
         else:
             delta = photo.height - photo.width
             left = 0
-            upper = int(delta/2)
+            upper = int(delta / 2)
             right = photo.width
             lower = photo.width + upper
 
@@ -105,14 +106,14 @@ class LycheeSyncer:
         - photo: a valid LycheePhoto object
         returns nothing
         """
-        #set  thumbnail size
+        # set  thumbnail size
         sizes = [(200, 200), (400, 400)]
-        #insert @2x in big thumbnail file name
+        # insert @2x in big thumbnail file name
         filesplit = os.path.splitext(photo.url)
         destfiles = [photo.url, ''.join([filesplit[0], "@2x", filesplit[1]]).lower()]
-        #compute destination path
+        # compute destination path
         destpath = os.path.join(self.conf["lycheepath"], "uploads", "thumb")
-        #make thumbnails
+        # make thumbnails
         photo.thumbnailfullpath = self.thumbIt(sizes[0], photo, destpath, destfiles[0])
         photo.thumbnailx2fullpath = self.thumbIt(sizes[1], photo, destpath, destfiles[1])
 
@@ -126,7 +127,7 @@ class LycheeSyncer:
         res = False
 
         try:
-            #copy photo
+            # copy photo
             shutil.copy(photo.srcfullpath, photo.destfullpath)
             res = self.dao.addFileToAlbum(photo)
 
@@ -200,7 +201,7 @@ class LycheeSyncer:
         # get higher album id + 1 as a first new album id
         min, max = self.dao.getAlbumMinMaxIds()
 
-        if nbalbum+1 < min:
+        if nbalbum + 1 < min:
             newid = 1
         else:
             newid = max + 1
@@ -213,7 +214,7 @@ class LycheeSyncer:
 
         for a in albums:
             maxdate = max(photo.sysdate for photo in a['photos'])
-            self.dao.updateAlbumDate(a['id'], maxdate.replace(':','-'))
+            self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
 
     def deleteAllFiles(self):
         """
@@ -233,21 +234,21 @@ class LycheeSyncer:
         Returns nothing
         """
 
-        #Connect db
-        #and drop it if dropdb activated
+        # Connect db
+        # and drop it if dropdb activated
         self.dao = LycheeDAO(self.conf)
 
         if self.conf['dropdb']:
             self.deleteAllFiles()
 
-        #Load db
+        # Load db
 
         createdalbums = 0
         discoveredphotos = 0
         importedphotos = 0
         album = {}
         albums = []
-        #walkthroug each file / dir of the srcdir
+        # walkthroug each file / dir of the srcdir
         for root, dirs, files in os.walk(self.conf['srcdir']):
 
             # Init album data
@@ -259,59 +260,59 @@ class LycheeSyncer:
 
             # if a there is at least one photo in the files
             if any([self.isAPhoto(f) for f in files]):
-                    album['path'] = root
+                album['path'] = root
 
-                    # don't know what to do with theses photo
-                    # and don't wan't to create a default album
-                    if album['path'] == self.conf['srcdir']:
-                        msg = ("WARN: file at srcdir root won't be added to lychee, " +
-                               "please move them in a subfolder"), os.path.join(root, f)
-                        print msg
-                        continue
+                # don't know what to do with theses photo
+                # and don't wan't to create a default album
+                if album['path'] == self.conf['srcdir']:
+                    msg = ("WARN: file at srcdir root won't be added to lychee, " +
+                           "please move them in a subfolder"), os.path.join(root, f)
+                    print msg
+                    continue
 
-                    # Fill in other album properties
-                    # albumnames start at srcdir (to avoid absolute path albumname)
-                    album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
-                    album['name'] = self.getAlbumNameFromPath(album)
-                    album['id'] = self.dao.albumExists(album)
+                # Fill in other album properties
+                # albumnames start at srcdir (to avoid absolute path albumname)
+                album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
+                album['name'] = self.getAlbumNameFromPath(album)
+                album['id'] = self.dao.albumExists(album)
 
-                    if not(album['id']):
-                        #create album
-                        album['id'] = self.createAlbum(album)
-                        createdalbums += 1
-                    elif self.conf['replace']:
-                        #drop album photos
-                        filelist = self.dao.eraseAlbum(album)
-                        self.deleteFiles(filelist)
+                if not(album['id']):
+                    # create album
+                    album['id'] = self.createAlbum(album)
+                    createdalbums += 1
+                elif self.conf['replace']:
+                    # drop album photos
+                    filelist = self.dao.eraseAlbum(album)
+                    self.deleteFiles(filelist)
 
-                    # Albums are created or emptied, now take care of photos
-                    for f in files:
-                        if self.isAPhoto(f):
+                # Albums are created or emptied, now take care of photos
+                for f in files:
+                    if self.isAPhoto(f):
 
-                            discoveredphotos += 1
-                            photo = LycheePhoto(self.conf, f, album)
+                        discoveredphotos += 1
+                        photo = LycheePhoto(self.conf, f, album)
 
-                            if not(self.dao.photoExists(photo)):
-                                if self.conf['verbose']:
-                                    print "INFO: adding to lychee", os.path.join(root, f)
-                                self.makeThumbnail(photo)
-                                res = self.addFileToAlbum(photo)
-                                self.adjustRotation(photo)
-                                #increment counter
+                        if not(self.dao.photoExists(photo)):
+                            if self.conf['verbose']:
+                                print "INFO: adding to lychee", os.path.join(root, f)
+                            self.makeThumbnail(photo)
+                            res = self.addFileToAlbum(photo)
+                            self.adjustRotation(photo)
+                            # increment counter
+                            if res:
+                                importedphotos += 1
+                            # report
+                            if self.conf['verbose']:
                                 if res:
-                                        importedphotos += 1
-                                #report
-                                if self.conf['verbose']:
-                                    if res:
-                                        album['photos'].append(photo)
-                                    else:
-                                        print "ERROR: while adding to lychee", os.path.join(root, f)
-                            else:
-                                if self.conf['verbose']:
-                                    print "WARN: photo already exists in lychee: ", photo.srcfullpath
+                                    album['photos'].append(photo)
+                                else:
+                                    print "ERROR: while adding to lychee", os.path.join(root, f)
+                        else:
+                            if self.conf['verbose']:
+                                print "WARN: photo already exists in lychee: ", photo.srcfullpath
 
-                    a = album.copy()
-                    albums.append(a)
+                a = album.copy()
+                albums.append(a)
 
         self.updateAlbumsDate(albums)
         self.reorderalbumids(albums)
@@ -322,5 +323,5 @@ class LycheeSyncer:
         print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         print "Directory scanned:", self.conf['srcdir']
         print "Created albums: ", str(createdalbums)
-        print str(importedphotos), "photos imported on",  str(discoveredphotos), "discovered"
+        print str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
         print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

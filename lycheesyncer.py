@@ -212,9 +212,10 @@ class LycheeSyncer:
 
     def updateAlbumsDate(self, albums):
 
-        for a in albums:
+        if len(a['photos']) > 0:
             maxdate = max(photo.sysdate for photo in a['photos'])
             self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
+
 
     def deleteAllFiles(self):
         """

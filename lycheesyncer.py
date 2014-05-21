@@ -211,10 +211,14 @@ class LycheeSyncer:
             newid = newid + 1
 
     def updateAlbumsDate(self, albums):
-
         for a in albums:
-            maxdate = max(photo.sysdate for photo in a['photos'])
-            self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
+            try:
+                datelist = [photo.sysdate for photo in a['photos']]
+                if datelist is not None and len(datelist) > 0:
+                    maxdate = max(datelist)
+                    self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
+            except Exception, e:
+                print "ERROR: updating album date for album:" + a['name'], e
 
     def deleteAllFiles(self):
         """

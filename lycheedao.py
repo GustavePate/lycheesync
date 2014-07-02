@@ -143,8 +143,8 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album=" + str(photo.albumid) +
-                     " and import_name = '" + photo.originalname + "'")
+            query = ("select * from lychee_photos where album='" + str(photo.albumid) +
+                     "' and title = '" + photo.originalname + "'")
             cur = self.db.cursor()
             cur.execute(query)
             row = cur.fetchall()

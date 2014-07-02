@@ -41,7 +41,7 @@ First you have to install the following dependencies:
 
 On debian based Linux:
 
-`sudo apt-get install imagemagick python python-mysql python-imaging git`
+`sudo apt-get install imagemagick python python-mysqldb python-imaging git`
 
 
 Then retrieve the project:

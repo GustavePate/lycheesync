@@ -3,7 +3,7 @@
 import MySQLdb
 import datetime
 import traceback
-
+from dateutil.parser import parse
 
 class LycheeDAO:
     """
@@ -66,13 +66,13 @@ class LycheeDAO:
         Update album date to an arbitrary date
         """
         res = True
-        qry = "update lychee_albums set sysdate= '" + str(newdate) + "' where id=" + str(albumid)
+        qry = "update lychee_albums set sysstamp= '" + newdate.strftime('%s') + "' where id=" + str(albumid)
         try:
             cur = self.db.cursor()
             cur.execute(qry)
             self.db.commit()
             if self.conf["verbose"]:
-                print "INFO album id sysdate changed to: ", newdate
+                print "INFO album id sysstamp changed to: ", newdate
         except Exception:
             res = False
             print "updateAlbumDate", Exception
@@ -143,8 +143,8 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album=" + str(photo.albumid) +
-                     " and import_name = '" + photo.originalname + "'")
+            query = ("select * from lychee_photos where album='" + str(photo.albumid) +
+                     "' and title = '" + photo.originalname + "'")
             cur = self.db.cursor()
             cur.execute(query)
             row = cur.fetchall()
@@ -166,8 +166,8 @@ class LycheeDAO:
         Returns the created albumid or None
         """
         album['id'] = None
-        query = ("insert into lychee_albums (title, sysdate, public, password) values ('" +
-                 album['name'] + "','" + datetime.date.today().isoformat() + "'," +
+        query = ("insert into lychee_albums (title, sysstamp, public, password) values ('" +
+                 album['name'] + "','" + datetime.datetime.now().strftime('%s') + "'," +
                  str(self.conf["publicAlbum"]) + ", NULL)")
         try:
             cur = self.db.cursor()
@@ -244,23 +244,29 @@ class LycheeDAO:
         """
         res = True
         #print photo
+        try:
+            stamp = parse(photo.exif.takedate + ' ' + photo.exif.taketime).strftime('%s')
+        except Exception:
+            stamp = datetime.datetime.now().strftime('%s')
+
+        sysstamp = parse(photo.sysdate + ' ' + photo.systime).strftime('%s')
         query = ("insert into lychee_photos " +
                  "(id, url, public, type, width, height, " +
-                 "size,  sysdate, systime, star, " +
+                 "size, star, " +
                  "thumbUrl, album,iso, aperture, make, " +
-                 "model, shutter, focal, takedate, " +
-                 "taketime, import_name, description, title) " +
+                 "model, shutter, focal, takestamp, " +
+                 "description, title) " +
                  "values " +
-                 "({}, '{}', {}, '{}' ,{}, {}, " +
-                 "'{}','{}', '{}', {}, " +
-                 "'{}',{}, '{}','{}','{}', " +
+                 "({}, '{}', {}, '{}', {}, {}, " +
+                 "'{}', {}, " +
+                 "'{}', '{}', '{}', '{}', '{}', " +
                  "'{}', '{}', '{}', '{}', " +
-                 "'{}', '{}', '{}', '{}')"
-                 ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
-                          photo.size, photo.sysdate, photo.systime, photo.star,
+                 "'{}', '{}')"
+                 ).format(sysstamp, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
+                          photo.size, photo.star,
                           photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
-                          photo.exif.model, photo.exif.shutter, photo.exif.focal, photo.exif.takedate,
-                          photo.exif.taketime, photo.originalname, photo.description, photo.originalname)
+                          photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
+                          photo.description, photo.originalname)
         #print query
 
         try:

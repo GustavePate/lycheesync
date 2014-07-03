@@ -66,13 +66,13 @@ class LycheeDAO:
         Update album date to an arbitrary date
         """
         res = True
-        qry = "update lychee_albums set sysdate= '" + str(newdate) + "' where id=" + str(albumid)
+        qry = "update lychee_albums set sysstamp= '" + newdate.strftime('%s') + "' where id=" + str(albumid)
         try:
             cur = self.db.cursor()
             cur.execute(qry)
             self.db.commit()
             if self.conf["verbose"]:
-                print "INFO album id sysdate changed to: ", newdate
+                print "INFO album id sysstamp changed to: ", newdate
         except Exception:
             res = False
             print "updateAlbumDate", Exception

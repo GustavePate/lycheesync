@@ -5,7 +5,9 @@ import datetime
 import traceback
 from dateutil.parser import parse
 
+
 class LycheeDAO:
+
     """
     Implements linking with Lychee DB
     """
@@ -80,9 +82,6 @@ class LycheeDAO:
         finally:
             return res
 
-
-
-
     def changeAlbumId(self, oldid, newid):
         """
         Change albums id based on album titles (to affect display order)
@@ -111,7 +110,7 @@ class LycheeDAO:
         and put them in self.albumslist
         returns self.albumlist
         """
-        #Load album list
+        # Load album list
         cur = self.db.cursor()
         cur.execute("SELECT title,id from lychee_albums")
         rows = cur.fetchall()
@@ -174,7 +173,6 @@ class LycheeDAO:
             cur.execute(query)
             self.db.commit()
 
-            #cur.execute(query, (name, self.conf["publicAlbum"]))
             query = "select id from lychee_albums where title='" + album['name'] + "'"
             cur.execute(query)
             row = cur.fetchone()
@@ -243,13 +241,12 @@ class LycheeDAO:
         Returns a boolean
         """
         res = True
-        #print photo
+        # print photo
         try:
             stamp = parse(photo.exif.takedate + ' ' + photo.exif.taketime).strftime('%s')
         except Exception:
             stamp = datetime.datetime.now().strftime('%s')
 
-        sysstamp = parse(photo.sysdate + ' ' + photo.systime).strftime('%s')
         query = ("insert into lychee_photos " +
                  "(id, url, public, type, width, height, " +
                  "size, star, " +
@@ -262,12 +259,12 @@ class LycheeDAO:
                  "'{}', '{}', '{}', '{}', '{}', " +
                  "'{}', '{}', '{}', '{}', " +
                  "'{}', '{}')"
-                 ).format(sysstamp, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
+                 ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
                           photo.size, photo.star,
                           photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
                           photo.description, photo.originalname)
-        #print query
+        # print query
 
         try:
             cur = self.db.cursor()
@@ -280,17 +277,16 @@ class LycheeDAO:
         finally:
             return res
 
-
     def reinitAlbumAutoIncrement(self):
 
         min, max = self.getAlbumMinMaxIds()
-        qry = "alter table lychee_albums AUTO_INCREMENT=" + str(max+1)
+        qry = "alter table lychee_albums AUTO_INCREMENT=" + str(max + 1)
         try:
             cur = self.db.cursor()
             cur.execute(qry)
             self.db.commit()
             if self.conf['verbose']:
-                print "INFO: reinit auto increment to", str(max+1)
+                print "INFO: reinit auto increment to", str(max + 1)
         except Exception:
             print "reinitAlbumAutoIncrement", Exception
             traceback.print_exc()

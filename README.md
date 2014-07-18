@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3
+- lychee 2.5 support
+
+
 ## v1.2
 - added exif orientation support which was not totally fixed in luchee 2.0 ;)
 - a photo containing 'star' or 'cover' in its filename will be automatically starred, thus making it the album cover

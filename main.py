@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.conf):
         shouldquit = True
-        print "configuration file  does not exist:" + args.conf
+        print "configuration file does not exist:" + args.conf
     else:
 
         conf_file = open(args.conf, 'r')

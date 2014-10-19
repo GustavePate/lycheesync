@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6
+- change versioning to match lychee's
+- lychee 2.6 support
+- fixed some permission problem: give the photo files the same group and owner than lychee uploads directory + rwx permission for group and user
+- update mode to fix problem experienced by those who used lycheesync with a lychee 2.6 before this version
+`python main.py srcdir lycheepath conf -u`
+
 ## v1.3
 - lychee 2.5 support
 

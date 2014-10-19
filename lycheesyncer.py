@@ -133,7 +133,6 @@ class LycheeSyncer:
             # adjust right (chmod/chown)
             os.chown(photo.destfullpath, self.conf['uid'], self.conf['gid'])
             st = os.stat(photo.destfullpath)
-            print 'addFileToAlbum: ' + photo.destfullpath
             os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
             res = self.dao.addFileToAlbum(photo)
 

@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import stat
 import traceback
 from lycheedao import LycheeDAO
 from lycheemodel import LycheePhoto
@@ -129,6 +130,11 @@ class LycheeSyncer:
         try:
             # copy photo
             shutil.copy(photo.srcfullpath, photo.destfullpath)
+            # adjust right (chmod/chown)
+            os.chown(photo.destfullpath, self.conf['uid'], self.conf['gid'])
+            st = os.stat(photo.destfullpath)
+            print 'addFileToAlbum: ' + photo.destfullpath
+            os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
             res = self.dao.addFileToAlbum(photo)
 
         except Exception:

@@ -252,18 +252,18 @@ class LycheeDAO:
                  "size, star, " +
                  "thumbUrl, album,iso, aperture, make, " +
                  "model, shutter, focal, takestamp, " +
-                 "description, title) " +
+                 "description, title, checksum) " +
                  "values " +
                  "({}, '{}', {}, '{}', {}, {}, " +
                  "'{}', {}, " +
                  "'{}', '{}', '{}', '{}', '{}', " +
                  "'{}', '{}', '{}', '{}', " +
-                 "'{}', '{}')"
+                 "'{}', '{}', '{}')"
                  ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
                           photo.size, photo.star,
                           photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
-                          photo.description, photo.originalname)
+                          photo.description, photo.originalname, photo.checksum)
         # print query
 
         try:

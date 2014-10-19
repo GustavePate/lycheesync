@@ -9,6 +9,7 @@ import datetime
 
 
 class ExifData:
+
     """
     Use to store ExifData
     """
@@ -16,12 +17,10 @@ class ExifData:
     @property
     def takedate(self):
         """I'm the 'x' property."""
-        #print "ROOOOOOHHHHHHHHHHHHHHHHHHHHHHH"
         return self._takedate.replace(':', '-')
 
     @takedate.setter
     def takedate(self, value):
-        #print "RAHHHHHHHHHHHHHHHHHHHHHHH"
         self._takedate = value.replace(':', '-')
 
     iso = ""
@@ -50,6 +49,7 @@ class ExifData:
 
 
 class LycheePhoto:
+
     """
     Use to store photo data
     """
@@ -76,6 +76,14 @@ class LycheePhoto:
     exif = None
     sysdate = ""
     systime = ""
+    checksum = ""
+
+    # Compute checksum
+    def __generateHash(self):
+        sha1 = hashlib.sha1()
+        with open(self.srcfullpath, 'rb') as f:
+            sha1.update(f.read())
+            self.checksum = sha1.hexdigest()
 
     def __init__(self, conf, photoname, album):
         # Parameters storage
@@ -107,12 +115,15 @@ class LycheePhoto:
         self.srcfullpath = os.path.join(self.originalpath, self.originalname)
         self.destfullpath = os.path.join(self.conf["lycheepath"], "uploads", "big", self.url)
 
-        #thumbnails already in place (see makeThumbnail)
+        # Generate file checksum
+        self.__generateHash()
+
+        # thumbnails already in place (see makeThumbnail)
 
         # Auto file some properties
         self.type = mimetypes.guess_type(self.originalname, False)[0]
         self.size = os.path.getsize(self.srcfullpath)
-        self.size = str(self.size/1024) + " KB"
+        self.size = str(self.size / 1024) + " KB"
         self.sysdate = datetime.date.today().isoformat()
         self.systime = datetime.datetime.now().strftime('%H:%M:%S')
 
@@ -127,8 +138,8 @@ class LycheePhoto:
                 if exifinfo is not None:
                     for tag, value in exifinfo.items():
                         decode = TAGS.get(tag, tag)
-                        #print tag, decode, value
-                        #if decode != "MakerNote":
+                        # print tag, decode, value
+                        # if decode != "MakerNote":
                         #    print decode, value
                         if decode == "Orientation":
                             self.exif.orientation = value
@@ -155,27 +166,28 @@ class LycheePhoto:
             print 'IOERROR ' + self.srcfullpath
 
     def __str__(self):
-            res = ""
-            res += "originalname:" + str(self.originalname) + "\n"
-            res += "originalpath:" + str(self.originalpath) + "\n"
-            res += "id:" + str(self.id) + "\n"
-            res += "albumname:" + str(self.albumname) + "\n"
-            res += "albumid:" + str(self.albumid) + "\n"
-            res += "thumbnailfullpath:" + str(self.thumbnailfullpath) + "\n"
-            res += "thumbnailx2fullpath:" + str(self.thumbnailx2fullpath) + "\n"
-            res += "title:" + str(self.title) + "\n"
-            res += "description:" + str(self.description) + "\n"
-            res += "url:" + str(self.url) + "\n"
-            res += "public:" + str(self.public) + "\n"
-            res += "type:" + str(self.type) + "\n"
-            res += "width:" + str(self.width) + "\n"
-            res += "height:" + str(self.height) + "\n"
-            res += "size:" + str(self.size) + "\n"
-            res += "star:" + str(self.star) + "\n"
-            res += "thumbUrl:" + str(self.thumbUrl) + "\n"
-            res += "srcfullpath:" + str(self.srcfullpath) + "\n"
-            res += "destfullpath:" + str(self.destfullpath) + "\n"
-            res += "sysdate:" + self.sysdate + "\n"
-            res += "systime:" + self.systime + "\n"
-            res += "Exif: \n" + str(self.exif) + "\n"
-            return res
+        res = ""
+        res += "originalname:" + str(self.originalname) + "\n"
+        res += "originalpath:" + str(self.originalpath) + "\n"
+        res += "id:" + str(self.id) + "\n"
+        res += "albumname:" + str(self.albumname) + "\n"
+        res += "albumid:" + str(self.albumid) + "\n"
+        res += "thumbnailfullpath:" + str(self.thumbnailfullpath) + "\n"
+        res += "thumbnailx2fullpath:" + str(self.thumbnailx2fullpath) + "\n"
+        res += "title:" + str(self.title) + "\n"
+        res += "description:" + str(self.description) + "\n"
+        res += "url:" + str(self.url) + "\n"
+        res += "public:" + str(self.public) + "\n"
+        res += "type:" + str(self.type) + "\n"
+        res += "width:" + str(self.width) + "\n"
+        res += "height:" + str(self.height) + "\n"
+        res += "size:" + str(self.size) + "\n"
+        res += "star:" + str(self.star) + "\n"
+        res += "thumbUrl:" + str(self.thumbUrl) + "\n"
+        res += "srcfullpath:" + str(self.srcfullpath) + "\n"
+        res += "destfullpath:" + str(self.destfullpath) + "\n"
+        res += "sysdate:" + self.sysdate + "\n"
+        res += "systime:" + self.systime + "\n"
+        res += "checksum:" + self.checksum + "\n"
+        res += "Exif: \n" + str(self.exif) + "\n"
+        return res

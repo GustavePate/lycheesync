@@ -324,8 +324,9 @@ class LycheeSyncer:
                 albums.append(a)
 
         self.updateAlbumsDate(albums)
-        self.reorderalbumids(albums)
-        self.dao.reinitAlbumAutoIncrement()
+        if self.conf['sort']:
+            self.reorderalbumids(albums)
+            self.dao.reinitAlbumAutoIncrement()
         self.dao.close()
 
         # Final report

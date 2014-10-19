@@ -28,6 +28,7 @@ def show_args():
     print "* srcdir:" + args.srcdir
     print "* lycheepath:" + args.lycheepath
     print "* conf:" + args.conf
+    print "* sort_by_name:" + str(conf_data['sort'])
     print "Program Launched with conf:"
     print "* dbHost:" + conf_data['dbHost']
     print "* db:" + conf_data['db']
@@ -56,6 +57,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--replace', help=("drop albums corresponding to srcdir structure " +
                                                  "but don t drop the entire db"), action='store_true')
     parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
+    parser.add_argument('-s', '--sort_album_by_name', help='sort album display by name', action='store_true')
     parser.add_argument('-u', '--updatedb26', action='store_const', dest='updatedb_to_version_2_6_2', const='2.6.2', help='Update lycheesync added data in lychee db to the lychee 2.6.2 required values')
     args = parser.parse_args()
     shouldquit = False
@@ -95,6 +97,9 @@ if __name__ == '__main__':
     conf_data["group"] = None
     conf_data["uid"] = None
     conf_data["gid"] = None
+    conf_data["sort"] =  args.sort_album_by_name
+    if conf_data["dropdb"]:
+        conf_data["sort"] = True
 
 
     if conf_data["updatedb"] == "2.6.2":

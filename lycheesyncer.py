@@ -129,11 +129,20 @@ class LycheeSyncer:
 
         try:
             # copy photo
-            shutil.copy(photo.srcfullpath, photo.destfullpath)
+            if self.conf['link']:
+                os.symlink(photo.srcfullpath, photo.destfullpath)
+            else:
+                shutil.copy(photo.srcfullpath, photo.destfullpath)
             # adjust right (chmod/chown)
-            os.chown(photo.destfullpath, self.conf['uid'], self.conf['gid'])
-            st = os.stat(photo.destfullpath)
-            os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
+            os.lchown(photo.destfullpath, self.conf['uid'], self.conf['gid'])
+
+            if not(self.conf['link']):
+                st = os.stat(photo.destfullpath)
+                os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
+            else:
+                st = os.stat(photo.srcfullpath)
+                os.chmod(photo.srcfullpath, st.st_mode | stat.S_IROTH)
+
             res = self.dao.addFileToAlbum(photo)
 
         except Exception:

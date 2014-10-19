@@ -29,6 +29,7 @@ def show_args():
     print "* lycheepath:" + args.lycheepath
     print "* conf:" + args.conf
     print "* sort_by_name:" + str(conf_data['sort'])
+    print "* link:" + str(conf_data['link'])
     print "Program Launched with conf:"
     print "* dbHost:" + conf_data['dbHost']
     print "* db:" + conf_data['db']
@@ -36,6 +37,7 @@ def show_args():
     print "* dbPassword:" + conf_data['dbPassword']
     print "* thumbQuality:" + str(conf_data['thumbQuality'])
     print "* publicAlbum:" + str(conf_data['publicAlbum'])
+    print "Other conf elements:"
     print "* user:" + str(conf_data["user"])
     print "* group:" + str(conf_data["group"])
     print "* uid:" + str(conf_data["uid"])
@@ -58,6 +60,7 @@ if __name__ == '__main__':
                                                  "but don t drop the entire db"), action='store_true')
     parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
     parser.add_argument('-s', '--sort_album_by_name', help='sort album display by name', action='store_true')
+    parser.add_argument('-l', '--link', help='do not copy photos to lychee uploads directory, just create a symlink', action='store_true')
     parser.add_argument('-u', '--updatedb26', action='store_const', dest='updatedb_to_version_2_6_2', const='2.6.2', help='Update lycheesync added data in lychee db to the lychee 2.6.2 required values')
     args = parser.parse_args()
     shouldquit = False
@@ -98,6 +101,7 @@ if __name__ == '__main__':
     conf_data["uid"] = None
     conf_data["gid"] = None
     conf_data["sort"] =  args.sort_album_by_name
+    conf_data["link"] =  args.link
     if conf_data["dropdb"]:
         conf_data["sort"] = True
 

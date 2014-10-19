@@ -4,7 +4,7 @@
 - change versioning to match lychee's
 - lychee 2.6 support
 - fixed some permission problem: give the photo files the same group and owner than lychee uploads directory + rwx permission for group and user
-- added an *update mode* to fix problem experienced by those who used lycheesync with a lychee 2.6 before this version. To update your lychee db an photo repository, use the -u switch (you can run it anyway, it won't break anything:)
+- added an *update mode* to fix problem experienced by those who used lycheesync with a lychee 2.6 before this version. To update your lychee db an photo repository, just add the -u switch to your usual call (you can run it anyway, it won't break anything:)
 
 `python main.py srcdir lycheepath conf -u`
 

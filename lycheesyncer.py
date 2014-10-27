@@ -231,7 +231,7 @@ class LycheeSyncer:
                 if datelist is not None and len(datelist) > 0:
                     maxdate = max(datelist)
                     self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
-            except Exception, e:
+            except Exception as e:
                 print "ERROR: updating album date for album:" + a['name'], e
 
     def deleteAllFiles(self):
@@ -307,27 +307,31 @@ class LycheeSyncer:
                 for f in files:
                     if self.isAPhoto(f):
 
-                        discoveredphotos += 1
-                        photo = LycheePhoto(self.conf, f, album)
+                        try:
+                            discoveredphotos += 1
+                            photo = LycheePhoto(self.conf, f, album)
 
-                        if not(self.dao.photoExists(photo)):
-                            if self.conf['verbose']:
-                                print "INFO: adding to lychee", os.path.join(root, f)
-                            self.makeThumbnail(photo)
-                            res = self.addFileToAlbum(photo)
-                            self.adjustRotation(photo)
-                            # increment counter
-                            if res:
-                                importedphotos += 1
-                            # report
-                            if self.conf['verbose']:
+                            if not(self.dao.photoExists(photo)):
+                                if self.conf['verbose']:
+                                    print "INFO: adding to lychee", os.path.join(root, f)
+                                self.makeThumbnail(photo)
+                                res = self.addFileToAlbum(photo)
+                                self.adjustRotation(photo)
+                                # increment counter
                                 if res:
-                                    album['photos'].append(photo)
-                                else:
-                                    print "ERROR: while adding to lychee", os.path.join(root, f)
-                        else:
-                            if self.conf['verbose']:
-                                print "WARN: photo already exists in lychee: ", photo.srcfullpath
+                                    importedphotos += 1
+                                # report
+                                if self.conf['verbose']:
+                                    if res:
+                                        album['photos'].append(photo)
+                                    else:
+                                        print "ERROR: while adding to lychee", os.path.join(root, f)
+                            else:
+                                if self.conf['verbose']:
+                                    print "WARN: photo already exists in lychee: ", photo.srcfullpath
+                        except Exception:
+                            print "ERROR could not add " + str(f) + " to album " + album['name']
+                            traceback.print_exc()
 
                 a = album.copy()
                 albums.append(a)

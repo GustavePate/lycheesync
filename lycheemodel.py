@@ -65,8 +65,8 @@ class LycheePhoto:
     url = ""
     public = 0  # private by default
     type = ""
-    width = ""
-    height = ""
+    width = 0
+    height = 0
     size = ""
     star = 0  # no star by default
     thumbUrl = ""
@@ -131,7 +131,9 @@ class LycheePhoto:
         try:
 
             img = Image.open(self.srcfullpath)
-            self.width, self.height = img.size
+            w, h = img.size
+            self.width = float(w)
+            self.height = float(h)
             if hasattr(img, '_getexif'):
                 exifinfo = img._getexif()
                 if exifinfo is not None:

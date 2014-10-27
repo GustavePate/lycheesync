@@ -83,14 +83,14 @@ class LycheeSyncer:
             delta = photo.width - photo.height
             left = int(delta / 2)
             upper = 0
-            right = photo.height + left
-            lower = photo.height
+            right = int(photo.height + left)
+            lower = int(photo.height)
         else:
             delta = photo.height - photo.width
             left = 0
             upper = int(delta / 2)
-            right = photo.width
-            lower = photo.width + upper
+            right = int(photo.width)
+            lower = int(photo.width + upper)
 
         destimage = os.path.join(destinationpath, destfile)
         img = Image.open(photo.srcfullpath)

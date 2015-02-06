@@ -157,11 +157,19 @@ class LycheePhoto:
                         if decode == "ExposureTime":
                             self.exif.shutter = value
                         if decode == "DateTime":
-                            self.exif._takedate = value.split(" ")[0]
-                            self.sysdate = self.exif.takedate
+                            try:
+                                self.exif._takedate = value.split(" ")[0]
+                                self.sysdate = self.exif.takedate
+                            except:
+                                print 'WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath
+
                         if decode == "DateTime":
-                            self.exif.taketime = value.split(" ")[1]
-                            self.systime = self.exif.taketime
+                            try:
+                                self.exif.taketime = value.split(" ")[1]
+                                self.systime = self.exif.taketime
+                            except:
+                                print 'WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath
+
                     self.description = self.sysdate + " " + self.systime
         except IOError:
             print 'IOERROR ' + self.srcfullpath

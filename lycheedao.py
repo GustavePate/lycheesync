@@ -52,8 +52,8 @@ class LycheeDAO:
             for row in rows:
                 max = row[0]
 
-            if self.conf["verbose"]:
-                print "INFO min, max album id: ", min, " to ", max
+            if (self.conf['verbose'] is True):
+                print "INFO min max album id: ", str(min), " to ", str(max)
 
             res = min, max
         except Exception:
@@ -142,8 +142,12 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album='" + str(photo.albumid) +
-                     "' and title = '" + photo.originalname + "'")
+            query = ("select * from lychee_photos where album='" +
+                     str(photo.albumid) +
+                     "' AND (title = '" +
+                     photo.originalname +
+                     "' OR checksum = '" +
+                     str(photo.checksum) + "')")
             cur = self.db.cursor()
             cur.execute(query)
             row = cur.fetchall()

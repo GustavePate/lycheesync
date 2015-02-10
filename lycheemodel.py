@@ -5,6 +5,7 @@ import mimetypes
 from PIL import Image
 from PIL.ExifTags import TAGS
 import datetime
+from dateutil.parser import parse
 
 
 class ExifData:
@@ -73,9 +74,48 @@ class LycheePhoto:
     srcfullpath = ""
     destfullpath = ""
     exif = None
-    sysdate = ""
+    _sysdate = None
     systime = ""
     checksum = ""
+
+    def convert_sysdate(self, value):
+        # check sysdate type
+        in_t = type(value)
+
+        epoch_date = None
+        # now in epoch time
+        epoch_now = int(time.time())
+
+        # (unicode or str -> convert to int)
+        if ((in_t is unicode) or (in_t is str)):
+            try:
+                epoch_date = (parse(value) - datetime.datetime(1970, 1, 1)).total_seconds()
+            except:
+                print 'WARN model sysdate impossible to parse: ' + str(value)
+                epoch_date = epoch_now
+        # int assign
+        elif (in_t is int):
+            epoch_date = value
+        # date convert to int
+        elif (in_t is datetime.date):
+            epoch_date = (value - datetime.datetime(1970, 1, 1)).total_seconds()
+        else:
+            print 'WARN model.sysdate unknown variation: ' + str(in_t)
+            epoch_date = epoch_now
+
+        return epoch_date
+
+    @property
+    def sysdate(self):
+
+        if self._sysdate:
+            return self.convert_sysdate(self._sysdate)
+        else:
+            return int(time.time())
+
+    @sysdate.setter
+    def sysdate(self, value):
+        self._sysdate = self.convert_sysdate(value)
 
     # Compute checksum
     def __generateHash(self):
@@ -123,7 +163,7 @@ class LycheePhoto:
         self.type = mimetypes.guess_type(self.originalname, False)[0]
         self.size = os.path.getsize(self.srcfullpath)
         self.size = str(self.size / 1024) + " KB"
-        self.sysdate = datetime.date.today().isoformat()
+        self._sysdate = datetime.date.today().isoformat()
         self.systime = datetime.datetime.now().strftime('%H:%M:%S')
 
         # Exif Data Parsing
@@ -159,7 +199,7 @@ class LycheePhoto:
                         if decode == "DateTime":
                             try:
                                 self.exif._takedate = value.split(" ")[0]
-                                self.sysdate = self.exif.takedate
+                                self._sysdate = self.exif.takedate
                             except:
                                 print 'WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath
 
@@ -170,9 +210,10 @@ class LycheePhoto:
                             except:
                                 print 'WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath
 
-                    self.description = self.sysdate + " " + self.systime
+                    # TODO: Bad description sysdate is int
+                    self.description = str(self._sysdate) + " " + self.systime
         except IOError:
-            print 'IOERROR ' + self.srcfullpath
+            print 'ERROR ioerror: ' + self.srcfullpath
 
     def __str__(self):
         res = ""
@@ -195,7 +236,7 @@ class LycheePhoto:
         res += "thumbUrl:" + str(self.thumbUrl) + "\n"
         res += "srcfullpath:" + str(self.srcfullpath) + "\n"
         res += "destfullpath:" + str(self.destfullpath) + "\n"
-        res += "sysdate:" + self.sysdate + "\n"
+        res += "sysdate:" + self._sysdate + "\n"
         res += "systime:" + self.systime + "\n"
         res += "checksum:" + self.checksum + "\n"
         res += "Exif: \n" + str(self.exif) + "\n"

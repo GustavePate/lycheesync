@@ -3,6 +3,7 @@
 import MySQLdb
 import datetime
 import traceback
+import time
 from dateutil.parser import parse
 
 
@@ -66,19 +67,20 @@ class LycheeDAO:
     def updateAlbumDate(self, albumid, newdate):
         """
         Update album date to an arbitrary date
+        newdate is an epoch timestamp
         """
+
         res = True
-        qry = "update lychee_albums set sysstamp= '" + newdate.strftime('%s') + "' where id=" + str(albumid)
         try:
+            qry = "update lychee_albums set sysstamp= '" + str(newdate) + "' where id=" + str(albumid)
             cur = self.db.cursor()
             cur.execute(qry)
             self.db.commit()
-            if self.conf["verbose"]:
-                print "INFO album id sysstamp changed to: ", newdate
         except Exception:
+            traceback.print_exc()
             res = False
             print "updateAlbumDate", Exception
-            traceback.print_exc()
+            raise
         finally:
             return res
 

@@ -7,6 +7,8 @@ import traceback
 from lycheedao import LycheeDAO
 from lycheemodel import LycheePhoto
 from PIL import Image
+import datetime
+import time
 
 
 class LycheeSyncer:
@@ -225,12 +227,21 @@ class LycheeSyncer:
             newid = newid + 1
 
     def updateAlbumsDate(self, albums):
+        now = datetime.datetime.now()
+        last2min = now - datetime.timedelta(minutes=2)
+        last2min_epoch = (last2min - datetime.datetime(1970, 1, 1)).total_seconds()
+
         for a in albums:
             try:
-                datelist = [photo.sysdate for photo in a['photos']]
+                # get photos with a real date (not just now)
+                datelist = None
+                datelist = [photo.sysdate for photo in a['photos'] if photo.sysdate < last2min_epoch]
+
                 if datelist is not None and len(datelist) > 0:
-                    maxdate = max(datelist)
-                    self.dao.updateAlbumDate(a['id'], maxdate.replace(':', '-'))
+                    newdate = max(datelist)
+                    self.dao.updateAlbumDate(a['id'], newdate)
+                    if self.conf["verbose"]:
+                        print "INFO album " + a['name'] + " sysstamp changed to: ", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate))
             except Exception as e:
                 print "ERROR: updating album date for album:" + a['name'], e
 

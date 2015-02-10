@@ -213,7 +213,7 @@ class LycheePhoto:
                     # TODO: Bad description sysdate is int
                     self.description = str(self._sysdate) + " " + self.systime
         except IOError:
-            print 'ERROR ioerror: ' + self.srcfullpath
+            print 'ERROR ioerror (corrupted ?): ' + self.srcfullpath
 
     def __str__(self):
         res = ""

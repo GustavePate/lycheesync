@@ -11,6 +11,13 @@ import datetime
 import time
 
 
+def remove_file(path):
+    try:
+        os.remove(path)
+    except:
+        print "WARN problem removing: " + path
+
+
 class LycheeSyncer:
 
     """
@@ -170,10 +177,9 @@ class LycheeSyncer:
                 thumb2path = ''.join([filesplit[0], "@2x", filesplit[1]]).lower()
                 thumb2path = os.path.join(self.conf["lycheepath"], "uploads", "thumb", thumb2path)
                 bigpath = os.path.join(self.conf["lycheepath"], "uploads", "big", url)
-
-                os.remove(thumbpath)
-                os.remove(thumb2path)
-                os.remove(bigpath)
+                remove_file(thumbpath)
+                remove_file(thumb2path)
+                remove_file(bigpath)
 
     def rotatephoto(self, photo, rotation):
         # rotate main photo
@@ -357,5 +363,8 @@ class LycheeSyncer:
         print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         print "Directory scanned:", self.conf['srcdir']
         print "Created albums: ", str(createdalbums)
-        print str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
+        if (importedphotos == discoveredphotos):
+            print str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
+        else:
+            print 'ERROR: ' + str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
         print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

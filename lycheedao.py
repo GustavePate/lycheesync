@@ -54,7 +54,7 @@ class LycheeDAO:
                 max = row[0]
 
             if (self.conf['verbose'] is True):
-                print "INFO min max album id: ", str(min), " to ", str(max)
+                print "INFO min max album id: " + str(min) + " to " + str(max)
 
             res = min, max
         except Exception:
@@ -144,14 +144,9 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album='" +
-                     str(photo.albumid) +
-                     "' AND (title = '" +
-                     photo.originalname +
-                     "' OR checksum = '" +
-                     str(photo.checksum) + "')")
+            query = ("select * from lychee_photos where album=%s AND (title=%s OR checksum=%s)")
             cur = self.db.cursor()
-            cur.execute(query)
+            cur.execute(query, (str(photo.albumid), photo.originalname, str(photo.checksum)))
             row = cur.fetchall()
             if len(row) != 0:
                 res = True
@@ -171,16 +166,16 @@ class LycheeDAO:
         Returns the created albumid or None
         """
         album['id'] = None
-        query = ("insert into lychee_albums (title, sysstamp, public, password) values ('" +
-                 album['name'] + "','" + datetime.datetime.now().strftime('%s') + "'," +
-                 str(self.conf["publicAlbum"]) + ", NULL)")
+        query = "insert into lychee_albums (title, sysstamp, public, password) values (%s, %s, %s, NULL)"
         try:
             cur = self.db.cursor()
-            cur.execute(query)
+            cur.execute(
+                query, (album['name'], datetime.datetime.now().strftime('%s'), str(
+                    self.conf["publicAlbum"])))
             self.db.commit()
 
-            query = "select id from lychee_albums where title='" + album['name'] + "'"
-            cur.execute(query)
+            query = "select id from lychee_albums where title=%s"  # '" +  + "'"
+            cur.execute(query, (album['name']))
             row = cur.fetchone()
             self.albumslist['name'] = row[0]
             album['id'] = row[0]
@@ -260,21 +255,22 @@ class LycheeDAO:
                  "model, shutter, focal, takestamp, " +
                  "description, title, checksum) " +
                  "values " +
-                 "({}, '{}', {}, '{}', {}, {}, " +
-                 "'{}', {}, " +
-                 "'{}', '{}', '{}', '{}', '{}', " +
-                 "'{}', '{}', '{}', '{}', " +
-                 "'{}', '{}', '{}')"
-                 ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
-                          photo.size, photo.star,
-                          photo.thumbUrl, photo.albumid, photo.exif.iso, photo.exif.aperture, photo.exif.make,
-                          photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
-                          photo.description, photo.originalname, photo.checksum)
-        # print query
+                 "(%s, %s, %s, %s, %s, %s, " +
+                 "%s, %s, " +
+                 "%s, %s, %s, %s, %s, " +
+                 "%s, %s, %s, %s, " +
+                 "%s, %s, %s)"
+                 )
+
+        data = (photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
+                photo.size, photo.star,
+                photo.thumbUrl, photo.albumid, photo.exif.iso, str(photo.exif.aperture), photo.exif.make,
+                photo.exif.model, str(photo.exif.shutter), str(photo.exif.focal), stamp,
+                photo.description, photo.originalname, photo.checksum)
 
         try:
             cur = self.db.cursor()
-            res = cur.execute(query)
+            res = cur.execute(query, data)
             self.db.commit()
         except Exception:
             print "addFileToAlbum", Exception

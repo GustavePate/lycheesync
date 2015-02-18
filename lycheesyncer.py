@@ -102,7 +102,12 @@ class LycheeSyncer:
             lower = int(photo.width + upper)
 
         destimage = os.path.join(destinationpath, destfile)
-        img = Image.open(photo.srcfullpath)
+        try:
+            img = Image.open(photo.srcfullpath)
+        except:
+            print "ERROR ioerror (corrupted file?): " + photo.srcfullpath
+            raise
+
         img = img.crop((left, upper, right, lower))
         img.thumbnail(res, Image.ANTIALIAS)
         img.save(destimage, quality=99)

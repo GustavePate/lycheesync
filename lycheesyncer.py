@@ -319,6 +319,12 @@ class LycheeSyncer:
                 if not(album['id']):
                     # create album
                     album['id'] = self.createAlbum(album)
+                    # TODO go to next album if it fails
+                    if not(album['id']):
+                        print "ERROR didn't manage to create album for: " + album['relpath']
+                        continue
+
+
                     createdalbums += 1
                 elif self.conf['replace']:
                     # drop album photos

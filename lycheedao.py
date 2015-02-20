@@ -170,6 +170,7 @@ class LycheeDAO:
         """
         album['id'] = None
         query = """insert into lychee_albums (title, sysstamp, public, password) values (%s, %s, %s, NULL)"""
+        cur = None
         try:
             cur = self.db.cursor()
             data = (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"]))
@@ -188,6 +189,7 @@ class LycheeDAO:
 
         except Exception:
             print "ERROR createAlbum:" + album['name'] + " -> " + str(album)
+            print "ERROR while executing: " + cur._last_executed
             traceback.print_exc()
             album['id'] = None
         finally:

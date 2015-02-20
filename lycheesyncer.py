@@ -350,7 +350,7 @@ class LycheeSyncer:
                                         print "ERROR: while adding to lychee", os.path.join(root, f)
                             else:
                                 if self.conf['verbose']:
-                                    print "WARN: photo already exists in lychee: ", photo.srcfullpath
+                                    print "WARN: photo already exists in lychee with same name or same checksum: ", photo.srcfullpath
                         except Exception:
                             print "ERROR could not add " + str(f) + " to album " + album['name']
                             traceback.print_exc()

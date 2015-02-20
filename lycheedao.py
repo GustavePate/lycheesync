@@ -28,6 +28,8 @@ class LycheeDAO:
                                   passwd=self.conf["dbPassword"],
                                   db=self.conf["db"])
 
+        cur = self.db.cursor()
+        cur.execute("set names utf8;")
         if self.conf["dropdb"]:
             self.dropAll()
 
@@ -43,6 +45,7 @@ class LycheeDAO:
             min = -1
             max = -1
             cur = self.db.cursor()
+
             cur.execute(min_album_query)
             rows = cur.fetchall()
             for row in rows:
@@ -174,7 +177,7 @@ class LycheeDAO:
                     self.conf["publicAlbum"])))
             self.db.commit()
 
-            query = "select id from lychee_albums where title=%s"  # '" +  + "'"
+            query = "select id from lychee_albums where title=%s"
             cur.execute(query, (album['name']))
             row = cur.fetchone()
             self.albumslist['name'] = row[0]

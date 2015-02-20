@@ -186,7 +186,7 @@ class LycheeDAO:
                 print "INFO album created:", album
 
         except Exception:
-            print "createAlbum", Exception
+            print "ERROR createAlbum:" + album['name'] + " -> " + str(album)
             traceback.print_exc()
             album['id'] = None
         finally:
@@ -276,7 +276,9 @@ class LycheeDAO:
             res = cur.execute(query, data)
             self.db.commit()
         except Exception:
-            print "addFileToAlbum", Exception
+            print "ERROR addFileToAlbum " + str(photo)
+            print "ERROR addFileToAlbum " + str(data)
+            print "ERROR addFileToAlbum", Exception
             traceback.print_exc()
             res = False
         finally:

@@ -169,7 +169,7 @@ class LycheeDAO:
         Returns the created albumid or None
         """
         album['id'] = None
-        query = "insert into lychee_albums (title, sysstamp, public, password) values (%s, %s, %s, NULL)"
+        query = """insert into lychee_albums (title, sysstamp, public, password) values (%s, %s, %s, NULL)"""
         try:
             cur = self.db.cursor()
             data = (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"]))
@@ -178,7 +178,7 @@ class LycheeDAO:
             cur.execute(query, data)
             self.db.commit()
 
-            query = "select id from lychee_albums where title=%s"
+            query = """select id from lychee_albums where title=%s"""
             cur.execute(query, (album['name']))
             row = cur.fetchone()
             self.albumslist['name'] = row[0]

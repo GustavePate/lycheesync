@@ -13,6 +13,7 @@ test_lang:
 	cp -r ./test/Fu* ./tmptest
 	cp -r ./test/.sync ./tmptest
 	cp -r ./test/album-dash ./tmptest
+	cp -r ./test/aegypten ./tmptest
 	python main.py ./tmptest/ /var/www/lycheetest/ testconf.json -v -d
 	rm -rf ./tmptest
 

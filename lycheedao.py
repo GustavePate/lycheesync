@@ -149,9 +149,10 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album=%s AND (title=%s OR checksum=%s)")
+            query = ("select * from lychee_photos where album=" + self._p(photo.albumid) +
+                     " AND (title='" + self._p(photo.originalname) + "' OR checksum='" + self._p(photo.checksum) + "')")
             cur = self.db.cursor()
-            cur.execute(query, (str(photo.albumid), photo.originalname, str(photo.checksum)))
+            cur.execute(query)
             row = cur.fetchall()
             if len(row) != 0:
                 res = True
@@ -180,9 +181,7 @@ class LycheeDAO:
         cur = None
         try:
             cur = self.db.cursor()
-            # data = (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"]))
             if self.conf["verbose"]:
-                # print "INFO try to createAlbum:" + str(data)
                 print "INFO try to createAlbum:" + query
             cur.execute(query)
             self.db.commit()
@@ -277,10 +276,12 @@ class LycheeDAO:
                  "'{}', '{}', '{}')"
                  ).format(photo.id, photo.url, self.conf["publicAlbum"], self._p(photo.type), photo.width, photo.height,
                           photo.size, photo.star,
-                          photo.thumbUrl, photo.albumid, self._p(photo.exif.iso), self._p(photo.exif.aperture),
-                          self._p(photo.exif.make),
-                          photo.exif.model, self._p(photo.exif.shutter), self._p(photo.exif.focal), stamp,
-                          self._p(photo.description), self._p(photo.originalname), photo.checksum)
+                          photo.thumbUrl, photo.albumid, self._p(
+                     photo.exif.iso), self._p(
+                     photo.exif.aperture),
+            self._p(photo.exif.make),
+            photo.exif.model, self._p(photo.exif.shutter), self._p(photo.exif.focal), stamp,
+            self._p(photo.description), self._p(photo.originalname), photo.checksum)
         try:
             cur = self.db.cursor()
             res = cur.execute(query)

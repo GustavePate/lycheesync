@@ -27,13 +27,15 @@ class LycheeDAO:
                                   user=self.conf["dbUser"],
                                   passwd=self.conf["dbPassword"],
                                   db=self.conf["db"])
-
         cur = self.db.cursor()
         cur.execute("set names utf8;")
         if self.conf["dropdb"]:
             self.dropAll()
 
         self.loadAlbumList()
+
+    def _p(self, data):
+        return MySQLdb.escape_string(str(data))
 
     def getAlbumMinMaxIds(self):
         """
@@ -169,18 +171,24 @@ class LycheeDAO:
         Returns the created albumid or None
         """
         album['id'] = None
-        query = """insert into lychee_albums (title, sysstamp, public, password) values (%s, %s, %s, NULL)"""
+        query = ("insert into lychee_albums (title, sysstamp, public, password) values ('"
+                 "" + self._p(album['name']) + "',"
+                 "" + datetime.datetime.now().strftime('%s') + ","
+                 "'" + str(self.conf["publicAlbum"]) + "',"
+                 "NULL"
+                 ")")
         cur = None
         try:
             cur = self.db.cursor()
-            data = (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"]))
+            # data = (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"]))
             if self.conf["verbose"]:
-                print "INFO try to createAlbum:" + str(data)
-            cur.execute(query, data)
+                # print "INFO try to createAlbum:" + str(data)
+                print "INFO try to createAlbum:" + query
+            cur.execute(query)
             self.db.commit()
 
-            query = """select id from lychee_albums where title=%s"""
-            cur.execute(query, (album['name'],))
+            query = "select id from lychee_albums where title='" + self._p(album['name']) + "'"
+            cur.execute(query)
             row = cur.fetchone()
             self.albumslist['name'] = row[0]
             album['id'] = row[0]
@@ -261,28 +269,26 @@ class LycheeDAO:
                  "model, shutter, focal, takestamp, " +
                  "description, title, checksum) " +
                  "values " +
-                 "(%s, %s, %s, %s, %s, %s, " +
-                 "%s, %s, " +
-                 "%s, %s, %s, %s, %s, " +
-                 "%s, %s, %s, %s, " +
-                 "%s, %s, %s)"
-                 )
-
-        data = (photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
-                photo.size, photo.star,
-                photo.thumbUrl, photo.albumid, photo.exif.iso, str(photo.exif.aperture), photo.exif.make,
-                photo.exif.model, str(photo.exif.shutter), str(photo.exif.focal), stamp,
-                photo.description, photo.originalname, photo.checksum)
-
+                 "({}, '{}', {}, '{}', {}, {}, " +
+                 "'{}', {}, " +
+                 "'{}', '{}', '{}', '{}'," +
+                 " '{}', " +
+                 "'{}', '{}', '{}', '{}', " +
+                 "'{}', '{}', '{}')"
+                 ).format(photo.id, photo.url, self.conf["publicAlbum"], self._p(photo.type), photo.width, photo.height,
+                          photo.size, photo.star,
+                          photo.thumbUrl, photo.albumid, self._p(photo.exif.iso), self._p(photo.exif.aperture),
+                          self._p(photo.exif.make),
+                          photo.exif.model, self._p(photo.exif.shutter), self._p(photo.exif.focal), stamp,
+                          self._p(photo.description), self._p(photo.originalname), photo.checksum)
         try:
             cur = self.db.cursor()
-            res = cur.execute(query, data)
+            res = cur.execute(query)
             self.db.commit()
         except Exception:
-            print "ERROR addFileToAlbum " + str(photo)
-            print "ERROR addFileToAlbum " + str(data)
-            print "ERROR addFileToAlbum", Exception
+            print "ERROR addFileToAlbum :" + str(photo)
             traceback.print_exc()
+            print "ERROR addFileToAlbum while executing: " + cur._last_executed
             res = False
         finally:
             return res

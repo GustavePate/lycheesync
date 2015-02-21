@@ -4,6 +4,7 @@ import MySQLdb
 import datetime
 import traceback
 import time
+import re
 from dateutil.parser import parse
 
 
@@ -35,7 +36,34 @@ class LycheeDAO:
         self.loadAlbumList()
 
     def _p(self, data):
+        """
+        protect / escape strings
+        """
         return MySQLdb.escape_string(str(data))
+
+    def getAlbumNameDBWidth(self):
+        res = 50  # default value
+        query = "show columns from lychee_albums where Field='title'"
+        cur = self.db.cursor()
+        try:
+            cur.execute(query)
+            row = cur.fetchone()
+            type = row[1]
+            # is type ok
+            p = re.compile('varchar\(\d+\)', re.IGNORECASE)
+            if p.match(type):
+                # remove varchar(and)
+                p = re.compile('\d+', re.IGNORECASE)
+                ints = p.findall(type)
+                if len(ints) > 0:
+                    res = int(ints[0])
+            else:
+                print "WARN getAlbumNameDBWidth unable to find album name width fallback to default"
+        except:
+            traceback.print_exc()
+            print "WARN getAlbumNameDBWidth while executing: " + cur._last_executed
+        finally:
+            return res
 
     def getAlbumMinMaxIds(self):
         """

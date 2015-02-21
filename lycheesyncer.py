@@ -72,7 +72,6 @@ class LycheeSyncer:
         Returns an albumid or None if album does not exists
         """
         album['id'] = None
-        album['name'] = self.getAlbumNameFromPath(album)
         if album['name'] != "":
             album['id'] = self.dao.createAlbum(album)
         return album['id']
@@ -288,6 +287,9 @@ class LycheeSyncer:
         importedphotos = 0
         album = {}
         albums = []
+
+        album_name_max_width = self.dao.getAlbumNameDBWidth()
+
         # walkthroug each file / dir of the srcdir
         for root, dirs, files in os.walk(self.conf['srcdir']):
 
@@ -314,6 +316,13 @@ class LycheeSyncer:
                 # albumnames start at srcdir (to avoid absolute path albumname)
                 album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
                 album['name'] = self.getAlbumNameFromPath(album)
+
+                if len(album['name']) > album_name_max_width:
+                    print "WARN: album name too long, will be truncated " + album['name']
+                    album['name'] = album['name'][0:album_name_max_width]
+                    if self.conf['verbose']:
+                        print "WARN: album name is now " + album['name']
+
                 album['id'] = self.dao.albumExists(album)
 
                 if not(album['id']):
@@ -323,7 +332,6 @@ class LycheeSyncer:
                     if not(album['id']):
                         print "ERROR didn't manage to create album for: " + album['relpath']
                         continue
-
 
                     createdalbums += 1
                 elif self.conf['replace']:

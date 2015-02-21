@@ -180,7 +180,7 @@ class LycheeDAO:
             self.db.commit()
 
             query = """select id from lychee_albums where title=%s"""
-            cur.execute(query, (album['name']))
+            cur.execute(query, (album['name'],))
             row = cur.fetchone()
             self.albumslist['name'] = row[0]
             album['id'] = row[0]

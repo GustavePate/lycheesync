@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.0.1
+- change versioning to match lychee's
+
+
+## v2.7.1
+- change versioning to match lychee's
+- don't import duplicated files
+- handle corrupted files correctly
+- unicode directory name supported
+
 ## v2.6
 - change versioning to match lychee's
 - lychee 2.6 support

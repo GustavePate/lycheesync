@@ -45,7 +45,7 @@ class LycheeSyncer:
         # make a list with directory and sub dirs
         path = album['relpath'].split(os.sep)
         # join the rest: no subfolders in lychee yet
-        album['name'] = "_".join(path).lower()
+        album['name'] = "_".join(path)
         return album['name']
 
     def isAPhoto(self, file):

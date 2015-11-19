@@ -181,12 +181,14 @@ class LycheeSyncer:
         for url in filelist:
             if self.isAPhoto(url):
                 thumbpath = os.path.join(self.conf["lycheepath"], "uploads", "thumb", url)
+                mediumpath = os.path.join(self.conf["lycheepath"], "uploads", "medium", url)
                 filesplit = os.path.splitext(url)
                 thumb2path = ''.join([filesplit[0], "@2x", filesplit[1]]).lower()
                 thumb2path = os.path.join(self.conf["lycheepath"], "uploads", "thumb", thumb2path)
                 bigpath = os.path.join(self.conf["lycheepath"], "uploads", "big", url)
                 remove_file(thumbpath)
                 remove_file(thumb2path)
+                remove_file(mediumpath)
                 remove_file(bigpath)
 
     def rotatephoto(self, photo, rotation):

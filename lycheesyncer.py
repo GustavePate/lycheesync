@@ -131,6 +131,46 @@ class LycheeSyncer:
         photo.thumbnailfullpath = self.thumbIt(sizes[0], photo, destpath, destfiles[0])
         photo.thumbnailx2fullpath = self.thumbIt(sizes[1], photo, destpath, destfiles[1])
 
+    def mediumIt(self, res, photo, destinationpath, destfile):
+        """
+        Create the medium sized image of a given photo
+        Parameters:
+        - res: should be a set of h and v res - which matches lychee (640, 480)
+        - photo: a valid LycheePhoto object
+        - destinationpath: a string the destination full path of the medium photo (without filename)
+        - destfile: the medium photo filename
+        Returns the fullpath of the medium photo
+        """
+	
+        destimage = os.path.join(destinationpath, destfile)
+        try:
+            img = Image.open(photo.srcfullpath)
+        except:
+            print "ERROR ioerror (corrupted file?): " + photo.srcfullpath
+            raise
+
+        # img = img.crop((left, upper, right, lower))
+        img.thumbnail(res, Image.ANTIALIAS)
+        img.save(destimage, quality=90)
+        return destimage
+
+    def makeMedium(self, photo):
+        """
+        Make medium photo used by Lychee for a given photo
+        and store their path in the LycheePhoto object
+        Parameters:
+        - photo: a valid LycheePhoto object
+        returns nothing
+        """
+        # set  medium photo size
+        size = 1920, 1080
+        # set medium photo file name
+        destfile = photo.url
+        # compute destination path
+        destpath = os.path.join(self.conf["lycheepath"], "uploads", "medium")
+        # make medium photo
+        photo.mediumfullpath = self.mediumIt(size, photo, destpath, destfile)
+
     def addFileToAlbum(self, photo):
         """
         add a file to an album, the albumid must be previously stored in the LycheePhoto parameter
@@ -355,6 +395,7 @@ class LycheeSyncer:
                                 if self.conf['verbose']:
                                     print "INFO: adding to lychee", os.path.join(root, f)
                                 self.makeThumbnail(photo)
+                                self.makeMedium(photo)
                                 res = self.addFileToAlbum(photo)
                                 self.adjustRotation(photo)
                                 # increment counter

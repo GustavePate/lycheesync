@@ -89,6 +89,12 @@ class LycheeDAO:
             if (self.conf['verbose'] is True):
                 print "INFO min max album id: " + str(min) + " to " + str(max)
 
+            if max is None:
+                max = -1
+
+            if min is None:
+                min = -1
+
             res = min, max
         except Exception:
             res = -1, -1

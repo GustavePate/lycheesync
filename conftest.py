@@ -26,6 +26,8 @@ def clean(request):
     """ will be run for each test function see pytest.ini """
     logger.info("DropDb")
     tu = TestUtils()
+    tu.make_fake_lychee_db()
+    tu.make_fake_lychee_fs()
     tu.clean_db()
     tu.clean_fs()
 

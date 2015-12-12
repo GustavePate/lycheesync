@@ -37,14 +37,17 @@ def carriagereturn(request):
 
 
 @pytest.fixture(scope="session")
-def init2db_and_fs(request):
+def initdb_and_fs(request):
+    print("#FIXTURE: init db and fs")
     tu = TestUtils()
     # TODO: impossible because conf not loaded
     tu.make_fake_lychee_db()
+    tu.make_fake_lychee_fs('/tmp/')
 
 
 @pytest.fixture(scope="session")
-def init1loggers(request):
+def initloggers(request):
+    print("#FIXTURE: initloggers")
     """ will be run for each test session see pytest.ini """
     # initialize basic loggers
     print("****** INIT LOGGERS ******")
@@ -61,6 +64,7 @@ def confborg(request):
     this code will be executed before the test code
     once per session
     """
+    print("#FIXTURE: confborg")
 
     def run_only_at_session_end():
         print("\n ********** End of test session **********")

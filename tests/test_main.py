@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.usefixtures("clean")
+@pytest.mark.usefixtures("initdb_and_fs")
 @pytest.mark.usefixtures("confborg")
 @pytest.mark.usefixtures("initloggers")
 class TestClass:

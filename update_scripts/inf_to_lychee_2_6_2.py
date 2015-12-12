@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import os
 import pwd
 import grp
@@ -19,7 +21,7 @@ def __generateHash(filepath):
 
 
 def updatedb(conf_data):
-    print "updatedb"
+    print("updatedb")
 
     # read permission of the lycheepath directory to apply it to the uploade photos
     upload_dir = os.path.join(conf_data["lycheepath"], "uploads")
@@ -46,7 +48,7 @@ def updatedb(conf_data):
                 os.chown(filepath, int(uid), int(gid))
                 st = os.stat(filepath)
                 os.chmod(filepath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
-                print "Changed permission for " + str(f)
+                print("Changed permission for " + str(f))
 
     # connect to db
     try:
@@ -72,14 +74,14 @@ def updatedb(conf_data):
                 cur = db.cursor()
                 cur.execute(qry)
                 db.commit()
-                print "INFO photo checksum changed to: ", chksum
+                print("INFO photo checksum changed to: ", chksum)
             except Exception:
-                print "checksum modification failed for photo:" + id, Exception
+                print("checksum modification failed for photo:" + id, Exception)
                 traceback.print_exc()
 
-        print "******************************"
-        print "SUCCESS"
-        print "******************************"
+        print("******************************")
+        print("SUCCESS")
+        print("******************************")
     except Exception:
         traceback.print_exc()
     finally:

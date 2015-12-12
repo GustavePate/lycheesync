@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+from __future__ import print_function
 import os
 import shutil
 import stat
@@ -15,7 +17,7 @@ def remove_file(path):
     try:
         os.remove(path)
     except:
-        print "WARN problem removing: " + path
+        print("WARN problem removing: " + path)
 
 
 class LycheeSyncer:
@@ -45,7 +47,7 @@ class LycheeSyncer:
         # make a list with directory and sub dirs
         path = album['relpath'].split(os.sep)
         # join the rest: no subfolders in lychee yet
-        album['name'] = "_".join(path).lower()
+        album['name'] = "_".join(path)
         return album['name']
 
     def isAPhoto(self, file):
@@ -104,7 +106,7 @@ class LycheeSyncer:
         try:
             img = Image.open(photo.srcfullpath)
         except:
-            print "ERROR ioerror (corrupted file?): " + photo.srcfullpath
+            print("ERROR ioerror (corrupted file?): " + photo.srcfullpath)
             raise
 
         img = img.crop((left, upper, right, lower))
@@ -147,7 +149,12 @@ class LycheeSyncer:
             else:
                 shutil.copy(photo.srcfullpath, photo.destfullpath)
             # adjust right (chmod/chown)
-            os.lchown(photo.destfullpath, self.conf['uid'], self.conf['gid'])
+            try:
+                os.lchown(photo.destfullpath, -1, self.conf['gid'])
+            except PermissionError as p:
+                if self.conf["verbose"]:
+                    print("WARN: chgrp error,  check file permission for " + photo.destfullpath + ' fix: eventually adjust source file permissions')
+
 
             if not(self.conf['link']):
                 st = os.stat(photo.destfullpath)
@@ -159,7 +166,7 @@ class LycheeSyncer:
             res = self.dao.addFileToAlbum(photo)
 
         except Exception:
-            print "addFileToAlbum", Exception
+            print("addFileToAlbum", Exception)
             traceback.print_exc()
             res = False
 
@@ -227,14 +234,16 @@ class LycheeSyncer:
         # get higher album id + 1 as a first new album id
         min, max = self.dao.getAlbumMinMaxIds()
 
-        if nbalbum + 1 < min:
-            newid = 1
-        else:
-            newid = max + 1
+        if min and max:
 
-        for a in sortedalbums:
-            self.dao.changeAlbumId(a['id'], newid)
-            newid = newid + 1
+            if nbalbum + 1 < min:
+                newid = 1
+            else:
+                newid = max + 1
+
+            for a in sortedalbums:
+                self.dao.changeAlbumId(a['id'], newid)
+                newid = newid + 1
 
     def updateAlbumsDate(self, albums):
         now = datetime.datetime.now()
@@ -251,9 +260,9 @@ class LycheeSyncer:
                     newdate = max(datelist)
                     self.dao.updateAlbumDate(a['id'], newdate)
                     if self.conf["verbose"]:
-                        print "INFO album " + a['name'] + " sysstamp changed to: ", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate))
+                        print("INFO album " + a['name'] + " sysstamp changed to: ", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate)))
             except Exception as e:
-                print "ERROR: updating album date for album:" + a['name'], e
+                print("ERROR: updating album date for album:" + a['name'], e)
 
     def deleteAllFiles(self):
         """
@@ -309,7 +318,7 @@ class LycheeSyncer:
                 if album['path'] == self.conf['srcdir']:
                     msg = ("WARN: file at srcdir root won't be added to lychee, " +
                            "please move them in a subfolder"), os.path.join(root, f)
-                    print msg
+                    print(msg)
                     continue
 
                 # Fill in other album properties
@@ -318,26 +327,31 @@ class LycheeSyncer:
                 album['name'] = self.getAlbumNameFromPath(album)
 
                 if len(album['name']) > album_name_max_width:
-                    print "WARN: album name too long, will be truncated " + album['name']
+                    print("WARN: album name too long, will be truncated " + album['name'])
                     album['name'] = album['name'][0:album_name_max_width]
                     if self.conf['verbose']:
-                        print "WARN: album name is now " + album['name']
+                        print("WARN: album name is now " + album['name'])
 
                 album['id'] = self.dao.albumExists(album)
+
+
+                if self.conf['replace'] and album['id']:
+                    # drop album photos
+                    filelist = self.dao.eraseAlbum(album)
+                    self.deleteFiles(filelist)
+                    assert self.dao.dropAlbum(album['id'])
+                    # Album should be recreated
+                    album['id'] = False
 
                 if not(album['id']):
                     # create album
                     album['id'] = self.createAlbum(album)
                     # TODO go to next album if it fails
                     if not(album['id']):
-                        print "ERROR didn't manage to create album for: " + album['relpath']
+                        print("ERROR didn't manage to create album for: " + album['relpath'])
                         continue
 
                     createdalbums += 1
-                elif self.conf['replace']:
-                    # drop album photos
-                    filelist = self.dao.eraseAlbum(album)
-                    self.deleteFiles(filelist)
 
                 # Albums are created or emptied, now take care of photos
                 for f in files:
@@ -349,7 +363,7 @@ class LycheeSyncer:
 
                             if not(self.dao.photoExists(photo)):
                                 if self.conf['verbose']:
-                                    print "INFO: adding to lychee", os.path.join(root, f)
+                                    print("INFO: adding to lychee", os.path.join(root, f))
                                 self.makeThumbnail(photo)
                                 res = self.addFileToAlbum(photo)
                                 self.adjustRotation(photo)
@@ -361,12 +375,12 @@ class LycheeSyncer:
                                     if res:
                                         album['photos'].append(photo)
                                     else:
-                                        print "ERROR: while adding to lychee", os.path.join(root, f)
+                                        print("ERROR: while adding to lychee", os.path.join(root, f))
                             else:
                                 if self.conf['verbose']:
-                                    print "WARN: photo already exists in lychee with same name or same checksum: ", photo.srcfullpath
+                                    print("WARN: photo already exists in lychee with same name or same checksum: ", photo.srcfullpath)
                         except Exception:
-                            print "ERROR could not add " + str(f) + " to album " + album['name']
+                            print("ERROR could not add " + str(f) + " to album " + album['name'])
                             traceback.print_exc()
 
                 a = album.copy()
@@ -379,11 +393,11 @@ class LycheeSyncer:
         self.dao.close()
 
         # Final report
-        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        print "Directory scanned:", self.conf['srcdir']
-        print "Created albums: ", str(createdalbums)
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("Directory scanned:", self.conf['srcdir'])
+        print("Created albums: ", str(createdalbums))
         if (importedphotos == discoveredphotos):
-            print str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
+            print(str(importedphotos), "photos imported on", str(discoveredphotos), "discovered")
         else:
-            print 'ERROR: ' + str(importedphotos), "photos imported on", str(discoveredphotos), "discovered"
-        print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print('ERROR: ' + str(importedphotos), "photos imported on", str(discoveredphotos), "discovered")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

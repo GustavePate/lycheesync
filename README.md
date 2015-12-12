@@ -168,9 +168,9 @@ You can choose between the following options to adjust the program behaviour:
 - `-v` **verbose mode**. A little more output
 - `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to
   be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
-- `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee
-  a slave of another repository
-
+- `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee a slave of another repository
+- `-l` **link mode**. Don't copy files from source folder to lychee directory structure, just create symbolic links (thumbnails will however be created in lychee's directory structure)
+- `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
 
 # Technical doc
 

@@ -1,6 +1,8 @@
 #!/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+from __future__ import print_function
 from lycheesyncer import LycheeSyncer
 from update_scripts import inf_to_lychee_2_6_2
 import argparse
@@ -20,29 +22,29 @@ def main(conf):
 
 
 def show_args():
-    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    print "Program Launched with args:"
-    print "* dropDB:" + str(args.dropdb)
-    print "* replace:" + str(args.replace)
-    print "* verbose:" + str(args.verbose)
-    print "* srcdir:" + args.srcdir
-    print "* lycheepath:" + args.lycheepath
-    print "* conf:" + args.conf
-    print "* sort_by_name:" + str(conf_data['sort'])
-    print "* link:" + str(conf_data['link'])
-    print "Program Launched with conf:"
-    print "* dbHost:" + conf_data['dbHost']
-    print "* db:" + conf_data['db']
-    print "* dbUser:" + conf_data['dbUser']
-    print "* dbPassword:" + conf_data['dbPassword']
-    print "* thumbQuality:" + str(conf_data['thumbQuality'])
-    print "* publicAlbum:" + str(conf_data['publicAlbum'])
-    print "Other conf elements:"
-    print "* user:" + str(conf_data["user"])
-    print "* group:" + str(conf_data["group"])
-    print "* uid:" + str(conf_data["uid"])
-    print "* gid:" + str(conf_data["gid"])
-    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("Program Launched with args:")
+    print("* dropDB:" + str(args.dropdb))
+    print("* replace:" + str(args.replace))
+    print("* verbose:" + str(args.verbose))
+    print("* srcdir:" + args.srcdir)
+    print("* lycheepath:" + args.lycheepath)
+    print("* conf:" + args.conf)
+    print("* sort_by_name:" + str(conf_data['sort']))
+    print("* link:" + str(conf_data['link']))
+    print("Program Launched with conf:")
+    print("* dbHost:" + conf_data['dbHost'])
+    print("* db:" + conf_data['db'])
+    print("* dbUser:" + conf_data['dbUser'])
+    print("* dbPassword:" + conf_data['dbPassword'])
+    print("* thumbQuality:" + str(conf_data['thumbQuality']))
+    print("* publicAlbum:" + str(conf_data['publicAlbum']))
+    print("Other conf elements:")
+    print("* lychee/uploads/big user:" + str(conf_data["user"]))
+    print("* lychee/uploads/big group:" + str(conf_data["group"]))
+    print("* lychee/uploads/big uid:" + str(conf_data["uid"]))
+    print("* lychee/uploads/big gid:" + str(conf_data["gid"]))
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 if __name__ == '__main__':
 
@@ -60,32 +62,42 @@ if __name__ == '__main__':
                                                  "but don t drop the entire db"), action='store_true')
     parser.add_argument('-v', '--verbose', help='increase output verbosity', action='store_true')
     parser.add_argument('-s', '--sort_album_by_name', help='sort album display by name', action='store_true')
-    parser.add_argument('-l', '--link', help='do not copy photos to lychee uploads directory, just create a symlink', action='store_true')
-    parser.add_argument('-u', '--updatedb26', action='store_const', dest='updatedb_to_version_2_6_2', const='2.6.2', help='Update lycheesync added data in lychee db to the lychee 2.6.2 required values')
+    parser.add_argument(
+        '-l',
+        '--link',
+        help='do not copy photos to lychee uploads directory, just create a symlink',
+        action='store_true')
+    parser.add_argument(
+        '-u',
+        '--updatedb26',
+        action='store_const',
+        dest='updatedb_to_version_2_6_2',
+        const='2.6.2',
+        help='Update lycheesync added data in lychee db to the lychee 2.6.2 required values')
     args = parser.parse_args()
     shouldquit = False
 
     if (args.replace and args.dropdb):
         shouldquit = True
-        print "you have to choose between replace and dropdb behaviour"
+        print("you have to choose between replace and dropdb behaviour")
 
     if not os.path.exists(os.path.join(args.lycheepath, 'uploads')):
         shouldquit = True
-        print "lychee install path may be wrong:" + args.lycheepath
+        print("lychee install path may be wrong:" + args.lycheepath)
 
     if not os.path.exists(args.conf):
         shouldquit = True
-        print "configuration file  does not exist:" + args.conf
+        print("configuration file  does not exist:" + args.conf)
     else:
         conf_file = open(args.conf, 'r')
         conf_data = json.load(conf_file)
         conf_file.close()
 
     if args.updatedb_to_version_2_6_2:
-        print "updatedb"
+        print("updatedb")
     elif not os.path.exists(args.srcdir):
         shouldquit = True
-        print "photo directory does not exist:" + args.srcdir
+        print("photo directory does not exist:" + args.srcdir)
 
     if shouldquit:
         sys.exit(1)
@@ -100,11 +112,10 @@ if __name__ == '__main__':
     conf_data["group"] = None
     conf_data["uid"] = None
     conf_data["gid"] = None
-    conf_data["sort"] =  args.sort_album_by_name
-    conf_data["link"] =  args.link
+    conf_data["sort"] = args.sort_album_by_name
+    conf_data["link"] = args.link
     if conf_data["dropdb"]:
         conf_data["sort"] = True
-
 
     if conf_data["updatedb"] == "2.6.2":
         if args.verbose:
@@ -114,7 +125,7 @@ if __name__ == '__main__':
     else:
 
         # read permission of the lycheepath directory to apply it to the uploade photos
-        img_path = os.path.join(conf_data["lycheepath"], "uploads")
+        img_path = os.path.join(conf_data["lycheepath"], "uploads", "big")
         stat_info = os.stat(img_path)
         uid = stat_info.st_uid
         gid = stat_info.st_gid

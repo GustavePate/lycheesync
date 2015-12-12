@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from __future__ import print_function
 import time
 import hashlib
 import os
@@ -91,7 +93,7 @@ class LycheePhoto:
             try:
                 epoch_date = (parse(value) - datetime.datetime(1970, 1, 1)).total_seconds()
             except:
-                print 'WARN model sysdate impossible to parse: ' + str(value)
+                print('WARN model sysdate impossible to parse: ' + str(value))
                 epoch_date = epoch_now
         # int assign
         elif (in_t is int):
@@ -100,7 +102,7 @@ class LycheePhoto:
         elif (in_t is datetime.date):
             epoch_date = (value - datetime.datetime(1970, 1, 1)).total_seconds()
         else:
-            print 'WARN model.sysdate unknown variation: ' + str(in_t)
+            print('WARN model.sysdate unknown variation: ' + str(in_t))
             epoch_date = epoch_now
 
         return epoch_date
@@ -143,7 +145,7 @@ class LycheePhoto:
 
         # Compute file storage url
         m = hashlib.md5()
-        m.update(self.id)
+        m.update(self.id.encode('utf-8'))
         crypted = m.hexdigest()
 
         ext = os.path.splitext(photoname)[1]
@@ -179,9 +181,9 @@ class LycheePhoto:
                 if exifinfo is not None:
                     for tag, value in exifinfo.items():
                         decode = TAGS.get(tag, tag)
-                        # print tag, decode, value
+                        # print(tag, decode, value)
                         # if decode != "MakerNote":
-                        #    print decode, value
+                        #    print(decode, value)
                         if decode == "Orientation":
                             self.exif.orientation = value
                         if decode == "Make":
@@ -201,19 +203,19 @@ class LycheePhoto:
                                 self.exif._takedate = value.split(" ")[0]
                                 self._sysdate = self.exif.takedate
                             except:
-                                print 'WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath
+                                print('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime":
                             try:
                                 self.exif.taketime = value.split(" ")[1]
                                 self.systime = self.exif.taketime
                             except:
-                                print 'WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath
+                                print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                     # TODO: Bad description sysdate is int
                     self.description = str(self._sysdate) + " " + self.systime
         except IOError:
-            print 'ERROR ioerror (corrupted ?): ' + self.srcfullpath
+            print('ERROR ioerror (corrupted ?): ' + self.srcfullpath)
 
     def __str__(self):
         res = ""

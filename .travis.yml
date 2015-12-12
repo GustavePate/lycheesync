@@ -16,6 +16,8 @@ services:
 
 before_script:
   - mysql -e 'create database lychee;'
+  - mysql -e "GRANT ALL ON lychee.* TO 'travis'@'localhost';"
+  - mysql -e "GRANT ALL ON lychee.* TO 'root'@'localhost';"
   - mysql -e "create user 'lychee'@'localhost' IDENTIFIED BY 'lychee';"
   - mysql -e "GRANT ALL ON lychee.* TO 'lychee'@'localhost';"
 

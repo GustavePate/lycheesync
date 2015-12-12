@@ -15,7 +15,9 @@ services:
       - mysql
 
 before_script:
-  - mysql -e 'create database lychee; grant all on lychee.* to \'lychee\'@\'localhost\' identified by \'lychee\';'
+  - mysql -e 'create database lychee;'
+  - mysql -e 'create user \'lychee\'@\'localhost\' IDENTIFIED BY \'lychee\';'
+  - mysql -e 'GRANT ALL ON lychee.* TO \'lychee\'@\'localhost\';'
 
 # command to run tests
 script: make test

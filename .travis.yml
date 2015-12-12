@@ -1,0 +1,23 @@
+language: python
+
+branches:
+  only:
+    - py3unittest
+
+python:
+  - "2.7"
+  - "3.4"
+
+# command to install dependencies
+install: "pip install -r requirements.txt"
+
+services:
+      - mysql
+
+before_script:
+  - mysql -e 'create database lychee;'
+  - mysql -e "create user 'lychee'@'localhost' IDENTIFIED BY 'lychee';"
+  - mysql -e "GRANT ALL ON lychee.* TO 'lychee'@'localhost';"
+
+# command to run tests
+script: make test

@@ -28,7 +28,7 @@ class TestClass:
         assert tu.count_fs_thumb() == expected_photos
         assert tu.count_fs_photos() == expected_photos
 
-    def test_db_maker(self):
+    def test_env_maker(self):
         tu = TestUtils()
         # clean all
         tu.drop_db()

@@ -26,8 +26,6 @@ def clean(request):
     """ will be run for each test function see pytest.ini """
     logger.info("DropDb")
     tu = TestUtils()
-    tu.make_fake_lychee_db()
-    tu.make_fake_lychee_fs()
     tu.clean_db()
     tu.clean_fs()
 
@@ -39,7 +37,14 @@ def carriagereturn(request):
 
 
 @pytest.fixture(scope="session")
-def initloggers(request):
+def init2db_and_fs(request):
+    tu = TestUtils()
+    # TODO: impossible because conf not loaded
+    tu.make_fake_lychee_db()
+
+
+@pytest.fixture(scope="session")
+def init1loggers(request):
     """ will be run for each test session see pytest.ini """
     # initialize basic loggers
     print("****** INIT LOGGERS ******")

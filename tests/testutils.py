@@ -56,13 +56,13 @@ class TestUtils:
 
     def drop_db(self):
         # connect to db
-        self.db = pymysql.connect(host=self.cb.conf['dbHost'],
-                                  user=self.cb.conf['dbUser'],
-                                  passwd=self.cb.conf['dbPassword'],
-                                  charset='utf8mb4',
-                                  cursorclass=pymysql.cursors.DictCursor)
-        # check if db exists
         try:
+            self.db = pymysql.connect(host=self.cb.conf['dbHost'],
+                                      user=self.cb.conf['dbUser'],
+                                      passwd=self.cb.conf['dbPassword'],
+                                      charset='utf8mb4',
+                                      cursorclass=pymysql.cursors.DictCursor)
+        # check if db exists
             sql = "DROP DATABASE " + self.cb.conf['db']
             with self.db.cursor() as cursor:
                 cursor.execute(sql)
@@ -338,7 +338,7 @@ class TestUtils:
                 rows = cursor.fetchall()
             res = rows
         except Exception as e:
-            #logger.exception(e)
+            # logger.exception(e)
             res = None
             raise e
         finally:

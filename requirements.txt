@@ -1,4 +1,6 @@
-pytest
-click
 pillow
 pymysql
+pytest
+click
+mysqlclient
+python-dateutil

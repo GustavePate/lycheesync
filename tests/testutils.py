@@ -45,12 +45,13 @@ class TestUtils:
 
         if not(os.path.isdir(os.path.join(path, 'uploads', 'big'))):
             uploads = os.path.join(path, 'uploads')
-            path = []
-            path.append(uploads)
-            path.append(os.path.join(uploads, 'big'))
-            path.append(os.path.join(uploads, 'thumb'))
-            path.append(os.path.join(uploads, 'medium'))
-            for p in path:
+            paths = []
+            paths.append(path)
+            paths.append(uploads)
+            paths.append(os.path.join(uploads, 'big'))
+            paths.append(os.path.join(uploads, 'thumb'))
+            paths.append(os.path.join(uploads, 'medium'))
+            for p in paths:
                 if not(os.path.isdir(p)):
                     os.mkdir(p)
 

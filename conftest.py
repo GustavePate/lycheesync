@@ -42,7 +42,7 @@ def initdb_and_fs(request):
     tu = TestUtils()
     # TODO: impossible because conf not loaded
     tu.make_fake_lychee_db()
-    tu.make_fake_lychee_fs('/tmp/')
+    tu.make_fake_lychee_fs(tu.conf['lycheepath'])
 
 
 @pytest.fixture(scope="session")

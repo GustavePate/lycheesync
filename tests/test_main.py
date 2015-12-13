@@ -33,11 +33,12 @@ class TestClass:
         tu = TestUtils()
         # clean all
         tu.drop_db()
-        if os.path.exists('/tmp/uploads'):
-            shutil.rmtree('/tmp/uploads')
+        upload_path = os.path.join(tu.conf['lycheepath'], '/uploads')
+        if os.path.exists(upload_path):
+            shutil.rmtree(upload_path)
 
         tu.make_fake_lychee_db()
-        tu.make_fake_lychee_fs('/tmp/')
+        tu.make_fake_lychee_fs(tu.conf['lycheepath'])
         # file system exists
         assert os.path.exists('/tmp/uploads/big')
         assert os.path.exists('/tmp/uploads/medium')
@@ -252,7 +253,7 @@ class TestClass:
             logger.info(titles)
 
             # combine
-            ordered_list=zip(ids,titles)
+            ordered_list = zip(ids, titles)
             logger.info(ordered_list)
             # for each sorted
             well_sorted = True
@@ -304,7 +305,7 @@ class TestClass:
             logger.info(titles)
 
             # combine
-            ordered_list=zip(ids,titles)
+            ordered_list = zip(ids, titles)
             logger.info(ordered_list)
             # for each sorted
             well_sorted = True
@@ -337,9 +338,6 @@ class TestClass:
             assert (retval == 0), "process result is ok"
 
             # check if files are links
-
-
-
 
         except AssertionError:
             raise

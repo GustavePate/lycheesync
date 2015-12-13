@@ -5,7 +5,7 @@
     "dbHost":"localhost",
     "thumbQuality":80,
     "publicAlbum": 0,
-    "lycheepath": "/var/www/Lychee",
+    "lycheepath": "/tmp/lychee",
     "testphotopath": "./tmptest",
     "testlib": "./tests/pics",
     "conf": "./ressources/test_conf.json"

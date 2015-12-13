@@ -45,14 +45,15 @@ class TestUtils:
 
         if not(os.path.isdir(os.path.join(path, 'uploads', 'big'))):
             uploads = os.path.join(path, 'uploads')
+            os.mkdir(path)
+            os.mkdir(uploads)
             paths = []
-            paths.append(path)
-            paths.append(uploads)
             paths.append(os.path.join(uploads, 'big'))
             paths.append(os.path.join(uploads, 'thumb'))
             paths.append(os.path.join(uploads, 'medium'))
             for p in paths:
                 if not(os.path.isdir(p)):
+                    logger.info('mkdir ' + p)
                     os.mkdir(p)
 
     def drop_db(self):

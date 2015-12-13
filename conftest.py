@@ -41,6 +41,7 @@ def initdb_and_fs(request):
     print("#FIXTURE: init db and fs")
     tu = TestUtils()
     # TODO: impossible because conf not loaded
+    tu.drop_db()
     tu.make_fake_lychee_db()
     tu.make_fake_lychee_fs(tu.conf['lycheepath'])
 

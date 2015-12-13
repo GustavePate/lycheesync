@@ -32,17 +32,16 @@ class TestClass:
     def test_env_maker(self):
         tu = TestUtils()
         # clean all
-        tu.drop_db()
         upload_path = os.path.join(tu.conf['lycheepath'], '/uploads')
         if os.path.exists(upload_path):
             shutil.rmtree(upload_path)
-
+        tu.drop_db()
         tu.make_fake_lychee_db()
         tu.make_fake_lychee_fs(tu.conf['lycheepath'])
         # file system exists
-        assert os.path.exists('/tmp/uploads/big')
-        assert os.path.exists('/tmp/uploads/medium')
-        assert os.path.exists('/tmp/uploads/thumb')
+        assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads',  'big'))
+        assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads', 'medium'))
+        assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads', 'thumb'))
         # table exists
         assert tu.table_exists('lychee_albums')
         assert tu.table_exists('lychee_photos')
@@ -308,7 +307,6 @@ class TestClass:
             ordered_list = zip(ids, titles)
             logger.info(ordered_list)
             # for each sorted
-            well_sorted = True
             for x in ordered_list:
                 assert (tu.get_album_id(x[1]) == x[0]), "element not ordered "+x[1]
 

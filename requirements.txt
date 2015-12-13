@@ -1,6 +1,6 @@
 pillow
 pymysql
-pytest
+pytest==2.7.3
 click
 mysqlclient
 python-dateutil

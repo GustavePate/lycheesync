@@ -18,7 +18,12 @@ def pytest_report_header(config):
 
 def pytest_addoption(parser):
     """create a confpath command line arg for py.test"""
-    parser.addoption('--confpath', action="append", default=[], help="configuration full path")
+    parser.addoption(
+        '--confpath',
+        dest="confpath",
+        action="append",
+        default=[],
+        help="configuration full path")
 
 
 @pytest.fixture(scope="function")
@@ -53,9 +58,9 @@ def initloggers(request):
     # initialize basic loggers
     print("****** INIT LOGGERS ******")
     logging.basicConfig(
-            level=logging.DEBUG,
-            format='%(asctime)s.%(msecs)03d %(levelname)s - %(name)s.%(funcName)s l. %(lineno)d - %(message)s',
-            datefmt='%H:%M:%S')
+        level=logging.DEBUG,
+        format='%(asctime)s.%(msecs)03d %(levelname)s - %(name)s.%(funcName)s l. %(lineno)d - %(message)s',
+        datefmt='%H:%M:%S')
 
 
 @pytest.fixture(scope="session")

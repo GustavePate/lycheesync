@@ -138,11 +138,12 @@ class TestClass:
             album1_date = tu.get_album_creation_date('album1')
             # read album date for album3
             album3_date = tu.get_album_creation_date('album3')
+
             # empty tmp pictures folder
             tu.delete_dir_content(src)
 
             # sleep 1 s to make time album signature different
-            time.sleep(1)
+            time.sleep(2)
 
             # load album3
             tu.load_photoset("album3")

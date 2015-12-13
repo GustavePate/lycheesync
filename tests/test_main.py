@@ -142,6 +142,7 @@ class TestClass:
             # empty tmp pictures folder
             tu.delete_dir_content(src)
 
+            tu.dump_table('lychee_albums')
             # sleep 1 s to make time album signature different
             time.sleep(2)
 
@@ -157,6 +158,7 @@ class TestClass:
 
             album1_date_2 = tu.get_album_creation_date('album1')
             album3_date_2 = tu.get_album_creation_date('album3')
+            tu.dump_table('lychee_albums')
             # y date < time
             assert album1_date == album1_date_2, 'album 1 is untouched'
             assert tu.check_album_size('album1') == 1
@@ -309,7 +311,7 @@ class TestClass:
             logger.info(ordered_list)
             # for each sorted
             for x in ordered_list:
-                assert (tu.get_album_id(x[1]) == x[0]), "element not ordered "+x[1]
+                assert (tu.get_album_id(x[1]) == x[0]), "element not ordered " + x[1]
 
         except AssertionError:
             raise

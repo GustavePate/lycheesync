@@ -210,6 +210,22 @@ class TestUtils:
             self.db.close()
             return res
 
+    def dump_table(self, table_name):
+        self._connect_db()
+        try:
+            sql = "select * from " + table_name
+            with self.db.cursor() as cursor:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+                for row in rows:
+                    logger.info(row)
+
+        except Exception as e:
+            logger.exception(e)
+            assert False
+        finally:
+            self.db.close()
+
     def count_db_albums(self):
         res = -1
         self._connect_db()

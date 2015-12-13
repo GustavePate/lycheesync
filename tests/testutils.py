@@ -136,7 +136,7 @@ class TestUtils:
         testlibpath = self.cb.conf['testlib']
         testalbum = os.path.join(testlibpath, setname)
         dest = os.path.join(self.cb.conf['testphotopath'], setname)
-        shutil.copytree(testalbum, dest, copy_function=shutil.copy)
+        shutil.copytree(testalbum, dest)  # , copy_function=shutil.copy)
 
     def clean_db(self):
         logger.info("Clean Database")

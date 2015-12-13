@@ -40,3 +40,4 @@ exiftest.py
 myconf.json
 testconf.json
 profile.py
+.cache

@@ -9,13 +9,15 @@ python:
   - "3.4"
 
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: 
+    - pip install -r requirements.txt
+    - pip freeze
 
 services:
     - mysql
 
 before_install:
-    - echo "sudo apt-get install xxx"
+    - sudo apt-get install python-dev python3-dev libmysqlclient-dev
 
 before_script:
   - mysql -u root -e 'create database lychee;'

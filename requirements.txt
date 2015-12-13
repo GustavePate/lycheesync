@@ -2,4 +2,3 @@ pytest
 click
 pillow
 pymysql
-MySQL-python

@@ -56,15 +56,14 @@ You can choose between 3 behaviours:
 # Install
 
 First you have to install the following dependencies:
-- python 2.7
-- mysql bindings for python
+- python 2.7 or 3.x
 - PIL
 - dateutils
 - git
 
-On debian based Linux:
+    On debian based Linux:
 
-`sudo apt-get install imagemagick python python-mysqldb python-imaging python-dateutil git`
+`sudo apt-get install imagemagick python python-imaging python-dateutil git`
 
 
 Then retrieve the project:

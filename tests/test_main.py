@@ -6,6 +6,7 @@ import subprocess
 import os
 import shutil
 import time
+import datetime
 from tests.testutils import TestUtils
 
 logger = logging.getLogger(__name__)
@@ -110,6 +111,37 @@ class TestClass:
             # assert Number of photo / thumbnail on filesystem
             assert tu.count_fs_thumb() == expected_photos
             assert tu.count_fs_photos() == expected_photos
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+    def test_album_date(self):
+        # album date should be equal to date/time original
+        try:
+            tu = TestUtils()
+            # load album x and y
+            tu.load_photoset("real_date")
+
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            cmd = 'python main.py {} {} {} -v '.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # process is ok
+            assert (retval == 0), "process result is ok"
+            assert tu.album_exists_in_db("real_date")
+            # read album date for album1
+            album1_date = tu.get_album_creation_date('real_date')
+
+            real_date = datetime.datetime.fromtimestamp(album1_date)
+            theorical_date = datetime.datetime(11, 11, 11, 11, 11, 11)
+
+            assert (real_date == theorical_date), "album date is 2011/11/11 11:11:11"
+
         except AssertionError:
             raise
         except Exception as e:

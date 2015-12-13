@@ -8,6 +8,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 import datetime
 from dateutil.parser import parse
+import dateutil
 
 
 class ExifData:
@@ -48,6 +49,13 @@ class ExifData:
         res += "taketime: " + str(self.taketime) + "\n"
         res += "orientation: " + str(self.orientation) + "\n"
         return res
+
+
+class DateParser(dateutil.parser.parserinfo):
+
+    def __init__(self):
+        super(DateParser, self).__init__()
+        self.JUMP.append(u':')
 
 
 class LycheePhoto:
@@ -91,8 +99,11 @@ class LycheePhoto:
         # (unicode or str -> convert to int)
         if ((in_t is unicode) or (in_t is str)):
             try:
-                epoch_date = (parse(value) - datetime.datetime(1970, 1, 1)).total_seconds()
-            except:
+                # TODO: remove useless
+                dp = DateParser()
+                epoch_date = (parse(value, parserinfo=dp) - datetime.datetime(1970, 1, 1)).total_seconds()
+            except Exception as e:
+                print(e.message)
                 print('WARN model sysdate impossible to parse: ' + str(value))
                 epoch_date = epoch_now
         # int assign
@@ -198,19 +209,38 @@ class LycheePhoto:
                             self.exif.model = value
                         if decode == "ExposureTime":
                             self.exif.shutter = value
-                        if decode == "DateTime":
-                            try:
-                                self.exif._takedate = value.split(" ")[0]
-                                self._sysdate = self.exif.takedate
-                            except:
-                                print('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
-                        if decode == "DateTime":
+                        if decode == "DateTimeOriginal":
+                            try:
+                                self.exif.takedate = value[0].split(" ")[0]
+                                self._sysdate = self.exif._takedate
+                            except Exception as e:
+                                print(e)
+                                print ('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+
+                        if decode == "DateTimeOriginal":
+                            try:
+                                self.exif.taketime = value[0].split(" ")[1]
+                                self.systime = self.exif.taketime
+                            except Exception as e:
+                                print(e)
+                                print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
+
+                        if decode == "DateTime" and self.exif._takedate is None:
+                            try:
+                                self.exif.takedate = value.split(" ")[0]
+                                self._sysdate = self.exif._takedate
+                            except Exception as e:
+                                print('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+                                print(e)
+
+                        if decode == "DateTime" and self.exif.taketime is None:
                             try:
                                 self.exif.taketime = value.split(" ")[1]
                                 self.systime = self.exif.taketime
-                            except:
+                            except Exception as e:
                                 print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
+                                print(e)
 
                     # TODO: Bad description sysdate is int
                     self.description = str(self._sysdate) + " " + self.systime

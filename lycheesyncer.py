@@ -248,14 +248,21 @@ class LycheeSyncer:
     def updateAlbumsDate(self, albums):
         now = datetime.datetime.now()
         last2min = now - datetime.timedelta(minutes=2)
-        last2min_epoch = (last2min - datetime.datetime(1970, 1, 1)).total_seconds()
+        last2min_epoch = int((last2min - datetime.datetime(1970, 1, 1)).total_seconds())
+        print(last2min_epoch)
+        print(datetime.datetime.fromtimestamp(last2min_epoch))
 
         for a in albums:
             try:
                 # get photos with a real date (not just now)
                 datelist = None
-                datelist = [photo.sysdate for photo in a['photos'] if photo.sysdate < last2min_epoch]
 
+                for f in a['photos']:
+                    print(f)
+
+                #TODO: sysdate not correctly filled
+                datelist = [photo.sysdate for photo in a['photos'] if photo.sysdate < last2min_epoch]
+                print(datelist)
                 if datelist is not None and len(datelist) > 0:
                     newdate = max(datelist)
                     self.dao.updateAlbumDate(a['id'], newdate)

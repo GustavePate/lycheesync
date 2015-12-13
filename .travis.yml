@@ -15,7 +15,7 @@ services:
     - mysql
 
 before_install:
-    - sudo apt-get install python-mysqldb 
+    - sudo apt-get install libmysqlclient18
 
 before_script:
   - mysql -u root -e 'create database lychee;'

@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/GustavePate/lycheesync.svg)](https://travis-ci.org/GustavePate/lycheesync)
+
+
 # Changelog
 
 ## v3.0.1

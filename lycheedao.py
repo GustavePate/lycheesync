@@ -1,3 +1,4 @@
+# coding: utf8
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -181,8 +182,8 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album=" + self._p(photo.albumid) +
-                     " AND (title='" + self._p(photo.originalname) + "' OR checksum='" + self._p(photo.checksum) + "')")
+            query = ("select * from lychee_photos where album=" + str(photo.albumid) +
+                     " AND (title='" + photo.originalname + "' OR checksum='" + photo.checksum + "')")
             cur = self.db.cursor()
             cur.execute(query)
             row = cur.fetchall()
@@ -206,7 +207,7 @@ class LycheeDAO:
         album['id'] = None
 
         query = ("insert into lychee_albums (title, sysstamp, public, password) values ('{}',{},'{}',NULL)".format(
-            self._p(album['name']),
+            album['name'],
             datetime.datetime.now().strftime('%s'),
             str(self.conf["publicAlbum"]))
         )
@@ -219,7 +220,7 @@ class LycheeDAO:
             cur.execute(query)
             self.db.commit()
 
-            query = "select id from lychee_albums where title='" + self._p(album['name']) + "'"
+            query = "select id from lychee_albums where title='" + album['name'] + "'"
             cur.execute(query)
             row = cur.fetchone()
             print('row:' + str(row))
@@ -324,14 +325,14 @@ class LycheeDAO:
                  " '{}', " +
                  "'{}', '{}', '{}', '{}', " +
                  "'{}', '{}', '{}')"
-                 ).format(photo.id, photo.url, self.conf["publicAlbum"], self._p(photo.type), photo.width, photo.height,
+                 ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
                           photo.size, photo.star,
-                          photo.thumbUrl, photo.albumid, self._p(
-                     photo.exif.iso), self._p(
-                     photo.exif.aperture),
-            self._p(photo.exif.make),
-            photo.exif.model, self._p(photo.exif.shutter), self._p(photo.exif.focal), stamp,
-            self._p(photo.description), self._p(photo.originalname), photo.checksum)
+                          photo.thumbUrl, photo.albumid,
+                          photo.exif.iso,
+                          photo.exif.aperture,
+                          photo.exif.make,
+                          photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
+                          photo.description, photo.originalname, photo.checksum)
         try:
             cur = self.db.cursor()
             res = cur.execute(query)

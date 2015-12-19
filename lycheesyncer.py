@@ -1,3 +1,4 @@
+# coding: utf8
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -11,6 +12,7 @@ from lycheemodel import LycheePhoto
 from PIL import Image
 import datetime
 import time
+import sys
 
 
 def remove_file(path):
@@ -45,9 +47,19 @@ class LycheeSyncer:
         Returns a string, the lychee album name
         """
         # make a list with directory and sub dirs
-        path = album['relpath'].split(os.sep)
+        print("ENCODING: " + str(sys.getfilesystemencoding()))
+        alb_path_utf8 = album['relpath']  # .decode('UTF-8')
+        print("THE PATH: " + alb_path_utf8)
+
+        path = alb_path_utf8.split(os.sep)
+
         # join the rest: no subfolders in lychee yet
-        album['name'] = "_".join(path)
+        if len(path) > 1:
+            print("JOIN")
+            album['name'] = "_".join(path)
+        else:
+            album['name'] = alb_path_utf8
+        print("album name:" + album['name'])
         return album['name']
 
     def isAPhoto(self, file):
@@ -261,7 +273,8 @@ class LycheeSyncer:
 
                 if len(a['photos']) > 0:
 
-                    datelist = [photo.epoch_sysdate for photo in a['photos'] if photo.epoch_sysdate < last2min_epoch]
+                    datelist = [
+                        photo.epoch_sysdate for photo in a['photos'] if photo.epoch_sysdate < last2min_epoch]
 
                     if datelist is not None and len(datelist) > 0:
                         newdate = max(datelist)
@@ -316,6 +329,8 @@ class LycheeSyncer:
         # walkthroug each file / dir of the srcdir
         for root, dirs, files in os.walk(self.conf['srcdir']):
 
+            if sys.version_info.major == 2:
+                root = root.decode('UTF-8')
             # Init album data
             album['id'] = None
             album['name'] = None
@@ -368,6 +383,8 @@ class LycheeSyncer:
 
                 # Albums are created or emptied, now take care of photos
                 for f in files:
+                    if sys.version_info.major == 2:
+                        f = f.decode('UTF-8')
                     if self.isAPhoto(f):
 
                         try:
@@ -395,8 +412,8 @@ class LycheeSyncer:
                                         "WARN: photo already exists in lychee with same name or same checksum: ",
                                         photo.srcfullpath)
                         except Exception:
-                            print("ERROR could not add " + str(f) + " to album " + album['name'])
                             traceback.print_exc()
+                            print("ERROR could not add " + str(f) + " to album " + album['name'])
 
                 a = album.copy()
                 albums.append(a)

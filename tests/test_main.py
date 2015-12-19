@@ -373,7 +373,8 @@ class TestClass:
             dest = os.path.join(lych, "uploads", "big")
             not_dir = [x for x in os.listdir(dest) if not(os.path.isdir(x))]
             for f in not_dir:
-                assert os.path.islink(f), "this file is not a link"
+                full_path = os.path.join(dest, f)
+                assert os.path.islink(full_path), "this file {} is not a link".format(full_path)
 
         except AssertionError:
             raise

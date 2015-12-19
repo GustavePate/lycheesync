@@ -351,7 +351,6 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
     def test_dash_l(self):
         try:
             # load album y
@@ -371,9 +370,18 @@ class TestClass:
             assert (retval == 0), "process result is ok"
 
             # check if files are links
+            dest = os.path.join(lych,"uploads","big")
+            not_dir = [x for x in os.listdir(dest) if not(os.path.isdir(x))]
+            for f in not_dir:
+                assert "this file is not a link", os.path.islink(f)
+
+
+
+
 
         except AssertionError:
             raise
+            assert False
         except Exception as e:
             logger.exception(e)
             assert False

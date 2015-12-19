@@ -8,7 +8,6 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 import datetime
 from dateutil.parser import parse
-import dateutil
 
 
 class ExifData:
@@ -47,13 +46,6 @@ class ExifData:
         res += "taketime: " + str(self.taketime) + "\n"
         res += "orientation: " + str(self.orientation) + "\n"
         return res
-
-
-class dateparser(dateutil.parser.parserinfo):
-
-    def __init__(self):
-        super(dateparser, self).__init__()
-        self.jump.append(u':')
 
 
 class LycheePhoto:
@@ -182,7 +174,6 @@ class LycheePhoto:
             w, h = img.size
             self.width = float(w)
             self.height = float(h)
-
 
             if hasattr(img, '_getexif'):
                 exifinfo = img._getexif()

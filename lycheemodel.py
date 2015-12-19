@@ -19,8 +19,7 @@ class ExifData:
 
     @property
     def takedate(self):
-        """I'm the 'x' property."""
-        return self._takedate.replace(':', '-')
+        return self._takedate
 
     @takedate.setter
     def takedate(self, value):
@@ -32,8 +31,8 @@ class ExifData:
     model = ""
     shutter = ""
     focal = ""
-    _takedate = ""
-    taketime = ""
+    _takedate = None
+    taketime = None
     orientation = 0
 
     def __str__(self):
@@ -44,18 +43,17 @@ class ExifData:
         res += "model: " + str(self.model) + "\n"
         res += "shutter: " + str(self.shutter) + "\n"
         res += "focal: " + str(self.focal) + "\n"
-        res += "_takedate: " + str(self._takedate) + "\n"
         res += "takedate: " + str(self.takedate) + "\n"
         res += "taketime: " + str(self.taketime) + "\n"
         res += "orientation: " + str(self.orientation) + "\n"
         return res
 
 
-class DateParser(dateutil.parser.parserinfo):
+class dateparser(dateutil.parser.parserinfo):
 
     def __init__(self):
-        super(DateParser, self).__init__()
-        self.JUMP.append(u':')
+        super(dateparser, self).__init__()
+        self.jump.append(u':')
 
 
 class LycheePhoto:
@@ -84,51 +82,46 @@ class LycheePhoto:
     srcfullpath = ""
     destfullpath = ""
     exif = None
-    _sysdate = None
-    systime = ""
+    _str_datetime = None
     checksum = ""
 
-    def convert_sysdate(self, value):
-        # check sysdate type
-        in_t = type(value)
+    def convert_strdate_to_timestamp(self, value):
+        # check parameter type
+        print("DEBUG convert_strdate input: " + str(value))
+        print("DEBUG convert_strdate input_type: " + str(type(value)))
 
-        epoch_date = None
+        timestamp = None
         # now in epoch time
         epoch_now = int(time.time())
 
-        # (unicode or str -> convert to int)
-        if ((in_t is unicode) or (in_t is str)):
+        if isinstance(value, int):
+            timestamp = value
+        elif isinstance(value, datetime.date):
+            timestamp = (value - datetime.datetime(1970, 1, 1)).total_seconds()
+        elif value:
+
+            value = str(value)
+
             try:
-                # TODO: remove useless
-                dp = DateParser()
-                epoch_date = (parse(value, parserinfo=dp) - datetime.datetime(1970, 1, 1)).total_seconds()
+                the_date = parse(value)
+                print("DEBUG parsed date: " + str(the_date))
+                # woks for poython 3
+                # timestamp = the_date.timestamp()
+                timestamp = time.mktime(the_date.timetuple())
+
             except Exception as e:
                 print(e.message)
-                print('WARN model sysdate impossible to parse: ' + str(value))
-                epoch_date = epoch_now
-        # int assign
-        elif (in_t is int):
-            epoch_date = value
-        # date convert to int
-        elif (in_t is datetime.date):
-            epoch_date = (value - datetime.datetime(1970, 1, 1)).total_seconds()
+                print('WARN model date impossible to parse: ' + str(value))
+                timestamp = epoch_now
         else:
-            print('WARN model.sysdate unknown variation: ' + str(in_t))
-            epoch_date = epoch_now
+            # Value is None
+            timestamp = epoch_now
 
-        return epoch_date
+        return timestamp
 
     @property
-    def sysdate(self):
-
-        if self._sysdate:
-            return self.convert_sysdate(self._sysdate)
-        else:
-            return int(time.time())
-
-    @sysdate.setter
-    def sysdate(self, value):
-        self._sysdate = self.convert_sysdate(value)
+    def epoch_sysdate(self):
+        return self.convert_strdate_to_timestamp(self._str_datetime)
 
     # Compute checksum
     def __generateHash(self):
@@ -176,8 +169,10 @@ class LycheePhoto:
         self.type = mimetypes.guess_type(self.originalname, False)[0]
         self.size = os.path.getsize(self.srcfullpath)
         self.size = str(self.size / 1024) + " KB"
-        self._sysdate = datetime.date.today().isoformat()
-        self.systime = datetime.datetime.now().strftime('%H:%M:%S')
+        # Default date
+        takedate = datetime.date.today().isoformat()
+        taketime = datetime.datetime.now().strftime('%H:%M:%S')
+        self._str_datetime = takedate + " " + taketime
 
         # Exif Data Parsing
         self.exif = ExifData()
@@ -187,6 +182,8 @@ class LycheePhoto:
             w, h = img.size
             self.width = float(w)
             self.height = float(h)
+
+
             if hasattr(img, '_getexif'):
                 exifinfo = img._getexif()
                 if exifinfo is not None:
@@ -213,7 +210,6 @@ class LycheePhoto:
                         if decode == "DateTimeOriginal":
                             try:
                                 self.exif.takedate = value[0].split(" ")[0]
-                                self._sysdate = self.exif._takedate
                             except Exception as e:
                                 print(e)
                                 print ('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
@@ -221,15 +217,13 @@ class LycheePhoto:
                         if decode == "DateTimeOriginal":
                             try:
                                 self.exif.taketime = value[0].split(" ")[1]
-                                self.systime = self.exif.taketime
                             except Exception as e:
                                 print(e)
                                 print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
-                        if decode == "DateTime" and self.exif._takedate is None:
+                        if decode == "DateTime" and self.exif.takedate is None:
                             try:
                                 self.exif.takedate = value.split(" ")[0]
-                                self._sysdate = self.exif._takedate
                             except Exception as e:
                                 print('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
                                 print(e)
@@ -237,13 +231,23 @@ class LycheePhoto:
                         if decode == "DateTime" and self.exif.taketime is None:
                             try:
                                 self.exif.taketime = value.split(" ")[1]
-                                self.systime = self.exif.taketime
                             except Exception as e:
                                 print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
                                 print(e)
 
-                    # TODO: Bad description sysdate is int
-                    self.description = str(self._sysdate) + " " + self.systime
+                    # compute takedate / taketime
+                    if self.exif.takedate:
+                        takedate = self.exif.takedate.replace(':', '-')
+                        taketime = '00:00:00'
+
+                    if self.exif.taketime:
+                        taketime = self.exif.taketime
+
+                    self._str_datetime = takedate + " " + taketime
+
+                    # TODO: Bad description takedate is int
+                    self.description = self._str_datetime
+
         except IOError:
             print('ERROR ioerror (corrupted ?): ' + self.srcfullpath)
 
@@ -268,8 +272,8 @@ class LycheePhoto:
         res += "thumbUrl:" + str(self.thumbUrl) + "\n"
         res += "srcfullpath:" + str(self.srcfullpath) + "\n"
         res += "destfullpath:" + str(self.destfullpath) + "\n"
-        res += "sysdate:" + self._sysdate + "\n"
-        res += "systime:" + self.systime + "\n"
+        res += "_str_datetime:" + self._str_datetime + "\n"
+        res += "epoch_sysdate:" + str(self.epoch_sysdate) + "\n"
         res += "checksum:" + self.checksum + "\n"
         res += "Exif: \n" + str(self.exif) + "\n"
         return res

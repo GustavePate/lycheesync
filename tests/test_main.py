@@ -138,7 +138,7 @@ class TestClass:
             album1_date = tu.get_album_creation_date('real_date')
 
             real_date = datetime.datetime.fromtimestamp(album1_date)
-            theorical_date = datetime.datetime(11, 11, 11, 11, 11, 11)
+            theorical_date = datetime.datetime(2011, 11, 11, 11, 11, 11)
 
             assert (real_date == theorical_date), "album date is 2011/11/11 11:11:11"
 

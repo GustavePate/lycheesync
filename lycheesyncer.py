@@ -151,10 +151,12 @@ class LycheeSyncer:
             # adjust right (chmod/chown)
             try:
                 os.lchown(photo.destfullpath, -1, self.conf['gid'])
-            except PermissionError as p:
+            except:
                 if self.conf["verbose"]:
-                    print("WARN: chgrp error,  check file permission for " + photo.destfullpath + ' fix: eventually adjust source file permissions')
-
+                    print(
+                        "WARN: chgrp error,  check file permission for " +
+                        photo.destfullpath +
+                        ' fix: eventually adjust source file permissions')
 
             if not(self.conf['link']):
                 st = os.stat(photo.destfullpath)
@@ -249,8 +251,8 @@ class LycheeSyncer:
         now = datetime.datetime.now()
         last2min = now - datetime.timedelta(minutes=2)
         last2min_epoch = int((last2min - datetime.datetime(1970, 1, 1)).total_seconds())
-        print(last2min_epoch)
-        print(datetime.datetime.fromtimestamp(last2min_epoch))
+        print("last2min: " + str(last2min_epoch))
+        print("last2min: " + str(datetime.datetime.fromtimestamp(last2min_epoch)))
 
         for a in albums:
             try:
@@ -258,18 +260,26 @@ class LycheeSyncer:
                 datelist = None
 
                 for f in a['photos']:
+                    print("###### PHOTO ######")
                     print(f)
 
-                #TODO: sysdate not correctly filled
-                datelist = [photo.sysdate for photo in a['photos'] if photo.sysdate < last2min_epoch]
+                datelist = [
+                    photo.epoch_sysdate for photo in a['photos'] if photo.epoch_sysdate < last2min_epoch]
                 print(datelist)
                 if datelist is not None and len(datelist) > 0:
                     newdate = max(datelist)
                     self.dao.updateAlbumDate(a['id'], newdate)
                     if self.conf["verbose"]:
-                        print("INFO album " + a['name'] + " sysstamp changed to: ", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate)))
+                        print(
+                            "INFO album " +
+                            a['name'] +
+                            " sysstamp changed to: ",
+                            time.strftime(
+                                '%Y-%m-%d %H:%M:%S',
+                                time.localtime(newdate)))
             except Exception as e:
                 print("ERROR: updating album date for album:" + a['name'], e)
+                traceback.print_exc()
 
     def deleteAllFiles(self):
         """
@@ -341,7 +351,6 @@ class LycheeSyncer:
 
                 album['id'] = self.dao.albumExists(album)
 
-
                 if self.conf['replace'] and album['id']:
                     # drop album photos
                     filelist = self.dao.eraseAlbum(album)
@@ -385,7 +394,9 @@ class LycheeSyncer:
                                         print("ERROR: while adding to lychee", os.path.join(root, f))
                             else:
                                 if self.conf['verbose']:
-                                    print("WARN: photo already exists in lychee with same name or same checksum: ", photo.srcfullpath)
+                                    print(
+                                        "WARN: photo already exists in lychee with same name or same checksum: ",
+                                        photo.srcfullpath)
                         except Exception:
                             print("ERROR could not add " + str(f) + " to album " + album['name'])
                             traceback.print_exc()

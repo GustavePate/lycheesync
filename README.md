@@ -8,7 +8,7 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 
 # What's new
 
-See [changlog](./changelog.md)
+See [changlog](./doc/changelog.md)
 
 # Context
 

@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 import MySQLdb
 import datetime
 import traceback
-import time
 import re
 from dateutil.parser import parse
 
@@ -17,6 +16,7 @@ class LycheeDAO:
     """
 
     db = None
+    db2 = None
     conf = None
     albumslist = {}
 
@@ -29,9 +29,11 @@ class LycheeDAO:
         self.db = MySQLdb.connect(host=self.conf["dbHost"],
                                   user=self.conf["dbUser"],
                                   passwd=self.conf["dbPassword"],
-                                  db=self.conf["db"])
+                                  db=self.conf["db"],
+                                  charset='utf8mb4')
         cur = self.db.cursor()
         cur.execute("set names utf8;")
+
         if self.conf["dropdb"]:
             self.dropAll()
 
@@ -214,7 +216,6 @@ class LycheeDAO:
             cur = self.db.cursor()
             if self.conf["verbose"]:
                 print("INFO try to createAlbum:" + query)
-                print("INFO albumname: " + self._p(album['name']))
             cur.execute(query)
             self.db.commit()
 
@@ -230,7 +231,6 @@ class LycheeDAO:
         except Exception:
             traceback.print_exc()
             print("ERROR createAlbum:" + album['name'] + " -> " + str(album))
-            print("ERROR while executing: " + cur._last_executed)
             traceback.print_exc()
             album['id'] = None
         finally:

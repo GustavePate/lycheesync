@@ -40,7 +40,7 @@ class TestClass:
         tu.make_fake_lychee_db()
         tu.make_fake_lychee_fs(tu.conf['lycheepath'])
         # file system exists
-        assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads',  'big'))
+        assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads', 'big'))
         assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads', 'medium'))
         assert os.path.exists(os.path.join(tu.conf['lycheepath'], 'uploads', 'thumb'))
         # table exists
@@ -370,14 +370,10 @@ class TestClass:
             assert (retval == 0), "process result is ok"
 
             # check if files are links
-            dest = os.path.join(lych,"uploads","big")
+            dest = os.path.join(lych, "uploads", "big")
             not_dir = [x for x in os.listdir(dest) if not(os.path.isdir(x))]
             for f in not_dir:
-                assert "this file is not a link", os.path.islink(f)
-
-
-
-
+                assert os.path.islink(f), "this file is not a link"
 
         except AssertionError:
             raise
@@ -386,13 +382,28 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
     def test_unicode(self):
         try:
-            # load unicode album name
             # there is a unicode album
             # there is a unicode photo
-            assert False
+            tu = TestUtils()
+            # load unicode album name
+            tu.load_photoset("FußÄ-Füße")
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # process is ok
+            assert (retval == 0), "process result is ok"
+            assert tu.count_fs_photos() == 2, "photos are missing in fs"
+            assert tu.count_db_photos() == 2, "photos are missing in db"
+            assert tu.album_exists_in_db("FußÄ-Füße"), "unicode album is not in db"
+
         except AssertionError:
             raise
         except Exception as e:
@@ -469,6 +480,18 @@ class TestClass:
             # load 1 album with a mixed case name and spaces
             # name in db is equal to directory name
             # no crash
+            assert False
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+    @pytest.mark.xfail(reason="Not implemented")
+    def test_empty_album(self):
+        try:
+            # load 1 empty albu
+            # no album / no crash
             assert False
         except AssertionError:
             raise

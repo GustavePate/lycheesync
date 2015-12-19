@@ -259,24 +259,21 @@ class LycheeSyncer:
                 # get photos with a real date (not just now)
                 datelist = None
 
-                for f in a['photos']:
-                    print("###### PHOTO ######")
-                    print(f)
+                if len(a['photos']) > 0:
 
-                datelist = [
-                    photo.epoch_sysdate for photo in a['photos'] if photo.epoch_sysdate < last2min_epoch]
-                print(datelist)
-                if datelist is not None and len(datelist) > 0:
-                    newdate = max(datelist)
-                    self.dao.updateAlbumDate(a['id'], newdate)
-                    if self.conf["verbose"]:
-                        print(
-                            "INFO album " +
-                            a['name'] +
-                            " sysstamp changed to: ",
-                            time.strftime(
-                                '%Y-%m-%d %H:%M:%S',
-                                time.localtime(newdate)))
+                    datelist = [photo.epoch_sysdate for photo in a['photos'] if photo.epoch_sysdate < last2min_epoch]
+
+                    if datelist is not None and len(datelist) > 0:
+                        newdate = max(datelist)
+                        self.dao.updateAlbumDate(a['id'], newdate)
+                        if self.conf["verbose"]:
+                            print(
+                                "INFO album " +
+                                a['name'] +
+                                " sysstamp changed to: ",
+                                time.strftime(
+                                    '%Y-%m-%d %H:%M:%S',
+                                    time.localtime(newdate)))
             except Exception as e:
                 print("ERROR: updating album date for album:" + a['name'], e)
                 traceback.print_exc()

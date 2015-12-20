@@ -472,7 +472,7 @@ class TestClass:
             maxwidth = tu.get_column_width("lychee_albums", "title")
             logger.info("album title length: " + str(maxwidth))
             # create long album name
-            dest_alb_name = 'a'*(maxwidth+10)
+            dest_alb_name = 'a' * (maxwidth + 10)
             assert len(dest_alb_name) == (maxwidth + 10)
 
             # copy album with name
@@ -501,20 +501,41 @@ class TestClass:
             logger.exception(e)
             assert False
 
-
-    @pytest.mark.xfail(reason="Not implemented")
     def test_sha1(self):
+        """
+        Should also trigger a warn
+        duplicates containes photos from album1
+        """
         try:
+            tu = TestUtils()
             # load 1 album with same photo under different name
+            tu.load_photoset("album1")
             # load 2 album with same photo under different name
+            tu.load_photoset("duplicates")
+
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+
             # no duplicate
-            assert False
+            assert tu.count_db_albums() == 2, "two albums not created"
+            assert tu.count_fs_photos() == 2, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 2, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 2, "there are duplicate photos in thumb"
+
         except AssertionError:
             raise
         except Exception as e:
             logger.exception(e)
             assert False
-
 
     @pytest.mark.xfail(reason="Not implemented")
     def test_album_keep_original_case(self):
@@ -541,15 +562,3 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
-    def test_last_import_for_manual_check(self):
-        try:
-            # load 1 album with an exif rotation file
-            # no crash
-            # manual check
-            assert False
-        except AssertionError:
-            raise
-        except Exception as e:
-            logger.exception(e)
-            assert False

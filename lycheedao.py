@@ -173,9 +173,25 @@ class LycheeDAO:
         else:
             return None
 
+    def getAlbumNameFromIdsList(self, list_id):
+        album_names = ''
+        try:
+            albumids = ','.join(list_id)
+            query = ("select title from lychee_albums where id in(" + albumids + ")")
+            cur = self.db.cursor()
+            cur.execute(query)
+            rows = cur.fetchall()
+            album_names = [column[0] for column in rows]
+        except Exception as e:
+            album_names = ''
+            print('ERROR impossible to execute ' + query)
+        finally:
+            return album_names
+
+
     def photoExists(self, photo):
         """
-        Check if an album exists based on its original name
+        Check if a photo already exists in its album based on its original name or checksum
         Parameter:
         - photo: a valid LycheePhoto object
         Returns a boolean
@@ -189,6 +205,16 @@ class LycheeDAO:
             row = cur.fetchall()
             if len(row) != 0:
                 res = True
+
+            ## Add Warning if photo exists in another album
+            query = ("select album from lychee_photos where (title='" + photo.originalname + "' OR checksum='" + photo.checksum + "')")
+            cur = self.db.cursor()
+            cur.execute(query)
+            rows = cur.fetchall()
+            album_ids = [id[0] for id in rows]
+            if len(album_ids) > 0:
+                print("WARN a photo with this name or checksum already exists in at least another album: " + str(self.getAlbumNameFromIdsList(album_ids)))
+
 
         except Exception:
             print("ERROR photoExists:", photo.srcfullpath, "won't be added to lychee")

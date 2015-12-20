@@ -382,7 +382,7 @@ class LycheeSyncer:
                     createdalbums += 1
 
                 # Albums are created or emptied, now take care of photos
-                for f in files:
+                for f in sorted(files):
                     if sys.version_info.major == 2:
                         f = f.decode('UTF-8')
                     if self.isAPhoto(f):

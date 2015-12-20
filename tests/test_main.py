@@ -465,12 +465,63 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
     def test_long_album(self):
         try:
+            tu = TestUtils()
             # get max_width column album name width
-            # load >max_width album name
+            maxwidth = tu.get_column_width("lychee_albums", "title")
+            logger.info("album title length: " + str(maxwidth))
+            # create long album name
+            dest_alb_name = 'a'*(maxwidth+10)
+            assert len(dest_alb_name) == (maxwidth + 10)
+
+            # copy album with name
+            tu.load_photoset("album1", dest_alb_name)
+
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+
             # there is a max_width album
+            albums = tu.get_album_ids_titles()
+            alb_real_name = albums.pop()["title"]
+            assert len(alb_real_name) == maxwidth, "album len is not " + str(maxwidth)
+
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+
+    @pytest.mark.xfail(reason="Not implemented")
+    def test_sha1(self):
+        try:
+            # load 1 album with same photo under different name
+            # load 2 album with same photo under different name
+            # no duplicate
+            assert False
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+
+    @pytest.mark.xfail(reason="Not implemented")
+    def test_album_keep_original_case(self):
+        try:
+            # load 1 album with a mixed case name and spaces
+            # name in db is equal to directory name
+            # no crash
             assert False
         except AssertionError:
             raise
@@ -491,37 +542,11 @@ class TestClass:
             assert False
 
     @pytest.mark.xfail(reason="Not implemented")
-    def test_sha1(self):
-        try:
-            # load 1 album with same photo under different name
-            # load 2 album with same photo under different name
-            # no duplicate
-            assert False
-        except AssertionError:
-            raise
-        except Exception as e:
-            logger.exception(e)
-            assert False
-
-    @pytest.mark.xfail(reason="Not implemented")
     def test_last_import_for_manual_check(self):
         try:
-            # load 1 album with a corrupted file
-            # no import
+            # load 1 album with an exif rotation file
             # no crash
-            assert False
-        except AssertionError:
-            raise
-        except Exception as e:
-            logger.exception(e)
-            assert False
-
-    @pytest.mark.xfail(reason="Not implemented")
-    def test_album_keep_original_case(self):
-        try:
-            # load 1 album with a mixed case name and spaces
-            # name in db is equal to directory name
-            # no crash
+            # manual check
             assert False
         except AssertionError:
             raise

@@ -4,6 +4,7 @@ import logging
 import os
 import glob
 import shutil
+import re
 import subprocess
 import pymysql
 from lycheesync.utils.configuration import ConfBorg
@@ -132,10 +133,14 @@ class TestUtils:
         finally:
             self.db.close()
 
-    def load_photoset(self, setname):
+    def load_photoset(self, set_name, dest_name=None):
         testlibpath = self.cb.conf['testlib']
-        testalbum = os.path.join(testlibpath, setname)
-        dest = os.path.join(self.cb.conf['testphotopath'], setname)
+        testalbum = os.path.join(testlibpath, set_name)
+
+        if dest_name is None:
+            dest_name = set_name
+
+        dest = os.path.join(self.cb.conf['testphotopath'], dest_name)
         shutil.copytree(testalbum, dest)  # , copy_function=shutil.copy)
 
     def clean_db(self):
@@ -380,3 +385,46 @@ class TestUtils:
             logger.exception(e)
         finally:
             return res
+
+    def get_column_width(self, table, column):
+        res = 50  # default value
+        query = "show columns from " + table + " where Field='" + column + "'"
+        logger.info(query)
+        self._connect_db()
+        cur = self.db.cursor()
+        try:
+            cur.execute(query)
+            row = cur.fetchone()
+            logger.info(row)
+            type = row['Type']
+            # is type ok
+            p = re.compile('varchar\(\d+\)', re.IGNORECASE)
+            if p.match(type):
+                # remove varchar(and)
+                p = re.compile('\d+', re.IGNORECASE)
+                ints = p.findall(type)
+                if len(ints) > 0:
+                    res = int(ints[0])
+            else:
+                logger.ERROR("unable to find column width for " + table + "." + column + " fallback to default")
+        except Exception as e:
+            logger.exception(e)
+            logger.error("Impossible to find column width for " + table + "." + column)
+        finally:
+            self.db.close()
+            return res
+
+    def change_column_width(self, table, column, width):
+
+        if width:
+
+            try:
+                query = "alter " + table + " modify " + column + " varchar(" + str(width) + ")"
+                self._connect_db()
+                self._exec_sql(query)
+            except Exception as e:
+                logger.exception(e)
+                logger.error("Impossible to modify column width for " + table + "." + column + " to " + str(width))
+                raise
+            finally:
+                self.db.close()

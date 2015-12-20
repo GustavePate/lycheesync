@@ -438,6 +438,33 @@ class TestClass:
             logger.exception(e)
             assert False
 
+    def test_empty_album(self):
+        try:
+            # load 1 empty album
+            tu = TestUtils()
+            # load unicode album name
+            tu.load_photoset("empty_album")
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            # no import
+            assert tu.count_fs_photos() == 0, "there are photos are in fs"
+            assert tu.count_db_photos() == 0, "there are photos are in db"
+            assert not(tu.album_exists_in_db("empty_album")), "empty_album in db"
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
     @pytest.mark.xfail(reason="Not implemented")
     def test_long_album(self):
         try:
@@ -476,7 +503,6 @@ class TestClass:
             logger.exception(e)
             assert False
 
-
     @pytest.mark.xfail(reason="Not implemented")
     def test_last_import_for_manual_check(self):
         try:
@@ -496,18 +522,6 @@ class TestClass:
             # load 1 album with a mixed case name and spaces
             # name in db is equal to directory name
             # no crash
-            assert False
-        except AssertionError:
-            raise
-        except Exception as e:
-            logger.exception(e)
-            assert False
-
-    @pytest.mark.xfail(reason="Not implemented")
-    def test_empty_album(self):
-        try:
-            # load 1 empty albu
-            # no album / no crash
             assert False
         except AssertionError:
             raise

@@ -537,13 +537,31 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
     def test_album_keep_original_case(self):
         try:
             # load 1 album with a mixed case name and spaces
             # name in db is equal to directory name
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("album1", "AlBum_One")
+
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
             # no crash
-            assert False
+            assert (retval == 0), "process result is ok"
+
+            assert tu.count_db_albums() == 1, "two albums not created"
+            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+            assert tu.get_album_id("AlBum_One"), 'there is no album with this name'
         except AssertionError:
             raise
         except Exception as e:
@@ -561,4 +579,3 @@ class TestClass:
         except Exception as e:
             logger.exception(e)
             assert False
-

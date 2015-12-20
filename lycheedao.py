@@ -300,14 +300,14 @@ class LycheeDAO:
                  "size, star, " +
                  "thumbUrl, album,iso, aperture, make, " +
                  "model, shutter, focal, takestamp, " +
-                 "description, title, checksum) " +
+                 "description, title, checksum, medium) " +
                  "values " +
                  "({}, '{}', {}, '{}', {}, {}, " +
                  "'{}', {}, " +
                  "'{}', '{}', '{}', '{}'," +
                  " '{}', " +
                  "'{}', '{}', '{}', '{}', " +
-                 "'{}', '{}', '{}')"
+                 "'{}', '{}', '{}', '{}')"
                  ).format(photo.id, photo.url, self.conf["publicAlbum"], self._p(photo.type), photo.width, photo.height,
                           photo.size, photo.star,
                           photo.thumbUrl, photo.albumid, self._p(
@@ -315,7 +315,7 @@ class LycheeDAO:
                      photo.exif.aperture),
             self._p(photo.exif.make),
             photo.exif.model, self._p(photo.exif.shutter), self._p(photo.exif.focal), stamp,
-            self._p(photo.description), self._p(photo.originalname), photo.checksum)
+            self._p(photo.description), self._p(photo.originalname), photo.checksum, "1")
         try:
             cur = self.db.cursor()
             res = cur.execute(query)

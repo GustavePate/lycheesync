@@ -411,6 +411,33 @@ class TestClass:
             logger.exception(e)
             assert False
 
+    def test_corrupted(self):
+        try:
+            # load 1 album with a corrupted file
+            tu = TestUtils()
+            # load unicode album name
+            tu.load_photoset("corrupted_file")
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            # no import
+            assert tu.count_fs_photos() == 0, "there are photos are in fs"
+            assert tu.count_db_photos() == 0, "there are photos are in db"
+            assert tu.album_exists_in_db("corrupted_file") == 1, "corrupted_album not in db"
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
     @pytest.mark.xfail(reason="Not implemented")
     def test_long_album(self):
         try:
@@ -449,18 +476,6 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
-    def test_corrupted(self):
-        try:
-            # load 1 album with a corrupted file
-            # no import
-            # no crash
-            assert False
-        except AssertionError:
-            raise
-        except Exception as e:
-            logger.exception(e)
-            assert False
 
     @pytest.mark.xfail(reason="Not implemented")
     def test_last_import_for_manual_check(self):

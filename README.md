@@ -159,4 +159,4 @@ This project files are:
 
 # Licence
 
-[MIT License](./LICENSE)
+[MIT License](./doc/LICENSE)

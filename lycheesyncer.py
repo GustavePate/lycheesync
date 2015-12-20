@@ -390,7 +390,6 @@ class LycheeSyncer:
                         try:
                             discoveredphotos += 1
                             photo = LycheePhoto(self.conf, f, album)
-
                             if not(self.dao.photoExists(photo)):
                                 if self.conf['verbose']:
                                     print("INFO: adding to lychee", os.path.join(root, f))

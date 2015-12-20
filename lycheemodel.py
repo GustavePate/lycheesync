@@ -88,6 +88,7 @@ class LycheePhoto:
         timestamp = None
         # now in epoch time
         epoch_now = int(time.time())
+        timestamp = epoch_now
 
         if isinstance(value, int):
             timestamp = value
@@ -105,8 +106,8 @@ class LycheePhoto:
                 timestamp = time.mktime(the_date.timetuple())
 
             except Exception as e:
-                print(e.message)
                 print('WARN model date impossible to parse: ' + str(value))
+                print(e.message)
                 timestamp = epoch_now
         else:
             # Value is None

@@ -557,7 +557,7 @@ class TestClass:
             # no crash
             assert (retval == 0), "process result is ok"
 
-            assert tu.count_db_albums() == 1, "two albums not created"
+            assert tu.count_db_albums() == 1, "two albums created"
             assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
             assert tu.count_db_photos() == 1, "there are duplicate photos in db"
             assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
@@ -568,12 +568,33 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail(reason="Not implemented")
     def test_bad_taketime(self):
         try:
             # load "bad taketime"  album name
-            # success
-            assert False
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("invalid_takedate")
+            launch_date = datetime.datetime.now()
+            time.sleep(1)
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            assert tu.count_db_albums() == 1, "two albums created"
+            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+            creation_date = tu.get_album_creation_date("invalid_takedate")
+            creation_date = datetime.datetime.fromtimestamp(creation_date)
+            assert creation_date > launch_date, "creation date should be now"
+
         except AssertionError:
             raise
         except Exception as e:

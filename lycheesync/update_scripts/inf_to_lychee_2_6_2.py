@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import os
 import pwd
 import grp
-from lycheesyncer import LycheeSyncer
+from lycheesync.lycheesyncer import LycheeSyncer
 import MySQLdb
 import hashlib
 import stat

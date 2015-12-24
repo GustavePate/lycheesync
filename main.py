@@ -3,8 +3,8 @@
 
 from __future__ import unicode_literals
 from __future__ import print_function
-from lycheesyncer import LycheeSyncer
-from update_scripts import inf_to_lychee_2_6_2
+from lycheesync.lycheesyncer import LycheeSyncer
+from lycheesync.update_scripts import inf_to_lychee_2_6_2
 import argparse
 import os
 import sys

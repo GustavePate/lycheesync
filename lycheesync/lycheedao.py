@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 from __future__ import unicode_literals
-import MySQLdb
+import pymysql
 import datetime
 import traceback
 import re
@@ -27,11 +27,17 @@ class LycheeDAO:
         """
 
         self.conf = conf
-        self.db = MySQLdb.connect(host=self.conf["dbHost"],
-                                  user=self.conf["dbUser"],
-                                  passwd=self.conf["dbPassword"],
-                                  db=self.conf["db"],
-                                  charset='utf8mb4')
+        # self.db = MySQLdb.connect(host=self.conf["dbHost"],
+        #                           user=self.conf["dbUser"],
+        #                           passwd=self.conf["dbPassword"],
+        #                           db=self.conf["db"],
+        #                           charset='utf8mb4')
+        self.db = pymysql.connect(host=self.conf['dbHost'],
+                                  user=self.conf['dbUser'],
+                                  passwd=self.conf['dbPassword'],
+                                  db=self.conf['db'],
+                                  charset='utf8mb4',
+                                  cursorclass=pymysql.cursors.DictCursor)
         cur = self.db.cursor()
         cur.execute("set names utf8;")
 
@@ -40,12 +46,6 @@ class LycheeDAO:
 
         self.loadAlbumList()
 
-    def _p(self, data):
-        """
-        protect / escape strings
-        """
-        return MySQLdb.escape_string(str(data)).decode(encoding='UTF-8')
-
     def getAlbumNameDBWidth(self):
         res = 50  # default value
         query = "show columns from lychee_albums where Field='title'"
@@ -53,7 +53,7 @@ class LycheeDAO:
         try:
             cur.execute(query)
             row = cur.fetchone()
-            type = row[1]
+            type = row['Type']
             # is type ok
             p = re.compile('varchar\(\d+\)', re.IGNORECASE)
             if p.match(type):
@@ -74,22 +74,20 @@ class LycheeDAO:
         """
         returns min, max album ids
         """
-        min_album_query = "select min(id) from lychee_albums"
-        max_album_query = "select max(id) from lychee_albums"
+        min_album_query = "select min(id) as min from lychee_albums"
+        max_album_query = "select max(id) as max from lychee_albums"
         try:
             min = -1
             max = -1
             cur = self.db.cursor()
 
             cur.execute(min_album_query)
-            rows = cur.fetchall()
-            for row in rows:
-                min = row[0]
+            rows = cur.fetchone()
+            min = rows['min']
 
             cur.execute(max_album_query)
-            rows = cur.fetchall()
-            for row in rows:
-                max = row[0]
+            rows = cur.fetchone()
+            max = rows['max']
 
             if (self.conf['verbose'] is True):
                 print("INFO min max album id: " + str(min) + " to " + str(max))
@@ -155,7 +153,7 @@ class LycheeDAO:
         cur.execute("SELECT title,id from lychee_albums")
         rows = cur.fetchall()
         for row in rows:
-            self.albumslist[row[0]] = row[1]
+            self.albumslist[row['title']] = row['id']
 
         if self.conf['verbose']:
             print("INFO album list in db:", self.albumslist)
@@ -181,13 +179,13 @@ class LycheeDAO:
             cur = self.db.cursor()
             cur.execute(query)
             rows = cur.fetchall()
-            album_names = [column[0] for column in rows]
+            print(rows)
+            album_names = [column['title'] for column in rows]
         except Exception as e:
             album_names = ''
             print('ERROR impossible to execute ' + query)
         finally:
             return album_names
-
 
     def photoExists(self, photo):
         """
@@ -206,15 +204,20 @@ class LycheeDAO:
             if len(row) != 0:
                 res = True
 
-            ## Add Warning if photo exists in another album
-            query = ("select album from lychee_photos where (title='" + photo.originalname + "' OR checksum='" + photo.checksum + "')")
+            # Add Warning if photo exists in another album
+            query = (
+                "select album from lychee_photos where (title='" +
+                photo.originalname +
+                "' OR checksum='" +
+                photo.checksum +
+                "')")
             cur = self.db.cursor()
             cur.execute(query)
             rows = cur.fetchall()
-            album_ids = [id[0] for id in rows]
+            album_ids = [row['album'] for row in rows]
             if len(album_ids) > 0:
-                print("WARN a photo with this name or checksum already exists in at least another album: " + str(self.getAlbumNameFromIdsList(album_ids)))
-
+                print("WARN a photo with this name or checksum already exists in at least another album: " +
+                      str(self.getAlbumNameFromIdsList(album_ids)))
 
         except Exception:
             print("ERROR photoExists:", photo.srcfullpath, "won't be added to lychee")
@@ -250,8 +253,8 @@ class LycheeDAO:
             cur.execute(query)
             row = cur.fetchone()
             print('row:' + str(row))
-            self.albumslist['name'] = row[0]
-            album['id'] = row[0]
+            self.albumslist['name'] = row['id']
+            album['id'] = row['id']
             if self.conf["verbose"]:
                 print("INFO album created:", album)
 
@@ -278,7 +281,7 @@ class LycheeDAO:
             cur.execute(selquery)
             rows = cur.fetchall()
             for row in rows:
-                res.append(row[0])
+                res.append(row['url'])
             cur.execute(query)
             self.db.commit()
             if self.conf["verbose"]:
@@ -317,7 +320,7 @@ class LycheeDAO:
             cur.execute(selquery)
             rows = cur.fetchall()
             for row in rows:
-                res.append(row[0])
+                res.append(row['url'])
         except Exception:
             print("listAllPhoto", Exception)
             traceback.print_exc()

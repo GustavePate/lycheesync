@@ -7,8 +7,8 @@ import os
 import shutil
 import stat
 import traceback
-from lycheedao import LycheeDAO
-from lycheemodel import LycheePhoto
+from lycheesync.lycheedao import LycheeDAO
+from lycheesync.lycheemodel import LycheePhoto
 from PIL import Image
 import datetime
 import time

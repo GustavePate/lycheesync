@@ -38,6 +38,7 @@ tmptest/
 venv3.4/*
 venv2.7/*
 test/*
+logs/*
 exiftest.py
 myconf.json
 testconf.json

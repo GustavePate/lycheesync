@@ -4,37 +4,24 @@
 
     "formatters": {
         "simple": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        },
-        "colored": {
-            "()": "colorlog.ColoredFormatter",
-            "format": "%(log_color)s%(levelname)s%(reset)s;%(asctime)s; %(name)s; %(message)s"
+            "format": "%(levelname)s;%(asctime)s; %(name)s; %(message)s"
         }
     },
 
     "handlers": {
         "stream_handler": {
             "class": "logging.StreamHandler",
-            "level": "DEBUG",
-            "formatter": "colored",
-            "stream": "ext://sys.stdout"
-
-        },
-        "rotating_file_handler": {
-            "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
             "formatter": "simple",
-            "filename": "logs/info.log",
-            "maxBytes": 10485760,
-            "backupCount": 20,
-            "encoding": "utf-8"
+            "stream": "ext://sys.stdout"
+
         },
 
         "basic_file_handler":{
             "class": "logging.FileHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "simple",
-            "filename": "logs/perfect_python_script.log",
+            "filename": "logs/lycheesync.log",
             "mode" : "w",
             "encoding": "utf-8"
 
@@ -42,7 +29,7 @@
     },
 
     "loggers": {
-        "pps": {
+        "lycheesync": {
             "level": "DEBUG",
             "propagate": "no"
         },
@@ -53,7 +40,7 @@
     },
 
     "root": {
-        "level": "NOTSET",
-        "handlers": ["stream_handler", "basic_file_handler", "rotating_file_handler"]
+        "level": "DEBUG",
+        "handlers": ["stream_handler", "basic_file_handler"]
     }
 }

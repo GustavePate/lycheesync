@@ -57,7 +57,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -d'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -d'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -90,7 +90,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -127,7 +127,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v '.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v '.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -159,7 +159,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -r'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -r'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -181,7 +181,7 @@ class TestClass:
             # load album3
             tu.load_photoset("album3")
 
-            cmd = 'python main.py {} {} {} -v -r'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -r'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -219,7 +219,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -r'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -r'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -232,7 +232,7 @@ class TestClass:
             # load album x
             tu.load_photoset("album3")
             # launch lycheesync
-            cmd = 'python main.py {} {} {} -v -d'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -d'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -268,7 +268,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -320,7 +320,7 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -s'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -s'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -362,7 +362,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # -l => symbolic links instead of files
-            cmd = 'python main.py {} {} {} -v -l'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v -l'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -395,7 +395,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -422,7 +422,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -449,7 +449,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -483,7 +483,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -518,7 +518,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -d -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -550,7 +550,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -581,7 +581,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            cmd = 'python lycheesync.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)

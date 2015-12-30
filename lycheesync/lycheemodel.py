@@ -10,7 +10,10 @@ import mimetypes
 from PIL import Image
 from PIL.ExifTags import TAGS
 import datetime
+import logging
 from dateutil.parser import parse
+
+logger = logging.getLogger(__name__)
 
 
 class ExifData:
@@ -82,8 +85,8 @@ class LycheePhoto:
 
     def convert_strdate_to_timestamp(self, value):
         # check parameter type
-        print("DEBUG convert_strdate input: " + str(value))
-        print("DEBUG convert_strdate input_type: " + str(type(value)))
+        # logger.debug("convert_strdate input: " + str(value))
+        # logger.debug("convert_strdate input_type: " + str(type(value)))
 
         timestamp = None
         # now in epoch time
@@ -100,14 +103,14 @@ class LycheePhoto:
 
             try:
                 the_date = parse(value)
-                print("DEBUG parsed date: " + str(the_date))
+                logger.debug("parsed date: " + str(the_date))
                 # woks for poython 3
                 # timestamp = the_date.timestamp()
                 timestamp = time.mktime(the_date.timetuple())
 
             except Exception as e:
-                print('WARN model date impossible to parse: ' + str(value))
-                print(e.message)
+                logger.exception(e)
+                logger.warn('model date impossible to parse: ' + str(value))
                 timestamp = epoch_now
         else:
             # Value is None
@@ -184,9 +187,6 @@ class LycheePhoto:
                 if exifinfo is not None:
                     for tag, value in exifinfo.items():
                         decode = TAGS.get(tag, tag)
-                        # print(tag, decode, value)
-                        # if decode != "MakerNote":
-                        #    print(decode, value)
                         if decode == "Orientation":
                             self.exif.orientation = value
                         if decode == "Make":
@@ -206,29 +206,25 @@ class LycheePhoto:
                             try:
                                 self.exif.takedate = value[0].split(" ")[0]
                             except Exception as e:
-                                print(e)
-                                print ('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+                                logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTimeOriginal":
                             try:
                                 self.exif.taketime = value[0].split(" ")[1]
                             except Exception as e:
-                                print(e)
-                                print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
+                                logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.takedate is None:
                             try:
                                 self.exif.takedate = value.split(" ")[0]
                             except Exception as e:
-                                print('WARN invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
-                                print(e)
+                                logger.warn('DT invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.taketime is None:
                             try:
                                 self.exif.taketime = value.split(" ")[1]
                             except Exception as e:
-                                print('WARN invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
-                                print(e)
+                                logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                     # compute takedate / taketime
                     if self.exif.takedate:
@@ -243,8 +239,9 @@ class LycheePhoto:
                     # TODO: Bad description takedate is int
                     self.description = self._str_datetime
 
-        except IOError:
-            print('ERROR ioerror (corrupted ?): ' + self.srcfullpath)
+        except IOError as e:
+            logger.error('ioerror (corrupted ?): ' + self.srcfullpath)
+            logger.debug(e)
 
     def __str__(self):
         res = ""

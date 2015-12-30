@@ -8,9 +8,12 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 
 # TODO
 
+* reactivate updatedb
+* check all todos
 * documentation for pymysql
-* add loggers
 * launch with lycheesync instead of main.py
+* read log carefully
+* verbose activate debug on stdout logger
 
 
 # What's new

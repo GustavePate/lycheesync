@@ -1,6 +1,6 @@
 # Lycheesync
 
-[![Build Status](https://travis-ci.org/GustavePate/perfect_python_script.svg)](https://travis-ci.org/GustavePate/perfect_python_script)
+[![Build Status](https://travis-ci.org/GustavePate/lycheesync.svg)](https://travis-ci.org/GustavePate/lycheesync)
 
 Lycheesync is a command line tool to synchronise a directory containing photos with Lychee.
 * Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.

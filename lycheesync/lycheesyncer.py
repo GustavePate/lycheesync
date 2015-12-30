@@ -165,17 +165,18 @@ class LycheeSyncer:
             # adjust right (chmod/chown)
             try:
                 os.lchown(photo.destfullpath, -1, self.conf['gid'])
+
+                if not(self.conf['link']):
+                    st = os.stat(photo.destfullpath)
+                    os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
+                else:
+                    st = os.stat(photo.srcfullpath)
+                    os.chmod(photo.srcfullpath, st.st_mode | stat.S_IROTH)
+
             except Exception as e:
                 if self.conf["verbose"]:
                     logger.warn("chgrp error,  check file permission for " + photo.destfullpath + ' fix: eventually adjust source file permissions')
                     logger.debug(e)
-
-            if not(self.conf['link']):
-                st = os.stat(photo.destfullpath)
-                os.chmod(photo.destfullpath, st.st_mode | stat.S_IRWXU | stat.S_IRWXG)
-            else:
-                st = os.stat(photo.srcfullpath)
-                os.chmod(photo.srcfullpath, st.st_mode | stat.S_IROTH)
 
             res = self.dao.addFileToAlbum(photo)
 

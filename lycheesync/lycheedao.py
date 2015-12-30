@@ -85,8 +85,15 @@ class LycheeDAO:
             rows = cur.fetchone()
             max = rows['max']
 
+
+            if min is None:
+                min = -1
+
+            if max is None:
+                max = -1
+
             if (self.conf['verbose'] is True):
-                logger.info("min max album id: " + str(min) + " to " + str(max))
+                logger.info("min max album id: %s to %s", min, max)
 
             res = min, max
         except Exception as e:

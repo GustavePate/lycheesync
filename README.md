@@ -33,8 +33,9 @@ PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is
 
 ## TODO
 
-* read log carefully
 * verbose activate debug on stdout logger
+* try other pure python driver
+* read log carefully
 * crontab exemple
 
 ## What's new

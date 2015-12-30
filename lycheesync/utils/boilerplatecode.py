@@ -15,7 +15,7 @@ def script_init(cli_args):
     - will initialize loggers
     """
 
-    root_level = "."
+    root_level = ".."
 
     # compute log file absolute path
     pathname = os.path.dirname(sys.argv[0])
@@ -25,11 +25,16 @@ def script_init(cli_args):
     # append path to configuration
     cli_args['full_path'] = full_path
 
+    print("try to read logging conf from: " + log_conf_path)
     # read log configuration
+
+    # TODO: try with . and .. as root level depending if main.py is used
     if os.path.exists(log_conf_path):
         with open(log_conf_path, 'rt') as f:
             config = json.load(f)
         logging.config.dictConfig(config)
+        if cli_args['verbose']:
+            logging.getLogger().setLevel(logging.DEBUG)
         logger.info("logging conf -> read from: " + log_conf_path)
     else:
         # default value

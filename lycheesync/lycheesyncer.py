@@ -369,7 +369,7 @@ class LycheeSyncer:
                 if not(album['id']):
                     # create album
                     album['id'] = self.createAlbum(album)
-                    # TODO go to next album if it fails
+
                     if not(album['id']):
                         logger.error("didn't manage to create album for: " + album['relpath'])
                         continue

@@ -128,6 +128,8 @@ def other_main():
               default=False, help='delete mode exclusive with replace and normal mode')
 @click.option('-s', '--sort_album_by_name', is_flag=True, help='Sort album by name')
 @click.option('-l', '--link', is_flag=True, help="Don't copy files create link instead")
+@click.option('-u26', '--updatedb26', is_flag=True,
+              help="Update lycheesync added data in lychee db to the lychee 2.6.2 required values")
 @click.argument('imagedirpath', metavar='PHOTO_DIRECTORY_ROOT',
                 type=click.Path(exists=True, resolve_path=True))
 @click.argument('lycheepath', metavar='PATH_TO_LYCHEE_INSTALL',
@@ -136,22 +138,13 @@ def other_main():
                 type=click.Path(exists=True, resolve_path=True))
 # checks file existence and attributes
 # @click.argument('file2', type=click.Path(exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True))
-def main(verbose, exclusive_mode, sort_album_by_name, link, imagedirpath, lycheepath, confpath):
+def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedirpath, lycheepath, confpath):
     """Lycheesync
 
     A script to synchronize any directory containing photos with Lychee.
     Source directory should be on the same host than Lychee's
     """
 
-    # TODO
-    """
-        '-u',
-        '--updatedb26',
-        action='store_const',
-        dest='updatedb_to_version_2_6_2',
-        const='2.6.2',
-        help='Update lycheesync added data in lychee db to the lychee 2.6.2 required values')
-        """
     ERROR = False
 
     if sys.version_info.major == 2:
@@ -172,12 +165,6 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, imagedirpath, lychee
     elif exclusive_mode == "replace":
         conf_data["replace"] = True
 
-    conf_data[u'exclusive_mode'] = exclusive_mode
-
-    # TODO
-    # conf_data["updatedb"] = args.updatedb_to_version_2_6_2
-    conf_data["updatedb"] = None
-
     conf_data["user"] = None
     conf_data["group"] = None
     conf_data["uid"] = None
@@ -187,33 +174,31 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, imagedirpath, lychee
     # if conf_data["dropdb"]:
     #    conf_data["sort"] = True
 
-    if conf_data["updatedb"] == "2.6.2":
-        if conf_data['verbose']:
-            print(conf_data)
-            pass
-        inf_to_lychee_2_6_2.updatedb(conf_data)
+    # read permission of the lycheepath directory to apply it to the uploade photos
+    img_path = os.path.join(conf_data["lycheepath"], "uploads", "big")
+    stat_info = os.stat(img_path)
+    uid = stat_info.st_uid
+    gid = stat_info.st_gid
 
-    else:
+    user = pwd.getpwuid(uid)[0]
+    group = grp.getgrgid(gid)[0]
 
-        # read permission of the lycheepath directory to apply it to the uploade photos
-        img_path = os.path.join(conf_data["lycheepath"], "uploads", "big")
-        stat_info = os.stat(img_path)
-        uid = stat_info.st_uid
-        gid = stat_info.st_gid
+    conf_data["user"] = user
+    conf_data["group"] = group
+    conf_data["uid"] = uid
+    conf_data["gid"] = gid
 
-        user = pwd.getpwuid(uid)[0]
-        group = grp.getgrgid(gid)[0]
-
-        conf_data["user"] = user
-        conf_data["group"] = group
-        conf_data["uid"] = uid
-        conf_data["gid"] = gid
-
-        if verbose:
-            # show_args()
-            pass
+    if verbose:
+        # show_args()
+        pass
 
     script_init(conf_data)
+
+    # DB update
+    if updatedb26:
+        if conf_data['verbose']:
+            print(conf_data)
+        inf_to_lychee_2_6_2.updatedb(conf_data)
 
     logger.info("................start...............")
     try:

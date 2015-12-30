@@ -236,7 +236,6 @@ class LycheePhoto:
 
                     self._str_datetime = takedate + " " + taketime
 
-                    # TODO: Bad description takedate is int
                     self.description = self._str_datetime
 
         except IOError as e:

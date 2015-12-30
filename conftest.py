@@ -43,12 +43,13 @@ def carriagereturn(request):
 
 @pytest.fixture(scope="session")
 def initdb_and_fs(request):
-    print("#FIXTURE: init db and fs")
-    tu = TestUtils()
-    # TODO: impossible because conf not loaded
-    tu.drop_db()
-    tu.make_fake_lychee_db()
-    tu.make_fake_lychee_fs(tu.conf['lycheepath'])
+    pass
+    # print("#FIXTURE: init db and fs")
+    # tu = TestUtils()
+    # Impossible because conf not loaded
+    # tu.drop_db()
+    # tu.make_fake_lychee_db()
+    # tu.make_fake_lychee_fs(tu.conf['lycheepath'])
 
 
 @pytest.fixture(scope="session")

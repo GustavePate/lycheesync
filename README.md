@@ -6,32 +6,7 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 * Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.
 * Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online)
 
-<font style="color: red">
-# Breaking changes
-</font>
-
-Sorry for the inconvenience but Lycheesync has change a lot in the last weeks.
-I added a few dependencies and remove others.
-As an exemple the mysql driver has changed, so...
-Check the install Chapter !
-
-PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
-
-# TODO
-
-* reactivate updatedb
-* check all todos
-* documentation for pymysql
-* read log carefully
-* verbose activate debug on stdout logger
-* crontab exemple
-
-
-# What's new
-
-See [changlog](./doc/changelog.md)
-
-# Context
+## Context
 
 This project was created to syncronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).
 It turns out it can, totally or partially, enslave Lychee with any given directory structure.
@@ -46,6 +21,25 @@ You can choose between 3 behaviours:
   Lychee but not in the source directory will be kept `-r option`
 - **Keep existing Lychee albums and photos** The program will try to know if a photo in the
   source directory has already been imported in Lychee and does nothing in this case, this is the default behaviour
+
+# WARNING: Breaking changes
+
+Sorry for the inconvenience but Lycheesync has change a lot in the last weeks.
+I added a few dependencies and remove others.
+As an exemple the mysql driver has changed, so...
+Check the install Chapter !
+
+PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
+
+# TODO
+
+* read log carefully
+* verbose activate debug on stdout logger
+* crontab exemple
+
+# What's new
+
+See [changlog](./doc/changelog.md)
 
 # Install
 

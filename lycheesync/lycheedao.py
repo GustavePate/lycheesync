@@ -130,10 +130,10 @@ class LycheeDAO:
             cur.execute(album_query)
             self.db.commit()
             if self.conf["verbose"]:
-                logger.info("album id changed: ", oldid, " to ", newid)
+                logger.info("album id changed: " + str(oldid) + " to " +  str(newid))
         except Exception as e:
             logger.exception(e)
-            logger.error("album id changed: ", oldid, " to ", newid)
+            logger.error("album id changed: " + str(oldid) + " to " +  str(newid))
             res = False
         finally:
             return res

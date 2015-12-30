@@ -38,13 +38,15 @@ def script_init(cli_args):
 
     logger.info("................init...............")
     # read application configuration
-    conf_path = os.path.join(full_path, root_level, "ressources", 'conf.json')
-    if os.path.exists(conf_path):
-        with open(conf_path, 'rt') as f:
-            conf = json.load(f)
-    elif os.path.exists(cli_args['confpath']):
+    if os.path.exists(cli_args['confpath']):
         with open(cli_args['confpath'], 'rt') as f:
             conf = json.load(f)
+    else:
+        logger.warn("Loading default conf in ressources/conf.json")
+        conf_path = os.path.join(full_path, root_level, "ressources", 'conf.json')
+        if os.path.exists(conf_path):
+            with open(conf_path, 'rt') as f:
+                conf = json.load(f)
 
 
     # initialize conf with items loaded from conf file AND command lines arguments

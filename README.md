@@ -4,16 +4,27 @@
 
 Lycheesync is a command line tool to synchronise a directory containing photos with Lychee.
 * Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.
-* Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online )
+* Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online)
+
+<font style="color: red">
+# Breaking changes
+</font>
+
+Sorry for the inconvenience but Lycheesync has change a lot in the last weeks.
+I added a few dependencies and remove others.
+As an exemple the mysql driver has changed, so...
+Check the install Chapter !
+
+PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
 
 # TODO
 
 * reactivate updatedb
 * check all todos
 * documentation for pymysql
-* launch with lycheesync instead of main.py
 * read log carefully
 * verbose activate debug on stdout logger
+* crontab exemple
 
 
 # What's new
@@ -38,22 +49,45 @@ You can choose between 3 behaviours:
 
 # Install
 
-First you have to install the following dependencies:
-- python 2.7 or 3.x
-- PIL
-- dateutils
-- git
-
-    On debian based Linux:
-
-`sudo apt-get install imagemagick python python-imaging python-dateutil git`
-
-
-Then retrieve the project:
+## Retrieve the project
 
 `git clone https://github.com/GustavePate/lycheesync`
 
-Finally, adjust the `conf.json` file to you use case.
+## Install dependencies
+
+Then you have to install the following dependencies:
+
+- python 2.7 or 3.4 (3.4 prefered !)
+- pillow
+- dateutils
+- pymysql
+- click
+
+
+### Using a virtual env (the GOOD way)
+
+On debian based Linux
+
+    sudo apt-get install python3.4-venv
+    cd /path/to/lycheesync
+    pyvenv-3.4 ./venv3.4
+    . ./venv3.4/bin/activate
+    pip install -r requirements.txt
+
+And wait for compilation to finish ;)
+
+### Using the distro package manager (the BAD way)
+
+On debian based Linux
+
+    sudo apt-get install python3-dev python3 python3-pymysql python3-click python3-pil python3-dateutil
+
+PS: You may need to activate universe repository for you distribution first.
+
+### Adjust configuration
+
+Finally, adjust the `ressources/conf.json` file to you use case.
+Explanations in next chapter.
 
 # Basic usage
 
@@ -77,13 +111,12 @@ publicAlbum should be set to 1 if you want to make public all your photos.
 
 ## Command line parameters
 
-
-The basic usage is `python main.py srcdir lycheepath conf`
+The basic usage is `python -m lycheesync.sync srcdir lycheepath conf`
 
 Where:
-- `srcdir` is the directory containing photos you want to add to leeche
-- `lycheepath` is the path were you installed Lychee (usually /var/ww/lychee)
-- `conf` is the full path to your configuration file
+- `srcdir` is the directory containing photos you want to add to Lychee
+- `lycheepath` is the path were you installed Lychee (usually `/var/www/lychee`)
+- `conf` is the full path to your configuration file (usually `./ressources/conf.json`)
 
 ## Explanation
 
@@ -148,11 +181,11 @@ Created albums:  4
 You can choose between the following options to adjust the program behaviour:
 
 - `-v` **verbose mode**. A little more output
-- `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to
-  be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
+- `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
 - `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee a slave of another repository
 - `-l` **link mode**. Don't copy files from source folder to lychee directory structure, just create symbolic links (thumbnails will however be created in lychee's directory structure)
 - `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
+
 
 # Technical doc
 
@@ -160,7 +193,7 @@ This code is pep8 compliant and well documented, if you want to contribute, than
 keep it this way.
 
 This project files are:
-* main.py: argument parsing and conf reading, defer work to lycheesyncer
+* sync.py: argument parsing and conf reading, defer work to lycheesyncer
 * lycheesyncer: logic and filesystem operations
 * lycheedao: database operations
 * lycheemodel: a lychee photo representation, manage exif tag parsing too

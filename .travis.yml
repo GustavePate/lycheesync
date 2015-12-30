@@ -17,7 +17,7 @@ services:
     - mysql
 
 before_install:
-    - sudo apt-get install python-dev python3-dev libmysqlclient-dev
+    - sudo apt-get install python-dev python3-dev
 
 before_script:
   - mysql -u root -e 'create database lychee DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'

@@ -22,7 +22,7 @@ You can choose between 3 behaviours:
 - **Keep existing Lychee albums and photos** The program will try to know if a photo in the
   source directory has already been imported in Lychee and does nothing in this case, this is the default behaviour
 
-# WARNING: Breaking changes
+## WARNING: Breaking changes
 
 Sorry for the inconvenience but Lycheesync has change a lot in the last weeks.
 I added a few dependencies and remove others.
@@ -31,23 +31,23 @@ Check the install Chapter !
 
 PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
 
-# TODO
+## TODO
 
 * read log carefully
 * verbose activate debug on stdout logger
 * crontab exemple
 
-# What's new
+## What's new
 
 See [changlog](./doc/changelog.md)
 
-# Install
+## Install
 
-## Retrieve the project
+### Retrieve the project
 
 `git clone https://github.com/GustavePate/lycheesync`
 
-## Install dependencies
+### Install dependencies
 
 Then you have to install the following dependencies:
 
@@ -58,7 +58,7 @@ Then you have to install the following dependencies:
 - click
 
 
-### Using a virtual env (the GOOD way)
+#### Using a virtual env (the GOOD way)
 
 On debian based Linux
 
@@ -70,7 +70,7 @@ On debian based Linux
 
 And wait for compilation to finish ;)
 
-### Using the distro package manager (the BAD way)
+#### Using the distro package manager (the BAD way)
 
 On debian based Linux
 
@@ -83,9 +83,9 @@ PS: You may need to activate universe repository for you distribution first.
 Finally, adjust the `ressources/conf.json` file to you use case.
 Explanations in next chapter.
 
-# Basic usage
+## Basic usage
 
-## Configuration
+### Configuration
 
 The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
@@ -103,7 +103,7 @@ publicAlbum should be set to 1 if you want to make public all your photos.
 }
 ```
 
-## Command line parameters
+### Command line parameters
 
 The basic usage is `python -m lycheesync.sync srcdir lycheepath conf`
 
@@ -112,7 +112,7 @@ Where:
 - `lycheepath` is the path were you installed Lychee (usually `/var/www/lychee`)
 - `conf` is the full path to your configuration file (usually `./ressources/conf.json`)
 
-## Explanation
+### Explanation
 
 The default mod is a **merge** mode.
 
@@ -160,7 +160,7 @@ The resulting lychee structure will be:
 ```
 
 
-## Counters
+### Counters
 
 At the end of the script a few counters will be displayed in order to keep you informed of what have been done.
 
@@ -170,7 +170,7 @@ Created albums:  4
 10 photos imported on 10 discovered
 ```
 
-#  Advanced usage
+##  Advanced usage
 
 You can choose between the following options to adjust the program behaviour:
 
@@ -181,7 +181,7 @@ You can choose between the following options to adjust the program behaviour:
 - `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
 
 
-# Technical doc
+## Technical doc
 
 This code is pep8 compliant and well documented, if you want to contribute, thanks to
 keep it this way.

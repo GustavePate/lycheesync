@@ -4,7 +4,7 @@ import os
 import pwd
 import grp
 from lycheesync.lycheesyncer import LycheeSyncer
-import MySQLdb
+import pymysql
 import hashlib
 import stat
 import traceback
@@ -52,7 +52,7 @@ def updatedb(conf_data):
 
     # connect to db
     try:
-        db = MySQLdb.connect(host=conf_data["dbHost"],
+        db = pymysql.connect(host=conf_data["dbHost"],
                              user=conf_data["dbUser"],
                              passwd=conf_data["dbPassword"],
                              db=conf_data["db"])

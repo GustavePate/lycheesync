@@ -33,6 +33,7 @@ class LycheeDAO:
                                   passwd=self.conf['dbPassword'],
                                   db=self.conf['db'],
                                   charset='utf8mb4',
+                                  unix_socket=self.conf['dbSocket'],
                                   cursorclass=pymysql.cursors.DictCursor)
         cur = self.db.cursor()
         cur.execute("set names utf8;")
@@ -85,7 +86,6 @@ class LycheeDAO:
             rows = cur.fetchone()
             max = rows['max']
 
-
             if min is None:
                 min = -1
 
@@ -134,10 +134,10 @@ class LycheeDAO:
             cur.execute(photo_query)
             cur.execute(album_query)
             self.db.commit()
-            logger.debug("album id changed: " + str(oldid) + " to " +  str(newid))
+            logger.debug("album id changed: " + str(oldid) + " to " + str(newid))
         except Exception as e:
             logger.exception(e)
-            logger.error("album id changed: " + str(oldid) + " to " +  str(newid))
+            logger.error("album id changed: " + str(oldid) + " to " + str(newid))
             res = False
         finally:
             return res
@@ -215,7 +215,11 @@ class LycheeDAO:
             rows = cur.fetchall()
             album_ids = [r['album'] for r in rows]
             if len(album_ids) > 0:
-                logger.warn("a photo with this name: %s or checksum: %s already exists in at least another album: %s", photo.originalname, photo.checksum, self.getAlbumNameFromIdsList(album_ids))
+                logger.warn(
+                    "a photo with this name: %s or checksum: %s already exists in at least another album: %s",
+                    photo.originalname,
+                    photo.checksum,
+                    self.getAlbumNameFromIdsList(album_ids))
 
         except Exception as e:
             logger.exception(e)

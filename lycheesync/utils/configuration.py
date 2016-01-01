@@ -29,7 +29,7 @@ class ConfBorg(Borg):
 
     @property
     def pretty(self):
-        return pformat(self.confdic)
+        return "\n" + pformat(self.confdic)
 
     @property
     def conf(self):

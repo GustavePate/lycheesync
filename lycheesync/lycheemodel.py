@@ -108,7 +108,7 @@ class LycheePhoto:
                 timestamp = time.mktime(the_date.timetuple())
 
             except Exception as e:
-                logger.exception(e)
+                logger.debug(e)
                 logger.warn('model date impossible to parse: ' + str(value))
                 timestamp = epoch_now
         else:

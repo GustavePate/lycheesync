@@ -175,8 +175,7 @@ class LycheeSyncer:
 
             except Exception as e:
                 if self.conf["verbose"]:
-                    logger.warn("chgrp error,  check file permission for " + photo.destfullpath + ' fix: eventually adjust source file permissions')
-                    logger.debug(e)
+                    logger.warn("chgrp error,  check file permission for %s fix: eventually adjust source file permissions", photo.destfullpath)
 
             res = self.dao.addFileToAlbum(photo)
 
@@ -277,8 +276,7 @@ class LycheeSyncer:
                     if datelist is not None and len(datelist) > 0:
                         newdate = max(datelist)
                         self.dao.updateAlbumDate(a['id'], newdate)
-                        if self.conf["verbose"]:
-                            logger.info("album " + a['name'] + " sysstamp changed to: " + str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate))))
+                        logger.debug("album %s sysstamp changed to: %s ", a['name'], str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate))))
             except Exception as e:
                 logger.exception(e)
                 logger.error("updating album date for album:" + a['name'], e)
@@ -353,8 +351,7 @@ class LycheeSyncer:
                 if len(album['name']) > album_name_max_width:
                     logger.warn("album name too long, will be truncated " + album['name'])
                     album['name'] = album['name'][0:album_name_max_width]
-                    if self.conf['verbose']:
-                        logger.warn("album name is now " + album['name'])
+                    logger.warn("album name is now " + album['name'])
 
                 album['id'] = self.dao.albumExists(album)
 
@@ -373,6 +370,8 @@ class LycheeSyncer:
                     if not(album['id']):
                         logger.error("didn't manage to create album for: " + album['relpath'])
                         continue
+                    else:
+                        logger.info("############ Album created: %s", album['name'])
 
                     createdalbums += 1
 
@@ -383,14 +382,10 @@ class LycheeSyncer:
 
                         try:
                             discoveredphotos += 1
+                            error = False
+                            logger.debug("**** Trying to add to lychee album %s: %s", album['name'], os.path.join(root, f))
                             photo = LycheePhoto(self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
-                                logger.warn(album['name'])
-                                logger.warn(os.path.join(root, f))
-                                message = "adding to lychee album " + album['name'] + ": " + os.path.join(root, f)
-                                if self.conf['verbose']:
-                                    logger.info(message)
-                                logger.debug(message)
 
                                 self.makeThumbnail(photo)
                                 res = self.addFileToAlbum(photo)
@@ -398,18 +393,21 @@ class LycheeSyncer:
                                 # increment counter
                                 if res:
                                     importedphotos += 1
-                                # report
-                                if self.conf['verbose']:
-                                    if res:
-                                        album['photos'].append(photo)
-                                    else:
-                                        logger.error("while adding to lychee", os.path.join(root, f))
+                                    album['photos'].append(photo)
+                                else:
+                                    error = True
+                                    logger.error("while adding to album: %s photo: %s", album['name'], photo.srcfullpath)
                             else:
-                                if self.conf['verbose']:
-                                    logger.warn("photo already exists in lychee with same name or same checksum: " + photo.srcfullpath)
+                                logger.error("photo already exists in this album with same name or same checksum: %s it won't be added to lychee", photo.srcfullpath)
+                                error = True
                         except Exception as e:
                             logger.exception(e)
-                            logger.error("could not add " + f + " to album " + album['name'])
+                            logger.error("could not add %s to album %s", f, album['name'])
+                            error = True
+                        finally:
+                            if not(error):
+                                logger.info("**** Successfully added %s to lychee album %s",  os.path.join(root, f), album['name'])
+
 
                 a = album.copy()
                 albums.append(a)

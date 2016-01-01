@@ -92,8 +92,7 @@ class LycheeDAO:
             if max is None:
                 max = -1
 
-            if (self.conf['verbose'] is True):
-                logger.info("min max album id: %s to %s", min, max)
+            logger.debug("min max album id: %s to %s", min, max)
 
             res = min, max
         except Exception as e:
@@ -135,8 +134,7 @@ class LycheeDAO:
             cur.execute(photo_query)
             cur.execute(album_query)
             self.db.commit()
-            if self.conf["verbose"]:
-                logger.info("album id changed: " + str(oldid) + " to " +  str(newid))
+            logger.debug("album id changed: " + str(oldid) + " to " +  str(newid))
         except Exception as e:
             logger.exception(e)
             logger.error("album id changed: " + str(oldid) + " to " +  str(newid))
@@ -157,8 +155,7 @@ class LycheeDAO:
         for row in rows:
             self.albumslist[row['title']] = row['id']
 
-        if self.conf['verbose']:
-            logger.info("album list in db:" + str(self.albumslist))
+        logger.debug("album list in db:" + str(self.albumslist))
         return self.albumslist
 
     def albumExists(self, album):
@@ -218,7 +215,7 @@ class LycheeDAO:
             rows = cur.fetchall()
             album_ids = [r['album'] for r in rows]
             if len(album_ids) > 0:
-                logger.warn("a photo with this name or checksum already exists in at least another album: " + str(self.getAlbumNameFromIdsList(album_ids)))
+                logger.warn("a photo with this name: %s or checksum: %s already exists in at least another album: %s", photo.originalname, photo.checksum, self.getAlbumNameFromIdsList(album_ids))
 
         except Exception as e:
             logger.exception(e)
@@ -245,8 +242,7 @@ class LycheeDAO:
         cur = None
         try:
             cur = self.db.cursor()
-            if self.conf["verbose"]:
-                logger.debug("try to createAlbum:" + query)
+            logger.debug("try to createAlbum: %s", query)
             cur.execute(query)
             self.db.commit()
 
@@ -255,12 +251,11 @@ class LycheeDAO:
             row = cur.fetchone()
             self.albumslist['name'] = row['id']
             album['id'] = row['id']
-            logger.debug("album created:" + str(album))
-            logger.info("album created:" + album['name'])
+            logger.debug("album created: " + album['name'])
 
         except Exception as e:
             logger.exception(e)
-            logger.error("createAlbum:" + album['name'] + " -> " + str(album))
+            logger.error("createAlbum: %s -> %s", album['name'], str(album))
             album['id'] = None
         finally:
             return album['id']
@@ -283,8 +278,7 @@ class LycheeDAO:
                 res.append(row['url'])
             cur.execute(query)
             self.db.commit()
-            if self.conf["verbose"]:
-                logger.info("album photos erased: ", album)
+            logger.debug("album photos erased: ", album)
         except Exception as e:
             logger.exception(e)
             logger.error("eraseAlbum")
@@ -298,8 +292,7 @@ class LycheeDAO:
             cur = self.db.cursor()
             cur.execute(query)
             self.db.commit()
-            if self.conf["verbose"]:
-                logger.info("album dropped: ", album_id)
+            logger.debug("album dropped: %s", album_id)
             res = True
         except Exception as e:
             logger.exception(e)
@@ -359,13 +352,14 @@ class LycheeDAO:
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
                           photo.description, photo.originalname, photo.checksum)
         try:
+            logger.debug(query)
             cur = self.db.cursor()
             res = cur.execute(query)
             self.db.commit()
         except Exception as e:
             logger.exception(e)
-            logger.error("addFileToAlbum :" + str(photo))
-            logger.error("addFileToAlbum while executing: " + cur._last_executed)
+            logger.error("addFileToAlbum : %s", photo)
+            logger.error("addFileToAlbum while executing: %s", cur._last_executed)
             res = False
         finally:
             return res
@@ -379,8 +373,7 @@ class LycheeDAO:
                 cur = self.db.cursor()
                 cur.execute(qry)
                 self.db.commit()
-                if self.conf['verbose']:
-                    logger.info(": reinit auto increment to", str(max + 1))
+                logger.debug(": reinit auto increment to", str(max + 1))
             except Exception as e:
                 logger.exception(e)
 

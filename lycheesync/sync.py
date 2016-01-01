@@ -53,8 +53,6 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
 
     conf_data = {}
     conf_data['verbose'] = verbose
-    if verbose:
-        print("VERBOSE!!!!!!!!!!!!!!!!!!!")
     conf_data["srcdir"] = imagedirpath
     conf_data["lycheepath"] = lycheepath
     conf_data['confpath'] = confpath
@@ -89,20 +87,13 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
     conf_data["uid"] = uid
     conf_data["gid"] = gid
 
-    if verbose:
-        # show_args()
-        pass
-
     script_init(conf_data)
 
     # DB update
     if updatedb26:
-        if conf_data['verbose']:
-            print(conf_data)
         inf_to_lychee_2_6_2.updatedb(conf_data)
 
     logger.info("................start adding to lychee...............")
-    logger.debug("................DEBUG MODE...............")
     try:
 
         # DELEGATE WORK TO LYCHEESYNCER
@@ -111,16 +102,10 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
 
     except Exception:
         logger.exception('Failed to run batch')
-        ERROR = True
+        logger.error("..............script ended with errors...............")
 
     else:
-        logger.debug("Success !!!")
-
-    finally:
-        if ERROR:
-            logger.error("..............script ended with errors...............")
-        else:
-            logger.info("...............script successfully ended..............")
+        logger.info("...............script successfully ended..............")
 
 
 if __name__ == '__main__':

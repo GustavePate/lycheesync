@@ -600,3 +600,37 @@ class TestClass:
         except Exception as e:
             logger.exception(e)
             assert False
+
+    def test_visually_check_logs(self):
+        try:
+            # load "bad taketime"  album name
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("invalid_takedate")
+            tu.load_photoset("album2")
+            tu.load_photoset("album3")
+            tu.load_photoset("corrupted_file")
+            tu.load_photoset("duplicates")
+            launch_date = datetime.datetime.now()
+            time.sleep(1)
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            assert tu.count_db_albums() == 7, "too much albums created"
+            assert tu.count_fs_photos() == 10, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 10, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 10, "there are duplicate photos in thumb"
+
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False

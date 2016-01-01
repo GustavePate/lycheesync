@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.0.8
+
+*Warning* this is a breaking release new python packages must be installed (see the Install section in ReadMe)
+
+- automated testing
+- travis ci
+- compatibility with python 3
+- don't lower case album name
+- photos ordered by name in an album
+- make use of the DateTimeOriginal exif tag
+- dependency change: switch to a pure python mysql driver
+- dependency change: use click to parse arguments
+
 ## v3.0.1
 - change versioning to match lychee's
 

@@ -61,10 +61,12 @@ Then you have to install the following dependencies:
 
 On debian based Linux
 
-    sudo apt-get install python3.4-venv
+    sudo apt-get install python3-dev python3.4-venv libjpeg-dev
     cd /path/to/lycheesync
     pyvenv-3.4 ./venv3.4
     . ./venv3.4/bin/activate
+    which pip # should give you a path in your newly created ./venv3.4 dir
+    # if not execute: curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
     pip install -r requirements.txt
 
 And wait for compilation to finish ;)
@@ -73,7 +75,7 @@ And wait for compilation to finish ;)
 
 On debian based Linux
 
-    sudo apt-get install python3-dev python3 python3-pymysql python3-click python3-pil python3-dateutil
+    sudo apt-get install python3-dev python3 python3-pymysql python3-click python3-pil python3-dateutil libjpeg-dev
 
 PS: You may need to activate universe repository for you distribution first.
 

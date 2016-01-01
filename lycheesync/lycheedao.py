@@ -28,13 +28,22 @@ class LycheeDAO:
         """
 
         self.conf = conf
-        self.db = pymysql.connect(host=self.conf['dbHost'],
-                                  user=self.conf['dbUser'],
-                                  passwd=self.conf['dbPassword'],
-                                  db=self.conf['db'],
-                                  charset='utf8mb4',
-                                  unix_socket=self.conf['dbSocket'],
-                                  cursorclass=pymysql.cursors.DictCursor)
+        if self.conf['dbSocket']:
+            self.db = pymysql.connect(host=self.conf['dbHost'],
+                                      user=self.conf['dbUser'],
+                                      passwd=self.conf['dbPassword'],
+                                      db=self.conf['db'],
+                                      charset='utf8mb4',
+                                      unix_socket=self.conf['dbSocket'],
+                                      cursorclass=pymysql.cursors.DictCursor)
+        else:
+            self.db = pymysql.connect(host=self.conf['dbHost'],
+                                      user=self.conf['dbUser'],
+                                      passwd=self.conf['dbPassword'],
+                                      db=self.conf['db'],
+                                      charset='utf8mb4',
+                                      cursorclass=pymysql.cursors.DictCursor)
+
         cur = self.db.cursor()
         cur.execute("set names utf8;")
 
@@ -195,23 +204,16 @@ class LycheeDAO:
         """
         res = False
         try:
-            query = ("select * from lychee_photos where album=" + str(photo.albumid) +
-                     " AND (title='" + photo.originalname + "' OR checksum='" + photo.checksum + "')")
             cur = self.db.cursor()
-            cur.execute(query)
+            cur.execute("select * from lychee_photos where album=%s AND (title=%s OR checksum=%s)", (photo.albumid, photo.originalname, photo.checksum))
             row = cur.fetchall()
             if len(row) != 0:
                 res = True
 
             # Add Warning if photo exists in another album
-            query = (
-                "select album from lychee_photos where (title='" +
-                photo.originalname +
-                "' OR checksum='" +
-                photo.checksum +
-                "')")
+
             cur = self.db.cursor()
-            cur.execute(query)
+            cur.execute("select album from lychee_photos where (title=%s OR checksum=%s)", (photo.originalname, photo.checksum))
             rows = cur.fetchall()
             album_ids = [r['album'] for r in rows]
             if len(album_ids) > 0:
@@ -247,11 +249,10 @@ class LycheeDAO:
         try:
             cur = self.db.cursor()
             logger.debug("try to createAlbum: %s", query)
-            cur.execute(query)
+            cur.execute("insert into lychee_albums (title, sysstamp, public, password) values (%s,%s,%s,NULL)", (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
-            query = "select id from lychee_albums where title='" + album['name'] + "'"
-            cur.execute(query)
+            cur.execute("select id from lychee_albums where title=%s",  (album['name']))
             row = cur.fetchone()
             self.albumslist['name'] = row['id']
             album['id'] = row['id']
@@ -346,7 +347,7 @@ class LycheeDAO:
                  "'{}', '{}', '{}', '{}'," +
                  " '{}', " +
                  "'{}', '{}', '{}', '{}', " +
-                 "'{}', '{}', '{}')"
+                 "'{}', %s, '{}')"
                  ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
                           photo.size, photo.star,
                           photo.thumbUrl, photo.albumid,
@@ -354,11 +355,11 @@ class LycheeDAO:
                           photo.exif.aperture,
                           photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
-                          photo.description, photo.originalname, photo.checksum)
+                          photo.description,  photo.checksum)
         try:
             logger.debug(query)
             cur = self.db.cursor()
-            res = cur.execute(query)
+            res = cur.execute(query, (photo.originalname))
             self.db.commit()
         except Exception as e:
             logger.exception(e)

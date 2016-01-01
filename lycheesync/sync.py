@@ -44,8 +44,6 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
     Source directory should be on the same host than Lychee's
     """
 
-    ERROR = False
-
     if sys.version_info.major == 2:
         imagedirpath = imagedirpath.decode('UTF-8')
         lycheepath = lycheepath.decode('UTF-8')
@@ -58,6 +56,7 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
     conf_data['confpath'] = confpath
     conf_data["dropdb"] = False
     conf_data["replace"] = False
+    conf_data["dbSocket"] = None
 
     if exclusive_mode == "delete":
         conf_data["dropdb"] = True

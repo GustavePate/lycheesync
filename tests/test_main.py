@@ -601,6 +601,49 @@ class TestClass:
             logger.exception(e)
             assert False
 
+    def test_invalid_taketime(self):
+            # load "bad taketime"  album name
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("invalid_taketime")
+
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python -m lycheesync.sync -v {} {} {} '.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            assert tu.count_db_albums() == 1, "too much albums created"
+            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+
+    def test_quotes_in_album_name(self):
+            # load "bad taketime"  album name
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("with'\"quotes")
+
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+            assert tu.count_db_albums() == 1, "too much albums created"
+            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+
+
     def test_visually_check_logs(self):
         try:
             # load "bad taketime"  album name
@@ -611,8 +654,6 @@ class TestClass:
             tu.load_photoset("album3")
             tu.load_photoset("corrupted_file")
             tu.load_photoset("duplicates")
-            launch_date = datetime.datetime.now()
-            time.sleep(1)
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']

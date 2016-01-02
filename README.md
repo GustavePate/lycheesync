@@ -31,11 +31,6 @@ Check the install Chapter !
 
 PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
 
-## TODO
-
-* try other pure python driver
-* crontab exemple
-
 ## What's new
 
 See [changlog](./doc/changelog.md)
@@ -61,7 +56,7 @@ Then you have to install the following dependencies:
 
 On debian based Linux
 
-    sudo apt-get install python3-dev python3.4-venv libjpeg-dev
+    sudo apt-get install python3-dev python3.4-venv libjpeg-dev zlib1g-dev
     cd /path/to/lycheesync
     pyvenv-3.4 ./venv3.4
     . ./venv3.4/bin/activate
@@ -77,7 +72,7 @@ On debian based Linux
 
     sudo apt-get install python3-dev python3 python3-pymysql python3-click python3-pil python3-dateutil libjpeg-dev
 
-PS: You may need to activate universe repository for you distribution first.
+PS: Depending on your distro version, you may need to activate universe repository for you distribution first.
 
 ### Adjust configuration
 
@@ -173,6 +168,8 @@ Created albums:  4
 
 ##  Advanced usage
 
+### Command line switches
+
 You can choose between the following options to adjust the program behaviour:
 
 - `-v` **verbose mode**. A little more output
@@ -181,6 +178,14 @@ You can choose between the following options to adjust the program behaviour:
 - `-l` **link mode**. Don't copy files from source folder to lychee directory structure, just create symbolic links (thumbnails will however be created in lychee's directory structure)
 - `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
 
+Complete logs for the last run can be found in `logs/lycheesync.log`
+
+### Using crontab to automate synchronization
+
+Add this line in your crontab (`crontab -e`) to synchronize a photo directory to your lychee installation every day at 2 am.
+
+    0 2 * * * cd /path/to/lycheesync && . ./venv3.4/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -v -d &> /tmp/lycheesync
+
 
 ## Technical doc
 
@@ -188,11 +193,11 @@ This code is pep8 compliant and well documented, if you want to contribute, than
 keep it this way.
 
 This project files are:
-* sync.py: argument parsing and conf reading, defer work to lycheesyncer
-* lycheesyncer: logic and filesystem operations
-* lycheedao: database operations
-* lycheemodel: a lychee photo representation, manage exif tag parsing too
-* conf.json: the configuration file
+* lycheesync/sync.py: argument parsing and conf reading, defer work to lycheesyncer
+* lycheesync/lycheesyncer: logic and filesystem operations
+* lycheesync/lycheedao: database operations
+* lycheesync/lycheemodel: a lychee photo representation, manage exif tag parsing too
+* ressources/conf.json: the configuration file
 
 
 # Licence

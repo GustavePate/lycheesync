@@ -3,8 +3,6 @@
 import json
 import os
 import logging
-from logging.handlers import BaseRotatingHandler
-
 from lycheesync.utils.configuration import ConfBorg
 import sys
 
@@ -21,6 +19,7 @@ def init_loggers(logconf, verbose=False):
         for h in logging.getLogger().handlers:
             if h.name == "stream_handler":
                 h.setLevel(logging.DEBUG)
+
 
 def script_init(cli_args):
     """
@@ -40,7 +39,6 @@ def script_init(cli_args):
 
     # append path to configuration
     cli_args['full_path'] = full_path
-
 
     # read log configuration
     if os.path.exists(log_conf_path):
@@ -63,9 +61,9 @@ def script_init(cli_args):
             with open(conf_path, 'rt') as f:
                 conf = json.load(f)
 
-
     # initialize conf with items loaded from conf file AND command lines arguments
     # cli args have priority over configuration file
+    z = {}
     z = conf.copy()
     z.update(cli_args)
     borg = ConfBorg(z)

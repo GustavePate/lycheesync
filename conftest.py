@@ -33,7 +33,8 @@ def clean(request):
     """ will be run for each test function see pytest.ini """
     logger.info("DropDb")
     tu = TestUtils()
-    tu.clean_db()
+    if tu.db_exists():
+        tu.clean_db()
     tu.clean_fs()
 
 
@@ -49,8 +50,8 @@ def initdb_and_fs(request):
     # print("#FIXTURE: init db and fs")
     # tu = TestUtils()
     # Impossible because conf not loaded
-    # tu.drop_db()
     # tu.make_fake_lychee_db()
+    # tu.drop_db()
     # tu.make_fake_lychee_fs(tu.conf['lycheepath'])
 
 

@@ -7,7 +7,7 @@ test:
 	py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
 
 testdev:
-	py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_quotes_in_album_name
+	py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_env_maker
 
 initvenv:
 	pip install -r requirements.txt

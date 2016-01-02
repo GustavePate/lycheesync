@@ -56,7 +56,6 @@ def main(verbose, exclusive_mode, sort_album_by_name, link, updatedb26, imagedir
     conf_data['confpath'] = confpath
     conf_data["dropdb"] = False
     conf_data["replace"] = False
-    conf_data["dbSocket"] = None
 
     if exclusive_mode == "delete":
         conf_data["dropdb"] = True

@@ -1,7 +1,7 @@
 {
-    "db":"lychee",
-    "dbUser":"lychee",
-    "dbPassword":"lychee",
+    "db":"lychee_ci",
+    "dbUser":"lychee_ci",
+    "dbPassword":"lychee_ci",
     "dbHost":"localhost",
     "thumbQuality":80,
     "publicAlbum": 0,

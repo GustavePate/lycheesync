@@ -20,9 +20,9 @@ before_install:
     - sudo apt-get install python-dev python3-dev
 
 before_script:
-  - mysql -u root -e 'create database lychee DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
-  - mysql -u root  -e "create user 'lychee'@'localhost' IDENTIFIED BY 'lychee';"
-  - mysql -u root -e "GRANT ALL ON lychee.* TO 'lychee'@'localhost';"
+  - mysql -u root -e 'create database lychee_ci DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
+  - mysql -u root  -e "create user 'lychee_ci'@'localhost' IDENTIFIED BY 'lychee_ci';"
+  - mysql -u root -e "GRANT ALL ON lychee_ci.* TO 'lychee_ci'@'localhost';"
 
 # command to run tests
 script: make test

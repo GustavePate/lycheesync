@@ -26,31 +26,42 @@ class LycheeDAO:
         """
         Takes a dictionnary of conf as input
         """
+        try:
+            self.conf = conf
+            if 'dbSocket' in self.conf:
+                logger.debug("SOCKET")
+                logger.error("host: %s", self.conf['dbHost'])
+                logger.error("user: %s", self.conf['dbUser'])
+                logger.error("password: %s", self.conf['dbPassword'])
+                logger.error("db: %s", self.conf['db'])
+                logger.error("unix_socket: %s", self.conf['dbSocket'])
+                self.db = pymysql.connect(host=self.conf['dbHost'],
+                                          user=self.conf['dbUser'],
+                                          passwd=self.conf['dbPassword'],
+                                          db=self.conf['db'],
+                                          charset='utf8mb4',
+                                          unix_socket=self.conf['dbSocket'],
+                                          cursorclass=pymysql.cursors.DictCursor)
+            else:
+                logger.debug("NO SOCKET")
+                self.db = pymysql.connect(host=self.conf['dbHost'],
+                                          user=self.conf['dbUser'],
+                                          passwd=self.conf['dbPassword'],
+                                          db=self.conf['db'],
+                                          charset='utf8mb4',
+                                          cursorclass=pymysql.cursors.DictCursor)
 
-        self.conf = conf
-        if self.conf['dbSocket']:
-            self.db = pymysql.connect(host=self.conf['dbHost'],
-                                      user=self.conf['dbUser'],
-                                      passwd=self.conf['dbPassword'],
-                                      db=self.conf['db'],
-                                      charset='utf8mb4',
-                                      unix_socket=self.conf['dbSocket'],
-                                      cursorclass=pymysql.cursors.DictCursor)
-        else:
-            self.db = pymysql.connect(host=self.conf['dbHost'],
-                                      user=self.conf['dbUser'],
-                                      passwd=self.conf['dbPassword'],
-                                      db=self.conf['db'],
-                                      charset='utf8mb4',
-                                      cursorclass=pymysql.cursors.DictCursor)
+            cur = self.db.cursor()
+            cur.execute("set names utf8;")
 
-        cur = self.db.cursor()
-        cur.execute("set names utf8;")
+            if self.conf["dropdb"]:
+                self.dropAll()
 
-        if self.conf["dropdb"]:
-            self.dropAll()
+            self.loadAlbumList()
 
-        self.loadAlbumList()
+        except Exception as e:
+            logger.error(e)
+            raise
 
     def getAlbumNameDBWidth(self):
         res = 50  # default value
@@ -205,7 +216,11 @@ class LycheeDAO:
         res = False
         try:
             cur = self.db.cursor()
-            cur.execute("select * from lychee_photos where album=%s AND (title=%s OR checksum=%s)", (photo.albumid, photo.originalname, photo.checksum))
+            cur.execute(
+                "select * from lychee_photos where album=%s AND (title=%s OR checksum=%s)",
+                (photo.albumid,
+                 photo.originalname,
+                 photo.checksum))
             row = cur.fetchall()
             if len(row) != 0:
                 res = True
@@ -213,7 +228,10 @@ class LycheeDAO:
             # Add Warning if photo exists in another album
 
             cur = self.db.cursor()
-            cur.execute("select album from lychee_photos where (title=%s OR checksum=%s)", (photo.originalname, photo.checksum))
+            cur.execute(
+                "select album from lychee_photos where (title=%s OR checksum=%s)",
+                (photo.originalname,
+                 photo.checksum))
             rows = cur.fetchall()
             album_ids = [r['album'] for r in rows]
             if len(album_ids) > 0:
@@ -249,7 +267,8 @@ class LycheeDAO:
         try:
             cur = self.db.cursor()
             logger.debug("try to createAlbum: %s", query)
-            cur.execute("insert into lychee_albums (title, sysstamp, public, password) values (%s,%s,%s,NULL)", (album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
+            cur.execute("insert into lychee_albums (title, sysstamp, public, password) values (%s,%s,%s,NULL)", (album[
+                        'name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
             cur.execute("select id from lychee_albums where title=%s",  (album['name']))

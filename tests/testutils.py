@@ -25,19 +25,20 @@ class TestUtils:
         return self.cb.conf
 
     def _connect_db(self):
-        self.db = pymysql.connect(host=self.cb.conf['dbHost'],
-                                  user=self.cb.conf['dbUser'],
-                                  passwd=self.cb.conf['dbPassword'],
-                                  db=self.cb.conf['db'],
-                                  charset='utf8mb4',
-                                  cursorclass=pymysql.cursors.DictCursor)
+        db = pymysql.connect(host=self.cb.conf['dbHost'],
+                             user=self.cb.conf['dbUser'],
+                             passwd=self.cb.conf['dbPassword'],
+                             db=self.cb.conf['db'],
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
+        return db
 
-    def _exec_sql(self, sql):
+    def _exec_sql(self, db, sql):
         try:
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
 
-            self.db.commit()
+            db.commit()
 
         except Exception as e:
             raise e
@@ -59,35 +60,49 @@ class TestUtils:
 
     def drop_db(self):
         # connect to db
-        try:
-            self.db = pymysql.connect(host=self.cb.conf['dbHost'],
-                                      user=self.cb.conf['dbUser'],
-                                      passwd=self.cb.conf['dbPassword'],
-                                      charset='utf8mb4',
-                                      cursorclass=pymysql.cursors.DictCursor)
-        # check if db exists
-            sql = "DROP DATABASE " + self.cb.conf['db']
-            with self.db.cursor() as cursor:
-                cursor.execute(sql)
-            self.db.commit()
-        except Exception as e:
-            logger.exception(e)
-        finally:
-            self.db.close()
+        if self.db_exists():
+            try:
+                self.db = pymysql.connect(host=self.cb.conf['dbHost'],
+                                          user=self.cb.conf['dbUser'],
+                                          passwd=self.cb.conf['dbPassword'],
+                                          charset='utf8mb4',
+                                          cursorclass=pymysql.cursors.DictCursor)
+            # check if db exists
+                sql = "DROP DATABASE " + self.cb.conf['db']
+                with self.db.cursor() as cursor:
+                    cursor.execute(sql)
+                self.db.commit()
+            except Exception as e:
+                logger.exception(e)
+            finally:
+                self.db.close()
 
     def table_exists(self, table_name):
         res = False
-        self._connect_db()
+        db = self._connect_db()
         try:
-            sql = "show tables where Tables_in_lychee='lychee_albums';"
-            with self.db.cursor() as cursor:
+            sql = "show tables where Tables_in_{}='lychee_albums';".format(self.cb.conf['db'])
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 res = (len(cursor.fetchall()) == 1)
         except Exception as e:
             raise e
         finally:
-            self.db.close()
+            db.close()
             return res
+
+    def db_exists(self):
+        res = True
+        try:
+            db = self._connect_db()
+        except Exception as e:
+            logger.warn("db does not exist yet... %s", e)
+            res = False
+        finally:
+            try:
+                db.close()
+            finally:
+                return res
 
     def make_fake_lychee_db(self):
 
@@ -108,12 +123,12 @@ class TestUtils:
         finally:
             self.db.close()
 
-        self._connect_db()
+        db = self._connect_db()
 
         try:
             # check if table exists
-            sql = "show tables where Tables_in_lychee='lychee_albums';"
-            with self.db.cursor() as cursor:
+            sql = "show tables where Tables_in_{}='lychee_albums';".format(self.cb.conf['db'])
+            with db.cursor() as cursor:
                 cursor.execute(sql)
 
                 if (len(cursor.fetchall()) == 0):
@@ -131,7 +146,7 @@ class TestUtils:
         except Exception as e:
             logger.exception(e)
         finally:
-            self.db.close()
+            db.close()
 
     def load_photoset(self, set_name, dest_name=None):
         testlibpath = self.cb.conf['testlib']
@@ -146,14 +161,19 @@ class TestUtils:
     def clean_db(self):
         logger.info("Clean Database")
         # connect to db
-        self._connect_db()
+        db = self._connect_db()
         try:
-            self._exec_sql("TRUNCATE TABLE lychee_albums;")
-            self._exec_sql("TRUNCATE TABLE lychee_photos;")
+            if self.table_exists('lychee_albums'):
+                self._exec_sql(db, "TRUNCATE TABLE lychee_albums;")
+            if self.table_exists('lychee_photos'):
+                self._exec_sql(db, "TRUNCATE TABLE lychee_photos;")
         except Exception as e:
             logger.exception(e)
         finally:
-            self.db.close()
+            try:
+                db.close()
+            finally:
+                pass
 
     def _empty_or_create_dir(self, path):
         try:
@@ -201,10 +221,10 @@ class TestUtils:
 
     def count_db_photos(self):
         res = -1
-        self._connect_db()
+        db = self._connect_db()
         try:
             sql = "select count(1) as total from lychee_photos"
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 count = cursor.fetchone()
                 res = count['total']
@@ -212,14 +232,14 @@ class TestUtils:
             logger.exception(e)
             assert False
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def dump_table(self, table_name):
-        self._connect_db()
+        db = self._connect_db()
         try:
             sql = "select * from " + table_name
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
                 for row in rows:
@@ -229,14 +249,14 @@ class TestUtils:
             logger.exception(e)
             assert False
         finally:
-            self.db.close()
+            db.close()
 
     def count_db_albums(self):
         res = -1
-        self._connect_db()
+        db = self._connect_db()
         try:
             sql = "select count(1) as total from lychee_albums"
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 count = cursor.fetchone()
                 res = count['total']
@@ -244,15 +264,15 @@ class TestUtils:
             logger.exception(e)
             assert False
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def get_album_creation_date(self, a_name):
         res = -1
-        self._connect_db()
+        db = self._connect_db()
         try:
             sql = "select sysstamp from lychee_albums where title='{}'".format(a_name)
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 data = cursor.fetchone()
                 sysstamp = data['sysstamp']
@@ -262,7 +282,7 @@ class TestUtils:
             logger.exception(e)
             assert False
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def _count_files_in_dir(self, path):
@@ -295,11 +315,11 @@ class TestUtils:
 
     def get_album_id(self, a_name):
         res = None
-        self._connect_db()
+        db = self._connect_db()
         try:
             # check if exists in db
             sql = "select id from lychee_albums where title='{}'".format(a_name)
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchmany(size=2)
                 if (len(rows) == 1 and rows[0]):
@@ -308,16 +328,16 @@ class TestUtils:
             logger.exception(e)
             res = None
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def get_album_photos(self, a_id):
         res = None
-        self._connect_db()
+        db = self._connect_db()
         try:
             # check if exists in db
             sql = "select url from lychee_photos where album='{}'".format(a_id)
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
                 res = []
@@ -327,7 +347,7 @@ class TestUtils:
             logger.exception(e)
             res = None
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def photo_exists_in_fs(self, photo):
@@ -352,11 +372,11 @@ class TestUtils:
 
     def get_album_ids_titles(self):
         res = None
-        self._connect_db()
+        db = self._connect_db()
         try:
             # check if exists in db
             sql = "select id, title from lychee_albums"
-            with self.db.cursor() as cursor:
+            with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
             res = rows
@@ -365,7 +385,7 @@ class TestUtils:
             res = None
             raise e
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def check_album_size(self, a_name):
@@ -390,8 +410,8 @@ class TestUtils:
         res = 50  # default value
         query = "show columns from " + table + " where Field='" + column + "'"
         logger.info(query)
-        self._connect_db()
-        cur = self.db.cursor()
+        db = self._connect_db()
+        cur = db.cursor()
         try:
             cur.execute(query)
             row = cur.fetchone()
@@ -406,12 +426,17 @@ class TestUtils:
                 if len(ints) > 0:
                     res = int(ints[0])
             else:
-                logger.ERROR("unable to find column width for " + table + "." + column + " fallback to default")
+                logger.ERROR(
+                    "unable to find column width for " +
+                    table +
+                    "." +
+                    column +
+                    " fallback to default")
         except Exception as e:
             logger.exception(e)
             logger.error("Impossible to find column width for " + table + "." + column)
         finally:
-            self.db.close()
+            db.close()
             return res
 
     def change_column_width(self, table, column, width):
@@ -420,11 +445,17 @@ class TestUtils:
 
             try:
                 query = "alter " + table + " modify " + column + " varchar(" + str(width) + ")"
-                self._connect_db()
-                self._exec_sql(query)
+                db = self._connect_db()
+                self._exec_sql(db, query)
             except Exception as e:
                 logger.exception(e)
-                logger.error("Impossible to modify column width for " + table + "." + column + " to " + str(width))
+                logger.error(
+                    "Impossible to modify column width for " +
+                    table +
+                    "." +
+                    column +
+                    " to " +
+                    str(width))
                 raise
             finally:
-                self.db.close()
+                db.close()

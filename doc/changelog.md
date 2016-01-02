@@ -10,8 +10,8 @@
 - don't lower case album name
 - photos ordered by name in an album
 - make use of the DateTimeOriginal exif tag
-- dependency change: switch to a pure python mysql driver
-- dependency change: use click to parse arguments
+- dependency change: switch to a pure python mysql driver [pymysql](https://github.com/PyMySQL/PyMySQL)
+- dependency change: use [click](http://click.pocoo.org/) to parse arguments
 
 ## v3.0.1
 - change versioning to match lychee's

@@ -29,7 +29,7 @@ I added a few dependencies and remove others.
 As an exemple the mysql driver has changed, so...
 Check the install Chapter !
 
-PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 is still supported.
+PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 will still be supported in the following months.
 
 ## What's new
 
@@ -48,8 +48,8 @@ Then you have to install the following dependencies:
 - python 2.7 or 3.4 (3.4 prefered !)
 - pillow
 - dateutils
-- pymysql
-- click
+- [pymysql](https://github.com/PyMySQL/PyMySQL)
+- [click](http://click.pocoo.org/)
 
 
 #### Using a virtual env (the GOOD way)

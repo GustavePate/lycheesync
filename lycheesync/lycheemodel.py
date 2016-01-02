@@ -142,7 +142,7 @@ class LycheePhoto:
 
         # Compute Photo ID
         self.id = datetime.datetime.utcnow().strftime('%y%m%d%H%M%S%f')[:-4]
-        self.id = self.id.ljust(14, '0')
+        assert len(self.id) == 14, "id is not 14 character long"
 
         # Compute file storage url
         m = hashlib.md5()

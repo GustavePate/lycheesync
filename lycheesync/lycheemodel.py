@@ -141,8 +141,7 @@ class LycheePhoto:
             self.star = 1
 
         # Compute Photo ID
-        self.id = str(time.time())
-        self.id = self.id.replace('.', '')
+        self.id = datetime.datetime.utcnow().strftime('%y%m%d%H%M%S%f')[:-4]
         self.id = self.id.ljust(14, '0')
 
         # Compute file storage url

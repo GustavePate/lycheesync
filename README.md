@@ -184,7 +184,7 @@ Complete logs for the last run can be found in `logs/lycheesync.log`
 
 Add this line in your crontab (`crontab -e`) to synchronize a photo directory to your lychee installation every day at 2 am.
 
-    0 2 * * * cd /path/to/lycheesync && . ./venv3.4/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -v -d &> /tmp/lycheesync
+    0 2 * * * cd /path/to/lycheesync && . ./venv3.4/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -d > /tmp/lycheesync.out.log 2>&1
 
 
 ## Technical doc

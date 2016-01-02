@@ -45,7 +45,7 @@ See [changlog](./doc/changelog.md)
 
 Then you have to install the following dependencies:
 
-- python 2.7 or 3.4 (3.4 prefered !)
+- python 2.7, 3.4 or 3.5 (python 3 prefered !)
 - pillow
 - dateutils
 - [pymysql](https://github.com/PyMySQL/PyMySQL)

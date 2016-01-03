@@ -180,6 +180,10 @@ You can choose between the following options to adjust the program behaviour:
 
 Complete logs for the last run can be found in `logs/lycheesync.log`
 
+### Choose your album cover
+
+Add `_star` at the end of one filename in a directory and this photo will be stared, making it your album cover. Ex: `P1000274_star.JPG`
+
 ### Using crontab to automate synchronization
 
 Add this line in your crontab (`crontab -e`) to synchronize a photo directory to your lychee installation every day at 2 am.

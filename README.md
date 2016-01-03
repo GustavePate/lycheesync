@@ -6,6 +6,12 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 * Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.
 * Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online)
 
+# TODO
+
+* Photo upload time
+* Album date
+* Exif Rotation
+
 ## Context
 
 This project was created to syncronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).

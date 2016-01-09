@@ -175,7 +175,9 @@ class LycheeSyncer:
 
             except Exception as e:
                 if self.conf["verbose"]:
-                    logger.warn("chgrp error,  check file permission for %s fix: eventually adjust source file permissions", photo.destfullpath)
+                    logger.warn(
+                        "chgrp error,  check file permission for %s fix: eventually adjust source file permissions",
+                        photo.destfullpath)
 
             res = self.dao.addFileToAlbum(photo)
 
@@ -208,14 +210,18 @@ class LycheeSyncer:
     def rotatephoto(self, photo, rotation):
         # rotate main photo
         img = Image.open(photo.destfullpath)
-        img2 = img.rotate(rotation)
-        img2.save(photo.destfullpath, quality=99)
+        exif_data = None
+        if 'exif' in img.info:
+            exif_data = img.info['exif']
+        img2 = img.rotate(rotation, expand=True)
+        # TODO: change rotation exif tag before save
+        img2.save(photo.destfullpath, quality=99, exif=exif_data)
         # rotate Thumbnails
         img = Image.open(photo.thumbnailx2fullpath)
-        img2 = img.rotate(rotation)
+        img2 = img.rotate(rotation, expand=True)
         img2.save(photo.thumbnailx2fullpath, quality=99)
         img = Image.open(photo.thumbnailfullpath)
-        img2.rotate(rotation)
+        img2.rotate(rotation, expand=True)
         img2.save(photo.thumbnailfullpath, quality=99)
 
     def adjustRotation(self, photo):
@@ -223,16 +229,23 @@ class LycheeSyncer:
         Rotates photos according to the exif orienttaion tag
         Returns nothing
         """
+        logger.info("adjustRotation: %s", photo.exif.orientation)
         if photo.exif.orientation not in (0, 1):
             # There is somthing to do
             if photo.exif.orientation == 6:
                 # rotate 90° clockwise
-                # AND LOOSE EXIF DATA
                 self.rotatephoto(photo, -90)
-            if photo.exif.orientation == 8:
+            elif photo.exif.orientation == 8:
                 # rotate 90° counterclockwise
-                # AND LOOSE EXIF DATA
                 self.rotatephoto(photo, 90)
+            elif photo.exif.orientation == 3:
+                # rotate 180°
+                self.rotatephoto(photo, 180)
+            else:
+                logger.warn(
+                    "Orientation not defined {} for photo {}".format(
+                        photo.exif.orientation,
+                        photo.title))
 
     def reorderalbumids(self, albums):
 
@@ -276,7 +289,10 @@ class LycheeSyncer:
                     if datelist is not None and len(datelist) > 0:
                         newdate = max(datelist)
                         self.dao.updateAlbumDate(a['id'], newdate)
-                        logger.debug("album %s sysstamp changed to: %s ", a['name'], str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(newdate))))
+                        logger.debug(
+                            "album %s sysstamp changed to: %s ", a['name'], str(
+                                time.strftime(
+                                    '%Y-%m-%d %H:%M:%S', time.localtime(newdate))))
             except Exception as e:
                 logger.exception(e)
                 logger.error("updating album date for album:" + a['name'], e)
@@ -338,8 +354,7 @@ class LycheeSyncer:
                 # don't know what to do with theses photo
                 # and don't wan't to create a default album
                 if album['path'] == self.conf['srcdir']:
-                    msg = ("file at srcdir root won't be added to lychee, " +
-                           "please move them in a subfolder"), os.path.join(root, f)
+                    msg = "file at srcdir root won't be added to lychee, please move them in a subfolder: {}".format(root)
                     logger.warn(msg)
                     continue
 
@@ -383,7 +398,12 @@ class LycheeSyncer:
                         try:
                             discoveredphotos += 1
                             error = False
-                            logger.debug("**** Trying to add to lychee album %s: %s", album['name'], os.path.join(root, f))
+                            logger.debug(
+                                "**** Trying to add to lychee album %s: %s",
+                                album['name'],
+                                os.path.join(
+                                    root,
+                                    f))
                             photo = LycheePhoto(self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
 
@@ -396,9 +416,14 @@ class LycheeSyncer:
                                     album['photos'].append(photo)
                                 else:
                                     error = True
-                                    logger.error("while adding to album: %s photo: %s", album['name'], photo.srcfullpath)
+                                    logger.error(
+                                        "while adding to album: %s photo: %s",
+                                        album['name'],
+                                        photo.srcfullpath)
                             else:
-                                logger.error("photo already exists in this album with same name or same checksum: %s it won't be added to lychee", photo.srcfullpath)
+                                logger.error(
+                                    "photo already exists in this album with same name or same checksum: %s it won't be added to lychee",
+                                    photo.srcfullpath)
                                 error = True
                         except Exception as e:
                             logger.exception(e)
@@ -406,8 +431,12 @@ class LycheeSyncer:
                             error = True
                         finally:
                             if not(error):
-                                logger.info("**** Successfully added %s to lychee album %s",  os.path.join(root, f), album['name'])
-
+                                logger.info(
+                                    "**** Successfully added %s to lychee album %s",
+                                    os.path.join(
+                                        root,
+                                        f),
+                                    album['name'])
 
                 a = album.copy()
                 albums.append(a)

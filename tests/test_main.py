@@ -728,7 +728,7 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+            cmd = 'python -m lycheesync.sync {} {} {} -v '.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)

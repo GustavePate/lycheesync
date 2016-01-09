@@ -38,7 +38,7 @@ class ExifData:
     model = ""
     shutter = None
     aperture = None
-    exposure =  None
+    exposure = None
     focal = None
     _takedate = None
     taketime = None
@@ -207,10 +207,14 @@ class LycheePhoto:
                             self.exif.make = value
                         if decode == "MaxApertureValue":
                             aperture = math.sqrt(2) ** value[0]
-                            r_aperture = decimal.Decimal(aperture).quantize(
-                                decimal.Decimal('.1'),
-                                rounding=decimal.ROUND_05UP)
-                            self.exif.aperture = r_aperture
+                            try:
+                                aperture = decimal.Decimal(aperture).quantize(
+                                    decimal.Decimal('.1'),
+                                    rounding=decimal.ROUND_05UP)
+                            except Exception as e:
+                                logger.debug("aperture only a few digit after comma: {}".format(aperture))
+                                logger.debug(e)
+                            self.exif.aperture = aperture
                         if decode == "FocalLength":
                             self.exif.focal = value[0]
                         if decode == "ISOSpeedRatings":
@@ -224,7 +228,11 @@ class LycheePhoto:
                             s = 2 ** s
                             s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
                             if s <= 1:
-                                s = decimal.Decimal(1 / float(s)).quantize(decimal.Decimal('0.1'), rounding=decimal.ROUND_05UP)
+                                s = decimal.Decimal(
+                                    1 /
+                                    float(s)).quantize(
+                                    decimal.Decimal('0.1'),
+                                    rounding=decimal.ROUND_05UP)
                             else:
                                 s = "1/" + str(s)
                             self.exif.shutter = str(s) + " s"
@@ -253,34 +261,37 @@ class LycheePhoto:
                             except Exception as e:
                                 logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
-
-
-
-
-
-
-
                     # compute shutter speed
 
                     if not(self.exif.shutter) and self.exif.exposure:
                         if self.exif.exposure < 1:
                             e = str(Fraction(self.exif.exposure).limit_denominator())
                         else:
-                            e = decimal.Decimal(self.exif.exposure).quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_05UP)
+                            e = decimal.Decimal(
+                                self.exif.exposure).quantize(
+                                decimal.Decimal('0.01'),
+                                rounding=decimal.ROUND_05UP)
                         self.exif.shutter = e
 
                     if self.exif.shutter:
                         self.exif.shutter = str(self.exif.shutter) + " s"
+                    else:
+                        self.exif.shutter = ""
 
                     if self.exif.exposure:
                         self.exif.exposure = str(self.exif.exposure) + " s"
+                    else:
+                        self.exif.exposure = ""
 
                     if self.exif.focal:
                         self.exif.focal = str(self.exif.focal) + " mm"
+                    else:
+                        self.exif.focal = ""
 
                     if self.exif.aperture:
                         self.exif.aperture = 'F' + str(self.exif.aperture)
-
+                    else:
+                        self.exif.aperture = ""
 
                     # compute takedate / taketime
                     if self.exif.takedate:

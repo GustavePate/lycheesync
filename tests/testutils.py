@@ -7,6 +7,7 @@ import shutil
 import re
 import subprocess
 import pymysql
+import base64
 from lycheesync.utils.configuration import ConfBorg
 # from datetime import datetime
 import pymysql.cursors
@@ -142,7 +143,31 @@ class TestUtils:
                     retval = subprocess.call(cmd, shell=True)
                     assert retval == 0
 
-            # create tables
+                    # create tables
+                    self.init_db_settings()
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            db.close()
+
+    def init_db_settings(self):
+        db = self._connect_db()
+        try:
+            username = "foo"
+            password = "bar"
+            b64_username = base64.b64encode(username)
+            b64_password = base64.b64encode(password)
+            qry = "insert into lychee_settings (`key`, `value`) values ('username', %s)"
+            with db.cursor() as cursor:
+                try:
+                    cursor.execute(qry, (b64_username))
+                except Exception as e:
+                    logger.warn(e)
+                    logger.warn(cursor)
+            qry = "insert into lychee_settings (`key`, `value`) values ('password', %s)"
+            with db.cursor() as cursor:
+                cursor.execute(qry, (b64_password))
+            db.commit()
         except Exception as e:
             logger.exception(e)
         finally:
@@ -406,7 +431,7 @@ class TestUtils:
             nb_photos_in_db = len(photos)
             # check if files exists on fs
             for p in photos:
-                assert self.photo_exists_in_fs(p), "All photos for {} are not on fs".format(photos)
+                assert self.photo_exists_in_fs(p['url']), "All photos for {} are not on fs".format(photos)
             #  every thing is ok
             res = nb_photos_in_db
         except Exception as e:

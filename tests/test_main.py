@@ -705,10 +705,12 @@ class TestClass:
                     assert p['shutter'] == '1/60 s', "shutter {} not equal 1/60 s".format(p['shutter'])
                     assert p['focal'] == '4.9 mm', "focal {} not equal 4.9 mm".format(p['focal'])
                     assert p['iso'] == '100', "iso {} not equal 100".format(p['iso'])
+                    assert p['aperture'] == 'F3.3', "aperture {} not equal F3.3".format(p['aperture'])
                 if p['title'] == 'P1010328.JPG':
                     assert p['shutter'] == '1/30 s', "shutter {} not equal 1/30 s".format(p['shutter'])
                     assert p['focal'] == '4.9 mm', "focal {} not equal 4.9 mm".format(p['focal'])
                     assert p['iso'] == '400', "iso {} not equal 400".format(p['iso'])
+                    assert p['aperture'] == 'F3.3', "aperture {} not equal F3.3".format(p['aperture'])
         except AssertionError:
             raise
         except Exception as e:

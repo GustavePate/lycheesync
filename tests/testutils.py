@@ -336,13 +336,21 @@ class TestUtils:
         db = self._connect_db()
         try:
             # check if exists in db
-            sql = "select url from lychee_photos where album='{}'".format(a_id)
+            sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where album='{}'".format(a_id)
             with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
                 res = []
                 for r in rows:
-                    res.append(r['url'])
+                    photo = {}
+                    photo['url'] = r['url']
+                    photo['id'] = r['id']
+                    photo['iso'] = r['iso']
+                    photo['aperture'] = r['aperture']
+                    photo['shutter'] = r['shutter']
+                    photo['focal'] = r['focal']
+                    photo['title'] = r['title']
+                    res.append(photo)
         except Exception as e:
             logger.exception(e)
             res = None

@@ -4,6 +4,10 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import time
 import hashlib
+import random
+import math
+import decimal
+from fractions import Fraction
 import os
 import mimetypes
 from PIL import Image
@@ -30,11 +34,12 @@ class ExifData:
         self._takedate = value.replace(':', '-')
 
     iso = ""
-    aperture = ""
     make = ""
     model = ""
-    shutter = ""
-    focal = ""
+    shutter = None
+    aperture = None
+    exposure =  None
+    focal = None
     _takedate = None
     taketime = None
     orientation = 0
@@ -46,6 +51,7 @@ class ExifData:
         res += "make: " + str(self.make) + "\n"
         res += "model: " + str(self.model) + "\n"
         res += "shutter: " + str(self.shutter) + "\n"
+        res += "exposure: " + str(self.exposure) + "\n"
         res += "focal: " + str(self.focal) + "\n"
         res += "takedate: " + str(self.takedate) + "\n"
         res += "taketime: " + str(self.taketime) + "\n"
@@ -141,8 +147,18 @@ class LycheePhoto:
             self.star = 1
 
         # Compute Photo ID
-        self.id = datetime.datetime.utcnow().strftime('%y%m%d%H%M%S%f')[:-4]
-        assert len(self.id) == 14, "id is not 14 character long"
+        self.id = str(int(time.time()))
+        # not precise enough
+        length = len(self.id)
+        if length < 14:
+            missing_char = 14 - length
+            r = random.random()
+            r = str(r)
+            # last missing_char char
+            filler = r[-missing_char:]
+            self.id = self.id + filler
+
+        assert len(self.id) == 14, "id {} is not 14 character long: {}".format(self.id, str(len(self.id)))
 
         # Compute file storage url
         m = hashlib.md5()
@@ -190,15 +206,28 @@ class LycheePhoto:
                         if decode == "Make":
                             self.exif.make = value
                         if decode == "MaxApertureValue":
-                            self.exif.aperture = value
+                            aperture = math.sqrt(2) ** value[0]
+                            r_aperture = decimal.Decimal(aperture).quantize(
+                                decimal.Decimal('.1'),
+                                rounding=decimal.ROUND_05UP)
+                            self.exif.aperture = r_aperture
                         if decode == "FocalLength":
-                            self.exif.focal = value
+                            self.exif.focal = value[0]
                         if decode == "ISOSpeedRatings":
-                            self.exif.iso = value
+                            self.exif.iso = value[0]
                         if decode == "Model":
                             self.exif.model = value
                         if decode == "ExposureTime":
-                            self.exif.shutter = value
+                            self.exif.exposure = value[0]
+                        if decode == "ShutterSpeedValue":
+                            s = value[0]
+                            s = 2 ** s
+                            s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
+                            if s <= 1:
+                                s = decimal.Decimal(1 / float(s)).quantize(decimal.Decimal('0.1'), rounding=decimal.ROUND_05UP)
+                            else:
+                                s = "1/" + str(s)
+                            self.exif.shutter = str(s) + " s"
 
                         if decode == "DateTimeOriginal":
                             try:
@@ -224,6 +253,35 @@ class LycheePhoto:
                             except Exception as e:
                                 logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
+
+
+
+
+
+
+
+                    # compute shutter speed
+
+                    if not(self.exif.shutter) and self.exif.exposure:
+                        if self.exif.exposure < 1:
+                            e = str(Fraction(self.exif.exposure).limit_denominator())
+                        else:
+                            e = decimal.Decimal(self.exif.exposure).quantize(decimal.Decimal('0.01'), rounding=decimal.ROUND_05UP)
+                        self.exif.shutter = e
+
+                    if self.exif.shutter:
+                        self.exif.shutter = str(self.exif.shutter) + " s"
+
+                    if self.exif.exposure:
+                        self.exif.exposure = str(self.exif.exposure) + " s"
+
+                    if self.exif.focal:
+                        self.exif.focal = str(self.exif.focal) + " mm"
+
+                    if self.exif.aperture:
+                        self.exif.aperture = 'F' + str(self.exif.aperture)
+
+
                     # compute takedate / taketime
                     if self.exif.takedate:
                         takedate = self.exif.takedate.replace(':', '-')
@@ -231,6 +289,8 @@ class LycheePhoto:
 
                     if self.exif.taketime:
                         taketime = self.exif.taketime
+
+                    # add mesurement units
 
                     self._str_datetime = takedate + " " + taketime
 

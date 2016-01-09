@@ -603,31 +603,91 @@ class TestClass:
 
     def test_invalid_taketime(self):
             # load "bad taketime"  album name
+        tu = TestUtils()
+        # load 1 album with same photo under different name
+        tu.load_photoset("invalid_taketime")
+
+        src = tu.conf['testphotopath']
+        lych = tu.conf['lycheepath']
+        conf = tu.conf['conf']
+        # normal mode
+        cmd = 'python -m lycheesync.sync -v {} {} {} '.format(src, lych, conf)
+        logger.info(cmd)
+        retval = -1
+        retval = subprocess.call(cmd, shell=True)
+        # no crash
+        assert (retval == 0), "process result is ok"
+        assert tu.count_db_albums() == 1, "too much albums created"
+        assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+        assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+        assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+
+    def test_quotes_in_album_name(self):
+        # load "bad taketime"  album name
+        tu = TestUtils()
+        # load 1 album with same photo under different name
+        tu.load_photoset("with'\"quotes")
+
+        src = tu.conf['testphotopath']
+        lych = tu.conf['lycheepath']
+        conf = tu.conf['conf']
+        # normal mode
+        cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+        logger.info(cmd)
+        retval = -1
+        retval = subprocess.call(cmd, shell=True)
+        # no crash
+        assert (retval == 0), "process result is ok"
+        assert tu.count_db_albums() == 1, "too much albums created"
+        assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
+        assert tu.count_db_photos() == 1, "there are duplicate photos in db"
+        assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+
+    def test_photoid_equal_timestamp(self):
+        try:
             tu = TestUtils()
             # load 1 album with same photo under different name
-            tu.load_photoset("invalid_taketime")
-
+            tu.load_photoset("album3")
+            # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # normal mode
-            cmd = 'python -m lycheesync.sync -v {} {} {} '.format(src, lych, conf)
+            before_launch = datetime.datetime.now()
+            time.sleep(1.1)
+
+            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
-            assert tu.count_db_albums() == 1, "too much albums created"
-            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
-            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
-            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
+            time.sleep(1.1)
+            after_launch = datetime.datetime.now()
+            photos = tu.get_album_photos(tu.get_album_id('album3'))
+            for p in photos:
+                logger.info(p)
+                # substract 4 last characters
+                ts = str(p['id'])[:-4]
 
-    def test_quotes_in_album_name(self):
-            # load "bad taketime"  album name
+                # timestamp to date
+                dt = datetime.datetime.fromtimestamp(int(ts))
+                logger.info(dt)
+                assert after_launch > dt, "date from id not < date after launch"
+                assert dt > before_launch, "date from id not > date before launch"
+
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+    def test_shutter_speed(self):
+        try:
             tu = TestUtils()
             # load 1 album with same photo under different name
-            tu.load_photoset("with'\"quotes")
-
+            tu.load_photoset("rotation")
+            # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
@@ -638,11 +698,50 @@ class TestClass:
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
-            assert tu.count_db_albums() == 1, "too much albums created"
-            assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
-            assert tu.count_db_photos() == 1, "there are duplicate photos in db"
-            assert tu.count_fs_thumb() == 1, "there are duplicate photos in thumb"
 
+            photos = tu.get_album_photos(tu.get_album_id('rotation'))
+            for p in photos:
+                if p['title'] == 'P1010319.JPG':
+                    assert p['shutter'] == '1/60 s', "shutter {} not equal 1/60 s".format(p['shutter'])
+                    assert p['focal'] == '4.9 mm', "focal {} not equal 4.9 mm".format(p['focal'])
+                    assert p['iso'] == '100', "iso {} not equal 100".format(p['iso'])
+                if p['title'] == 'P1010328.JPG':
+                    assert p['shutter'] == '1/30 s', "shutter {} not equal 1/30 s".format(p['shutter'])
+                    assert p['focal'] == '4.9 mm', "focal {} not equal 4.9 mm".format(p['focal'])
+                    assert p['iso'] == '400', "iso {} not equal 400".format(p['iso'])
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
+
+    @pytest.mark.xfail
+    def test_rotation(self):
+        try:
+            tu = TestUtils()
+            # load 1 album with same photo under different name
+            tu.load_photoset("rotation")
+            # launch lycheesync
+            src = tu.conf['testphotopath']
+            lych = tu.conf['lycheepath']
+            conf = tu.conf['conf']
+            # normal mode
+            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
+            retval = subprocess.call(cmd, shell=True)
+            # no crash
+            assert (retval == 0), "process result is ok"
+
+            photos = tu.get_album_photos(tu.get_album_id('rotation'))
+            for p in photos:
+                pass
+            assert False
+        except AssertionError:
+            raise
+        except Exception as e:
+            logger.exception(e)
+            assert False
 
     def test_visually_check_logs(self):
         try:

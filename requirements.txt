@@ -1,5 +1,5 @@
 pymysql
 click
-pillow
+pillow==3.0.0
 python-dateutil
 pytest==2.7.3

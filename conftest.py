@@ -31,7 +31,6 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="function")
 def clean(request):
     """ will be run for each test function see pytest.ini """
-    logger.info("DropDb")
     tu = TestUtils()
     if tu.db_exists():
         tu.clean_db()
@@ -47,7 +46,7 @@ def carriagereturn(request):
 @pytest.fixture(scope="session")
 def initdb_and_fs(request):
     pass
-    # print("#FIXTURE: init db and fs")
+    #  print("#FIXTURE: init db and fs")
     # tu = TestUtils()
     # Impossible because conf not loaded
     # tu.make_fake_lychee_db()

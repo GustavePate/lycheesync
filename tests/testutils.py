@@ -59,6 +59,41 @@ class TestUtils:
                     logger.info('mkdir ' + p)
                     os.mkdir(p)
 
+    def is_env_clean(self, path):
+        check = []
+        try:
+            folders = {}
+            folders['big'] = os.path.join(path, 'uploads', 'big')
+            folders['medium'] = os.path.join(path, 'uploads', 'medium')
+            folders['thumb'] = os.path.join(path, 'uploads', 'thumb')
+            # is dir
+            check.append(os.path.isdir(folders['big']))
+            check.append(os.path.isdir(folders['medium']))
+            check.append(os.path.isdir(folders['thumb']))
+            # is empty
+            path = folders['big']
+            check.append(0 == len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]))
+            path = folders['medium']
+            check.append(0 == len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]))
+            path = folders['thumb']
+            check.append(0 == len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]))
+            # count album == 0
+            albums = self.get_album_ids_titles()
+            check.append(len(albums) == 0)
+
+            # count photos == 0
+            check.append(len(self.get_photos()) == 0)
+
+        except Exception as e:
+            logger.exception(e)
+            check.append(False)
+        finally:
+            res = True
+            for c in check:
+                if not(c):
+                    res = False
+            return res
+
     def drop_db(self):
         # connect to db
         if self.db_exists():
@@ -205,14 +240,18 @@ class TestUtils:
             if os.path.isdir(path):
                 path = os.path.join(path, '*')
                 for f in glob.glob(path):
-
-                    if os.path.exists(f):
-
+                    if os.path.lexists(f):
                         if os.path.isfile(f):
                             if not f.endswith("html"):
                                 os.remove(f)
                         elif os.path.isdir(f):
                             shutil.rmtree(f)
+                        elif os.path.islink(f):
+                            os.unlink(f)
+                        else:
+                            logger.warn("will not remove: %s", f)
+                    else:
+                        logger.warn("will not remove not exists: %s", f)
 
             else:
                 logger.info(path + ' not a dir, create it')
@@ -222,7 +261,7 @@ class TestUtils:
 
     def clean_fs(self):
 
-        logger.info("Clean Filesystem")
+        logger.info("***************Clean Filesystem")
         lycheepath = self.cb.conf['lycheepath']
         # empty tmp directory
         tmpdir = self.cb.conf['testphotopath']
@@ -313,7 +352,8 @@ class TestUtils:
     def _count_files_in_dir(self, path):
         res = -1
         try:
-            res = len([name for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))])
+            res = len([name for name in os.listdir(path) if os.path.isfile(
+                os.path.join(path, name)) or os.path.islink(os.path.join(path, name))])
             # don't count index.html
             path = os.path.join(path, 'index.html')
             if os.path.isfile(path):
@@ -356,12 +396,18 @@ class TestUtils:
             db.close()
             return res
 
-    def get_album_photos(self, a_id):
+    def get_photos(self, a_id=None):
+        """ get photos as a list of dictionnary. optionnal: a_id to get photos of one album """
         res = None
         db = self._connect_db()
         try:
             # check if exists in db
-            sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where album='{}'".format(a_id)
+            if a_id:
+                sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where album='{}'".format(
+                    a_id)
+            else:
+                sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos"
+
             with db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
@@ -427,7 +473,7 @@ class TestUtils:
             a_id = self.get_album_id(a_name)
             assert a_id, "Album does not exist in db"
             # check no of photo in db
-            photos = self.get_album_photos(a_id)
+            photos = self.get_photos(a_id)
             nb_photos_in_db = len(photos)
             # check if files exists on fs
             for p in photos:

@@ -13,6 +13,7 @@ python:
 install: 
     - pip install -r requirements.txt
     - pip freeze
+    - pip install coverage coveralls
 
 services:
     - mysql
@@ -27,3 +28,6 @@ before_script:
 
 # command to run tests
 script: make test
+
+after_sucess:
+    coveralls

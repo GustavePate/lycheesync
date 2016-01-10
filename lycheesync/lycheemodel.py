@@ -205,7 +205,6 @@ class LycheePhoto:
                         decode = TAGS.get(tag, tag)
                         if decode == "Orientation":
                             self.exif.orientation = value
-                            logger.error("orientation: " + str(value))
                         if decode == "Make":
                             self.exif.make = value
                         if decode == "MaxApertureValue":

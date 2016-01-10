@@ -24,6 +24,10 @@ class ConfBorg(Borg):
             else:
                 raise Exception('ConfBorg not initialized')
 
+    # TODO make all explode
+    def nasty_update(self, conf):
+        self.confdic = conf
+
     def __str__(self):
         return str(self.val)
 

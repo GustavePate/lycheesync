@@ -8,6 +8,8 @@ import shutil
 import time
 import datetime
 from tests.testutils import TestUtils
+from click.testing import CliRunner
+from lycheesync.sync import main
 
 logger = logging.getLogger(__name__)
 
@@ -57,12 +59,15 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -d'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -d -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             # assert Number of album / photos in database
             expected_albums = 3
             expected_photos = 4
@@ -83,6 +88,7 @@ class TestClass:
     def test_duplicate(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # copy directory to tmptest
             tu.load_photoset("album2")
 
@@ -90,14 +96,21 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
+
+            # run
             cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             # re-run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
+            logger.info(cmd)
+            retval = -1
             retval = subprocess.call(cmd, shell=True)
+            # no crash
             assert (retval == 0), "process result is ok"
 
             # assert Number of album / photos in database
@@ -121,18 +134,22 @@ class TestClass:
         # album date should be equal to date/time original
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load album x and y
             tu.load_photoset("real_date")
 
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v '.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.album_exists_in_db("real_date")
             # read album date for album1
             album1_date = tu.get_album_creation_date('real_date')
@@ -151,6 +168,7 @@ class TestClass:
     def test_dash_r(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load album x and y
             tu.load_photoset("album1")
             tu.load_photoset("album3")
@@ -159,12 +177,15 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python main.py {} {} {} -v -r'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -r -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.album_exists_in_db("album1")
             # read album date for album1
             album1_date = tu.get_album_creation_date('album1')
@@ -181,11 +202,12 @@ class TestClass:
             # load album3
             tu.load_photoset("album3")
 
-            cmd = 'python -m lycheesync.sync {} {} {} -v -r'.format(src, lych, conf)
+            # run
+            cmd = 'python main.py {} {} {} -r -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
 
             album1_date_2 = tu.get_album_creation_date('album1')
@@ -213,31 +235,37 @@ class TestClass:
         try:
             # load album y
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load album x and y
             tu.load_photoset("album1")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python -m lycheesync.sync {} {} {} -v -r'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -r -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.check_album_size("album1") == 1, "album 1 not correctly loaded"
 
             # clean input pics content
             tu.delete_dir_content(src)
             # load album x
             tu.load_photoset("album3")
-            # launch lycheesync
-            cmd = 'python -m lycheesync.sync {} {} {} -v -d'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v -d'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.check_album_size("album3") == 4, "album 3 not correctly loaded"
             # album 1 has been deleted
             a1_check = tu.album_exists_in_db("album1")
@@ -258,6 +286,7 @@ class TestClass:
         try:
             # -s => no album reorder
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load a bunch of album
             tu.load_photoset("aaa")
             tu.load_photoset("mini")
@@ -268,10 +297,13 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
+            # no crash
             assert (retval == 0), "process result is ok"
 
             # get a_id, a_names
@@ -310,6 +342,7 @@ class TestClass:
         try:
             # -s => no album reorder
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load a bunch of album
             tu.load_photoset("aaa")
             tu.load_photoset("mini")
@@ -320,10 +353,13 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            cmd = 'python -m lycheesync.sync {} {} {} -v -s'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -s -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
+            # no crash
             assert (retval == 0), "process result is ok"
 
             # get a_id, a_names
@@ -355,6 +391,7 @@ class TestClass:
         try:
             # load album y
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load album x and y
             tu.load_photoset("album1")
             # launch lycheesync
@@ -362,11 +399,13 @@ class TestClass:
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
             # -l => symbolic links instead of files
-            cmd = 'python -m lycheesync.sync {} {} {} -v -l'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -l -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
 
             # check if files are links
@@ -388,19 +427,22 @@ class TestClass:
             # there is a unicode album
             # there is a unicode photo
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load unicode album name
             tu.load_photoset("FußÄ-Füße")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
-            # process is ok
+            # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.count_fs_photos() == 2, "photos are missing in fs"
             assert tu.count_db_photos() == 2, "photos are missing in db"
             assert tu.album_exists_in_db("FußÄ-Füße"), "unicode album is not in db"
@@ -415,19 +457,22 @@ class TestClass:
         try:
             # load 1 album with a corrupted file
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load unicode album name
             tu.load_photoset("corrupted_file")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
+
             # no import
             assert tu.count_fs_photos() == 0, "there are photos are in fs"
             assert tu.count_db_photos() == 0, "there are photos are in db"
@@ -442,19 +487,22 @@ class TestClass:
         try:
             # load 1 empty album
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load unicode album name
             tu.load_photoset("empty_album")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
+
             # no import
             assert tu.count_fs_photos() == 0, "there are photos are in fs"
             assert tu.count_db_photos() == 0, "there are photos are in db"
@@ -468,6 +516,7 @@ class TestClass:
     def test_long_album(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # get max_width column album name width
             maxwidth = tu.get_column_width("lychee_albums", "title")
             logger.info("album title length: " + str(maxwidth))
@@ -482,8 +531,9 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -508,6 +558,11 @@ class TestClass:
         """
         try:
             tu = TestUtils()
+            retval = subprocess.call("ls /tmp/lychee/uploads/big", shell=True)
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
+            retval = subprocess.call("ls /tmp/lychee/uploads/big", shell=True)
+            logger.warn("!!!!!!!!!!!!!!!!!!! %s", tu.count_fs_photos())
+            retval = subprocess.call("ls /tmp/lychee/uploads/big", shell=True)
             # load 1 album with same photo under different name
             tu.load_photoset("album1")
             # load 2 album with same photo under different name
@@ -517,8 +572,9 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -d -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -542,6 +598,7 @@ class TestClass:
             # load 1 album with a mixed case name and spaces
             # name in db is equal to directory name
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("album1", "AlBum_One")
 
@@ -549,8 +606,9 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
@@ -572,6 +630,7 @@ class TestClass:
         try:
             # load "bad taketime"  album name
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("invalid_takedate")
             launch_date = datetime.datetime.now()
@@ -580,13 +639,15 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v'.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.count_db_albums() == 1, "two albums created"
             assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
             assert tu.count_db_photos() == 1, "there are duplicate photos in db"
@@ -604,19 +665,22 @@ class TestClass:
     def test_invalid_taketime(self):
             # load "bad taketime"  album name
         tu = TestUtils()
+        assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
         # load 1 album with same photo under different name
         tu.load_photoset("invalid_taketime")
 
         src = tu.conf['testphotopath']
         lych = tu.conf['lycheepath']
         conf = tu.conf['conf']
-        # normal mode
-        cmd = 'python -m lycheesync.sync -v {} {} {} '.format(src, lych, conf)
+
+        # run
+        cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
         logger.info(cmd)
         retval = -1
         retval = subprocess.call(cmd, shell=True)
         # no crash
         assert (retval == 0), "process result is ok"
+
         assert tu.count_db_albums() == 1, "too much albums created"
         assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
         assert tu.count_db_photos() == 1, "there are duplicate photos in db"
@@ -625,19 +689,22 @@ class TestClass:
     def test_quotes_in_album_name(self):
         # load "bad taketime"  album name
         tu = TestUtils()
+        assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
         # load 1 album with same photo under different name
         tu.load_photoset("with'\"quotes")
 
         src = tu.conf['testphotopath']
         lych = tu.conf['lycheepath']
         conf = tu.conf['conf']
-        # normal mode
-        cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+
+        # run
+        cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
         logger.info(cmd)
         retval = -1
         retval = subprocess.call(cmd, shell=True)
         # no crash
         assert (retval == 0), "process result is ok"
+
         assert tu.count_db_albums() == 1, "too much albums created"
         assert tu.count_fs_photos() == 1, "there are duplicate photos in fs"
         assert tu.count_db_photos() == 1, "there are duplicate photos in db"
@@ -646,6 +713,7 @@ class TestClass:
     def test_photoid_equal_timestamp(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("album3")
             # launch lycheesync
@@ -656,15 +724,17 @@ class TestClass:
             before_launch = datetime.datetime.now()
             time.sleep(1.1)
 
-            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
+
             time.sleep(1.1)
             after_launch = datetime.datetime.now()
-            photos = tu.get_album_photos(tu.get_album_id('album3'))
+            photos = tu.get_photos(tu.get_album_id('album3'))
             for p in photos:
                 logger.info(p)
                 # substract 4 last characters
@@ -685,21 +755,23 @@ class TestClass:
     def test_shutter_speed(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("rotation")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
 
-            photos = tu.get_album_photos(tu.get_album_id('rotation'))
+            photos = tu.get_photos(tu.get_album_id('rotation'))
             for p in photos:
                 if p['title'] == 'P1010319.JPG':
                     assert p['shutter'] == '1/60 s', "shutter {} not equal 1/60 s".format(p['shutter'])
@@ -717,38 +789,44 @@ class TestClass:
             logger.exception(e)
             assert False
 
-    @pytest.mark.xfail
     def test_rotation(self):
         try:
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("rotation")
             # launch lycheesync
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} -v '.format(src, lych, conf)
+            logger.error("!!!!!!!!!!!!!!!!! %s", conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
 
-            photos = tu.get_album_photos(tu.get_album_id('rotation'))
+            photos = tu.get_photos(tu.get_album_id('rotation'))
             for p in photos:
                 pass
-            assert False
         except AssertionError:
             raise
         except Exception as e:
             logger.exception(e)
             assert False
 
+    @pytest.mark.xfail
+    def test_sanity_check(self):
+        assert False
+
     def test_visually_check_logs(self):
         try:
             # load "bad taketime"  album name
             tu = TestUtils()
+            assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
             # load 1 album with same photo under different name
             tu.load_photoset("invalid_takedate")
             tu.load_photoset("album2")
@@ -759,13 +837,15 @@ class TestClass:
             src = tu.conf['testphotopath']
             lych = tu.conf['lycheepath']
             conf = tu.conf['conf']
-            # normal mode
-            cmd = 'python -m lycheesync.sync {} {} {} '.format(src, lych, conf)
+
+            # run
+            cmd = 'python main.py {} {} {} -v'.format(src, lych, conf)
             logger.info(cmd)
             retval = -1
             retval = subprocess.call(cmd, shell=True)
             # no crash
             assert (retval == 0), "process result is ok"
+
             assert tu.count_db_albums() == 7, "too much albums created"
             assert tu.count_fs_photos() == 10, "there are duplicate photos in fs"
             assert tu.count_db_photos() == 10, "there are duplicate photos in db"

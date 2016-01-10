@@ -178,6 +178,19 @@ class LycheeDAO:
         logger.debug("album list in db:" + str(self.albumslist))
         return self.albumslist
 
+    def albumIdExists(self, album_id):
+        res = False
+        try:
+            cur = self.db.cursor()
+            cur.execute("select * from lychee_albums where id=%s", (album_id))
+            row = cur.fetchall()
+            if len(row) != 0:
+                res = True
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
     def albumExists(self, album):
         """
         Check if an album exists based on its name
@@ -284,7 +297,7 @@ class LycheeDAO:
         finally:
             return album['id']
 
-    def eraseAlbum(self, album):
+    def eraseAlbum(self, album_id):
         """
         Deletes all photos of an album but don't delete the album itself
         Parameters:
@@ -292,8 +305,8 @@ class LycheeDAO:
         Return list of the erased photo url
         """
         res = []
-        query = "delete from lychee_photos where album = " + str(album['id']) + ''
-        selquery = "select url from lychee_photos where album = " + str(album['id']) + ''
+        query = "delete from lychee_photos where album = " + str(album_id) + ''
+        selquery = "select url from lychee_photos where album = " + str(album_id) + ''
         try:
             cur = self.db.cursor()
             cur.execute(selquery)
@@ -302,7 +315,7 @@ class LycheeDAO:
                 res.append(row['url'])
             cur.execute(query)
             self.db.commit()
-            logger.debug("album photos erased: ", album)
+            logger.debug("album photos erased: ", album_id)
         except Exception as e:
             logger.exception(e)
             logger.error("eraseAlbum")
@@ -323,21 +336,77 @@ class LycheeDAO:
         finally:
             return res
 
-    def listAllPhoto(self):
+    def dropPhoto(self, photo_id):
+        """ delete a photo. parameter: photo_id """
+        res = False
+        query = "delete from lychee_photos where id = " + str(photo_id) + ''
+        try:
+            cur = self.db.cursor()
+            cur.execute(query)
+            self.db.commit()
+            logger.debug("photo dropped: %s", album_id)
+            res = True
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
+    def get_all_photos(self, album_id=None):
         """
         Lists all photos in leeche db (used to delete all files)
         Return a photo url list
         """
         res = []
-        selquery = "select url from lychee_photos"
+        if not(album_id):
+            selquery = "select id, url, album  from lychee_photos"
+        else:
+            selquery = "select id, url, album  from lychee_photos where album={}".format(album_id)
+
         try:
             cur = self.db.cursor()
             cur.execute(selquery)
             rows = cur.fetchall()
             for row in rows:
-                res.append(row['url'])
+                p = {}
+                p['url'] = row['url']
+                p['id'] = row['id']
+                p['album'] = row['album']
+                res.append(p)
         except Exception as e:
             logger.exception(e)
+        finally:
+            return res
+
+    def get_empty_albums(self):
+        res = []
+        try:
+            # check if exists in db
+            sql = "select id from lychee_albums where id not in(select distinct album form lychee_photos)"
+            with self.db.cursor() as cursor:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+            if rows:
+                res = [r['id'] for r in rows]
+        except Exception as e:
+            # logger.exception(e)
+            res = None
+            raise e
+        finally:
+            return res
+
+    def get_album_ids_titles(self):
+        res = None
+        try:
+            # check if exists in db
+            sql = "select id, title from lychee_albums"
+            with self.db.cursor() as cursor:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+            res = rows
+        except Exception as e:
+            # logger.exception(e)
+            res = None
+            raise e
         finally:
             return res
 

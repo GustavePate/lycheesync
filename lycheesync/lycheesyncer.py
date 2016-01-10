@@ -229,7 +229,6 @@ class LycheeSyncer:
         Rotates photos according to the exif orienttaion tag
         Returns nothing
         """
-        logger.info("adjustRotation: %s", photo.exif.orientation)
         if photo.exif.orientation not in (0, 1):
             # There is somthing to do
             if photo.exif.orientation == 6:
@@ -307,6 +306,14 @@ class LycheeSyncer:
         filelist = [f for f in os.listdir(photopath)]
         self.deleteFiles(filelist)
 
+    def deletePhotos(photo_list):
+        "photo_list: a list of dictionnary containing key url and id"
+        if len(photo_list) > 0:
+            url_list = [p['url'] for p in photo_list]
+            deleteFiles(url_list)
+            for p in photo_list:
+                self.dao.dropPhoto(p['id'])
+
     def sync(self):
         """
         Program main loop
@@ -372,7 +379,7 @@ class LycheeSyncer:
 
                 if self.conf['replace'] and album['id']:
                     # drop album photos
-                    filelist = self.dao.eraseAlbum(album)
+                    filelist = self.dao.eraseAlbum(album['id'])
                     self.deleteFiles(filelist)
                     assert self.dao.dropAlbum(album['id'])
                     # Album should be recreated
@@ -445,7 +452,67 @@ class LycheeSyncer:
         if self.conf['sort']:
             self.reorderalbumids(albums)
             self.dao.reinitAlbumAutoIncrement()
+
+
+        # TODO: sanity check
+        if self.conf['sanity']:
+
+            # get All Photos albums
+            photos = self.dao.get_all_photos()
+            albums = [ p['album'] for p in photos]
+            albums = set(albums)
+
+            # for each album
+            for a_id in albums:
+                # check if it exists, if not remove photos
+                if not(self.dao.albumExists(a_id)):
+                    to_delete = self.dao.get_all_photos(a_id)
+                    self.dao.eraseAlbum(a_id)
+                    file_list = [ p['url'] for p in to_delete]
+                    self.deleteFiles(file_list)
+
+            # get All Photos
+            photos = self.dao.get_all_photos()
+
+            to_delete = []
+            # for each photo
+            for p in photos:
+                delete_photo = False
+                # check if big exists
+                bigpath = os.path.join(self.conf["lycheepath"], "uploads", "big", p['url'])
+
+                # if big is a link check if it's an orphan
+                # file does not exists
+                if not(os.path.lexists(bigpath)):
+                    logger.error("File does not exists %s: will be delete in db", bigpath)
+                    delete_photo = True
+                # broken link
+                elif not(os.path.exists(bigpath)):
+                    logger.error("Link is broken: %s will be delete in db", bigpath)
+                    delete_photo = True
+
+                if not(delete_photo):
+                    # TODO: check if thumbnail exists
+                    pass
+                else:
+                    # if any of it is False remove and log
+                    to_delete.append(p)
+
+            self.deletePhotos(to_delete)
+
+            # drop empty albums
+            empty = self.dao.get_empty_albums()
+            for e in empty:
+                self.dao.dropAlbum(e)
+
+
+
+
+
         self.dao.close()
+
+
+
 
         # Final report
         logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

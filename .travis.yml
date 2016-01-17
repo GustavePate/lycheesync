@@ -13,7 +13,7 @@ python:
 install: 
     - pip install -r requirements.txt
     - pip freeze
-    - pip install coverage coveralls
+    - pip install coveralls
 
 services:
     - mysql

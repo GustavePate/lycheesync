@@ -298,7 +298,7 @@ class LycheeDAO:
                         'name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
-            cur.execute("select id from lychee_albums where title=%s",  (album['name']))
+            cur.execute("select id from lychee_albums where title=%s", (album['name']))
             row = cur.fetchone()
             self.albumslist['name'] = row['id']
             album['id'] = row['id']
@@ -457,7 +457,7 @@ class LycheeDAO:
                           photo.exif.aperture,
                           photo.exif.make,
                           photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
-                          photo.description,  photo.checksum)
+                          photo.description, photo.checksum)
         try:
             logger.debug(query)
             cur = self.db.cursor()

@@ -532,7 +532,6 @@ class LycheeSyncer:
                 for e in empty:
                     self.dao.dropAlbum(e)
 
-
         self.dao.close()
 
         # Final report

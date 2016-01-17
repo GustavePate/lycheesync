@@ -197,7 +197,7 @@ class LycheeDAO:
         Parameters: an album properties list. At least the name should be specified
         Returns None or the albumid if it exists
         """
-
+        logger.debug("exists ? " + str(album))
         if album['name'] in self.albumslist.keys():
             return self.albumslist[album['name']]
         else:
@@ -218,6 +218,20 @@ class LycheeDAO:
             logger.exception(e)
         finally:
             return album_names
+
+    def photoExistsByName(self, photo_name):
+        res = None
+        try:
+            cur = self.db.cursor()
+            cur.execute("select id from lychee_photos where title=%s", (photo_name))
+            row = cur.fetchall()
+            if len(row) != 0:
+                logger.debug("photoExistsByName %s", row)
+                res = row[0]['id']
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
 
     def photoExists(self, photo):
         """
@@ -381,14 +395,14 @@ class LycheeDAO:
         res = []
         try:
             # check if exists in db
-            sql = "select id from lychee_albums where id not in(select distinct album form lychee_photos)"
+            sql = "select id from lychee_albums where id not in(select distinct album from lychee_photos)"
             with self.db.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
             if rows:
                 res = [r['id'] for r in rows]
         except Exception as e:
-            # logger.exception(e)
+            logger.exception(e)
             res = None
             raise e
         finally:
@@ -466,7 +480,7 @@ class LycheeDAO:
                 cur = self.db.cursor()
                 cur.execute(qry)
                 self.db.commit()
-                logger.debug(": reinit auto increment to", str(max + 1))
+                logger.debug("reinit auto increment to %s", str(max + 1))
             except Exception as e:
                 logger.exception(e)
 

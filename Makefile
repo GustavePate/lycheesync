@@ -8,7 +8,7 @@ test:
 	# py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
 
 testdev:
-	coverage run -m --source ./lycheesync py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k dash_d
+	coverage run -m --source ./lycheesync py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k sanity 
 
 initvenv:
 	pip install -r requirements.txt

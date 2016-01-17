@@ -11,27 +11,18 @@ class Borg:
         self.__dict__ = self._shared_state
 
 
-class ConfBorg(Borg):
+class TestBorg(Borg):
 
     isinitialized = False
 
-    def __init__(self, confdic=None, force_init=False):
+    def __init__(self, confdic=None):
         Borg.__init__(self)
-
-        if force_init:
-            self.isinitialized = False
-            return
-
         if not (self.isinitialized):
             if confdic:
                 self.confdic = confdic
                 self.isinitialized = True
             else:
                 raise Exception('ConfBorg not initialized')
-
-    # TODO make all explode
-    def nasty_update(self, conf):
-        self.confdic = conf
 
     def __str__(self):
         return str(self.val)

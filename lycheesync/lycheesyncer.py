@@ -306,11 +306,11 @@ class LycheeSyncer:
         filelist = [f for f in os.listdir(photopath)]
         self.deleteFiles(filelist)
 
-    def deletePhotos(photo_list):
+    def deletePhotos(self, photo_list):
         "photo_list: a list of dictionnary containing key url and id"
         if len(photo_list) > 0:
             url_list = [p['url'] for p in photo_list]
-            deleteFiles(url_list)
+            self.deleteFiles(url_list)
             for p in photo_list:
                 self.dao.dropPhoto(p['id'])
 
@@ -361,7 +361,8 @@ class LycheeSyncer:
                 # don't know what to do with theses photo
                 # and don't wan't to create a default album
                 if album['path'] == self.conf['srcdir']:
-                    msg = "file at srcdir root won't be added to lychee, please move them in a subfolder: {}".format(root)
+                    msg = "file at srcdir root won't be added to lychee, please move them in a subfolder: {}".format(
+                        root)
                     logger.warn(msg)
                     continue
 
@@ -453,22 +454,22 @@ class LycheeSyncer:
             self.reorderalbumids(albums)
             self.dao.reinitAlbumAutoIncrement()
 
-
         # TODO: sanity check
         if self.conf['sanity']:
 
+            logger.info("************ SANITY CHECK *************")
             # get All Photos albums
             photos = self.dao.get_all_photos()
-            albums = [ p['album'] for p in photos]
+            albums = [p['album'] for p in photos]
             albums = set(albums)
 
             # for each album
             for a_id in albums:
                 # check if it exists, if not remove photos
-                if not(self.dao.albumExists(a_id)):
+                if not(self.dao.albumIdExists(a_id)):
                     to_delete = self.dao.get_all_photos(a_id)
                     self.dao.eraseAlbum(a_id)
-                    file_list = [ p['url'] for p in to_delete]
+                    file_list = [p['url'] for p in to_delete]
                     self.deleteFiles(file_list)
 
             # get All Photos
@@ -500,19 +501,39 @@ class LycheeSyncer:
 
             self.deletePhotos(to_delete)
 
+            # Detect broken symlinks / orphan files
+            for root, dirs, files in os.walk(os.path.join(self.conf['lycheepath'], 'uploads', 'big')):
+
+                for f in files:
+                    logger.debug("check orphan: %s", f)
+                    file_name = os.path.basename(f)
+                    # check if DB photo exists
+                    if not self.dao.photoExistsByName(file_name):
+                        # if not delete photo (or link)
+                        self.deleteFiles([file_name])
+                        logger.info("%s deleted. Wasn't existing in DB", f)
+
+                    # if broken link
+                    if os.path.lexists(f) and not(os.path.exists(f)):
+                        id = self.dao.photoExistsByName(file_name)
+                        # if exists in db
+                        if id:
+                            ps = {}
+                            ps['id'] = id
+                            ps['url'] = file_name
+                            self.deletePhotos([ps])
+                        else:
+                            self.deleteFiles([file_name])
+                        logger.info("%s deleted. Was a broken link", f)
+
             # drop empty albums
             empty = self.dao.get_empty_albums()
-            for e in empty:
-                self.dao.dropAlbum(e)
-
-
-
+            if empty:
+                for e in empty:
+                    self.dao.dropAlbum(e)
 
 
         self.dao.close()
-
-
-
 
         # Final report
         logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

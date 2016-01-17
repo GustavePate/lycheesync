@@ -9,6 +9,7 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 # TODO
 
 * Change Rotation Exif Tag if rotated
+* Document sanity
 * Coverage
 * Check logs
 

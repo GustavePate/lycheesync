@@ -4,7 +4,7 @@ import pytest
 import json
 import os
 import logging
-from lycheesync.utils.configuration import ConfBorg
+from tests.configuration import TestBorg
 from tests.testutils import TestUtils
 
 logger = logging.getLogger(__name__)
@@ -95,6 +95,6 @@ def confborg(request):
         # add data path which is calculated at run time
         conf['data_path'] = os.path.dirname(os.path.dirname(conf_path))
         conf['data_path'] = os.path.join(conf['data_path'], 'data')
-        res = ConfBorg(conf)
-        logger.info("ConfBorg initialized")
+        res = TestBorg(conf)
+        logger.info("TestBorg initialized")
     return res

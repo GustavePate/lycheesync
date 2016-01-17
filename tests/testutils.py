@@ -8,6 +8,7 @@ import re
 import subprocess
 import pymysql
 import base64
+from tests.configuration import TestBorg
 from lycheesync.utils.configuration import ConfBorg
 # from datetime import datetime
 import pymysql.cursors
@@ -19,7 +20,8 @@ class TestUtils:
 
     def __init__(self):
         self.db = None
-        self.cb = ConfBorg()
+        self.cb = TestBorg()
+        self._lychee_sync_conf_borg = ConfBorg(force_init=True)
 
     @property
     def conf(self):
@@ -396,15 +398,16 @@ class TestUtils:
             db.close()
             return res
 
-    def get_photos(self, a_id=None):
+    def get_photos(self, a_id=None, p_id=None):
         """ get photos as a list of dictionnary. optionnal: a_id to get photos of one album """
         res = None
         db = self._connect_db()
         try:
             # check if exists in db
             if a_id:
-                sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where album='{}'".format(
-                    a_id)
+                sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where album='{}'".format(a_id)
+            elif p_id:
+                sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos where id='{}'".format(p_id)
             else:
                 sql = "select id, title, url, iso, aperture, shutter, focal  from lychee_photos"
 
@@ -444,6 +447,17 @@ class TestUtils:
                 self.cb.conf['lycheepath'], 'uploads', 'thumb', ''.join([file, '@2x.', ext]))
             assert os.path.exists(thumb_path), "Does not exists {}".format(thumb_path)
             res = True
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
+    def photo_exists_in_db(self, photo_id):
+        res = False
+        try:
+            if (self.get_photos(p_id=photo_id)):
+                res = True
+
         except Exception as e:
             logger.exception(e)
         finally:

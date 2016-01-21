@@ -8,9 +8,7 @@ Lycheesync is a command line tool to synchronise a directory containing photos w
 
 # TODO
 
-* Change Rotation Exif Tag if rotated
-* Document sanity
-* Coverage
+* Test Change Rotation Exif Tag if rotated
 * Check logs
 
 ## Context
@@ -184,6 +182,7 @@ You can choose between the following options to adjust the program behaviour:
 - `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee a slave of another repository
 - `-l` **link mode**. Don't copy files from source folder to lychee directory structure, just create symbolic links (thumbnails will however be created in lychee's directory structure)
 - `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
+- `-c` `--sanitycheck` **sanity check mode**. Will remove empty album, orphan files, broken links...
 
 Complete logs for the last run can be found in `logs/lycheesync.log`
 

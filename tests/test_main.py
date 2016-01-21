@@ -10,6 +10,8 @@ import datetime
 from tests.testutils import TestUtils
 from click.testing import CliRunner
 from lycheesync.sync import main
+from PIL import Image
+import piexif
 
 logger = logging.getLogger(__name__)
 
@@ -405,13 +407,13 @@ class TestClass:
 
         # run
         runner = CliRunner()
-        result = runner.invoke(main, [src, lych, conf, '-v'])
+        result = runner.invoke(main, [src, lych, conf, '-d', '-v'])
         # no crash
         assert result.exit_code == 0, "process result is ok"
 
         # no import
-        assert tu.count_fs_photos() == 0, "there are photos are in fs"
-        assert tu.count_db_photos() == 0, "there are photos are in db"
+        assert tu.count_fs_photos() == 0, "there are photos in fs"
+        assert tu.count_db_photos() == 0, "there are photos in db"
         assert tu.album_exists_in_db("corrupted_file") == 1, "corrupted_album not in db"
 
     def test_empty_album(self):
@@ -652,7 +654,6 @@ class TestClass:
                 assert p['iso'] == '400', "iso {} not equal 400".format(p['iso'])
                 assert p['aperture'] == 'F3.3', "aperture {} not equal F3.3".format(p['aperture'])
 
-    @pytest.mark.xfail
     def test_rotation(self):
 
         tu = TestUtils()
@@ -663,7 +664,6 @@ class TestClass:
         src = tu.conf['testphotopath']
         lych = tu.conf['lycheepath']
         conf = tu.conf['conf']
-        logger.error("!!!!!!!!!!!!!!!!! %s", conf)
 
         # run
         runner = CliRunner()
@@ -673,8 +673,13 @@ class TestClass:
 
         photos = tu.get_photos(tu.get_album_id('rotation'))
         for p in photos:
-            pass
-            assert False
+            # rotation tag is gone
+            pfullpath = os.path.join(lych, "uploads", "big", p['url'])
+            img = Image.open(pfullpath)
+            assert "exif" in img.info, "Pas d'info exif"
+            exif_dict = piexif.load(img.info["exif"])
+            assert exif_dict["0th"][piexif.ImageIFD.Orientation] == 1, "Exif rotation should be 1"
+            img.close()
 
     def test_launch_every_test_with_cli_runner(self):
         """ conf borg is shared between test and cli, this is potentially bad"""
@@ -740,14 +745,6 @@ class TestClass:
         assert tu.count_fs_photos() == 4, "there are duplicate photos in fs"
         assert tu.count_db_photos() == 4, "there are duplicate photos in db"
         assert tu.count_fs_thumb() == 4, "there are duplicate photos in thumb"
-
-    @pytest.mark.xfail
-    def test_rotation_change_exif_rotation_tag_to_1(self):
-        try:
-            assert False
-        except Exception as e:
-            logger.exception(e)
-            assert False
 
     def test_sanity(self):
         # load album

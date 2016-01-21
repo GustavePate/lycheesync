@@ -75,6 +75,9 @@ class TestUtils:
             # is empty
             path = folders['big']
             check.append(0 == len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]))
+
+            subprocess.call("ls /tmp/lychee/uploads/big/ -la", shell=True)
+            assert len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]) == 0, "big is not empty"
             path = folders['medium']
             check.append(0 == len([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]))
             path = folders['thumb']

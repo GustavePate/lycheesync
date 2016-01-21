@@ -13,7 +13,7 @@ import datetime
 import time
 import sys
 import logging
-
+import piexif
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class LycheeSyncer:
 
         destimage = os.path.join(destinationpath, destfile)
         try:
-            img = Image.open(photo.srcfullpath)
+            img = Image.open(photo.destfullpath)
         except Exception as e:
             logger.exception(e)
             logger.error("ioerror (corrupted file?): " + photo.srcfullpath)
@@ -147,7 +147,7 @@ class LycheeSyncer:
         photo.thumbnailfullpath = self.thumbIt(sizes[0], photo, destpath, destfiles[0])
         photo.thumbnailx2fullpath = self.thumbIt(sizes[1], photo, destpath, destfiles[1])
 
-    def addFileToAlbum(self, photo):
+    def copyFileToLychee(self, photo):
         """
         add a file to an album, the albumid must be previously stored in the LycheePhoto parameter
         Parameters:
@@ -178,8 +178,7 @@ class LycheeSyncer:
                     logger.warn(
                         "chgrp error,  check file permission for %s fix: eventually adjust source file permissions",
                         photo.destfullpath)
-
-            res = self.dao.addFileToAlbum(photo)
+            res = True
 
         except Exception as e:
             logger.exception(e)
@@ -224,7 +223,12 @@ class LycheeSyncer:
         img2.rotate(rotation, expand=True)
         img2.save(photo.thumbnailfullpath, quality=99)
 
-    def adjustRotation(self, photo):
+    def exceptIfCorrupted(self, photo):
+
+        img = Image.open(photo.srcfullpath)
+        img.close()
+
+    def adjustRotation2(self, photo):
         """
         Rotates photos according to the exif orienttaion tag
         Returns nothing
@@ -240,11 +244,46 @@ class LycheeSyncer:
             elif photo.exif.orientation == 3:
                 # rotate 180°
                 self.rotatephoto(photo, 180)
-            else:
-                logger.warn(
-                    "Orientation not defined {} for photo {}".format(
-                        photo.exif.orientation,
-                        photo.title))
+
+    def adjustRotation(self, photo):
+        """
+        Rotates photos according to the exif orienttaion tag
+        Returns nothing
+        """
+        img = Image.open(photo.destfullpath)
+        if "exif" in img.info:
+            exif_dict = piexif.load(img.info["exif"])
+
+            if piexif.ImageIFD.Orientation in exif_dict["0th"]:
+                orientation = exif_dict["0th"][piexif.ImageIFD.Orientation]
+
+                if orientation == 2:
+                    img = img.transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation == 3:
+                    img = img.rotate(180)
+                elif orientation == 4:
+                    img = img.rotate(180).transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation == 5:
+                    img = img.rotate(-90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation == 6:
+                    img = img.rotate(-90, expand=True)
+                elif orientation == 7:
+                    img = img.rotate(90, expand=True).transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation == 8:
+                    img = img.rotate(90, expand=True)
+                else:
+                    logger.warn("Orientation not defined {} for photo {}".format(orientation, photo.title))
+
+                if orientation in [5, 6, 7, 8]:
+                    # invert width and height
+                    h = photo.height
+                    w = photo.width
+                    photo.height = w
+                    photo.width = h
+                exif_dict["0th"][piexif.ImageIFD.Orientation] = 1
+                exif_bytes = piexif.dump(exif_dict)
+                img.save(photo.destfullpath, exif=exif_bytes, quality=99)
+                img.close()
 
     def reorderalbumids(self, albums):
 
@@ -402,7 +441,6 @@ class LycheeSyncer:
                 for f in sorted(files):
 
                     if self.isAPhoto(f):
-
                         try:
                             discoveredphotos += 1
                             error = False
@@ -414,10 +452,13 @@ class LycheeSyncer:
                                     f))
                             photo = LycheePhoto(self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
-
-                                self.makeThumbnail(photo)
-                                res = self.addFileToAlbum(photo)
+                                self.exceptIfCorrupted(photo)
+                                res = self.copyFileToLychee(photo)
+                                # corrupted detected here
+                                # if except have to remove in except
                                 self.adjustRotation(photo)
+                                self.makeThumbnail(photo)
+                                res = self.dao.addFileToAlbum(photo)
                                 # increment counter
                                 if res:
                                     importedphotos += 1
@@ -434,6 +475,7 @@ class LycheeSyncer:
                                     photo.srcfullpath)
                                 error = True
                         except Exception as e:
+
                             logger.exception(e)
                             logger.error("could not add %s to album %s", f, album['name'])
                             error = True

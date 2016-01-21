@@ -97,7 +97,7 @@ def main(verbose, exclusive_mode, sort_album_by_name, sanitycheck, link, updated
     if updatedb26:
         inf_to_lychee_2_6_2.updatedb(conf_data)
 
-    logger.info("................start adding to lychee...............")
+    logger.info("=================== start adding to lychee ==================")
     try:
 
         # DELEGATE WORK TO LYCHEESYNCER
@@ -106,10 +106,10 @@ def main(verbose, exclusive_mode, sort_album_by_name, sanitycheck, link, updated
 
     except Exception:
         logger.exception('Failed to run batch')
-        logger.error("..............script ended with errors...............")
+        logger.error("=================== script ended with errors ==================")
 
     else:
-        logger.info("...............script successfully ended..............")
+        logger.info("=================== script successfully ended ==================")
 
 
 if __name__ == '__main__':

@@ -108,13 +108,11 @@ class LycheePhoto:
 
             try:
                 the_date = parse(value)
-                logger.debug("parsed date: " + str(the_date))
-                # woks for poython 3
+                # works for python 3
                 # timestamp = the_date.timestamp()
                 timestamp = time.mktime(the_date.timetuple())
 
             except Exception as e:
-                logger.debug(e)
                 logger.warn('model date impossible to parse: ' + str(value))
                 timestamp = epoch_now
         else:
@@ -310,8 +308,8 @@ class LycheePhoto:
                     self.description = self._str_datetime
 
         except IOError as e:
-            logger.error('ioerror (corrupted ?): ' + self.srcfullpath)
-            logger.debug(e)
+            logger.debug('ioerror (corrupted ?): ' + self.srcfullpath)
+            raise e
 
     def __str__(self):
         res = ""

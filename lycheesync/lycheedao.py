@@ -29,7 +29,7 @@ class LycheeDAO:
         try:
             self.conf = conf
             if 'dbSocket' in self.conf:
-                logger.debug("SOCKET")
+                logger.debug("Connection to db in SOCKET mode")
                 logger.error("host: %s", self.conf['dbHost'])
                 logger.error("user: %s", self.conf['dbUser'])
                 logger.error("password: %s", self.conf['dbPassword'])
@@ -43,7 +43,7 @@ class LycheeDAO:
                                           unix_socket=self.conf['dbSocket'],
                                           cursorclass=pymysql.cursors.DictCursor)
             else:
-                logger.debug("NO SOCKET")
+                logger.debug("Connection to db in NO SOCKET mode")
                 self.db = pymysql.connect(host=self.conf['dbHost'],
                                           user=self.conf['dbUser'],
                                           passwd=self.conf['dbPassword'],
@@ -302,7 +302,6 @@ class LycheeDAO:
             row = cur.fetchone()
             self.albumslist['name'] = row['id']
             album['id'] = row['id']
-            logger.debug("album created: " + album['name'])
 
         except Exception as e:
             logger.exception(e)

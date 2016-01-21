@@ -272,7 +272,8 @@ class LycheeSyncer:
                 elif orientation == 8:
                     img = img.rotate(90, expand=True)
                 else:
-                    logger.warn("Orientation not defined {} for photo {}".format(orientation, photo.title))
+                    if orientation != 1:
+                        logger.warn("Orientation not defined {} for photo {}".format(orientation, photo.title))
 
                 if orientation in [5, 6, 7, 8]:
                     # invert width and height
@@ -450,12 +451,10 @@ class LycheeSyncer:
                                 os.path.join(
                                     root,
                                     f))
+                            # corruption detected here by launching exception
                             photo = LycheePhoto(self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
-                                self.exceptIfCorrupted(photo)
                                 res = self.copyFileToLychee(photo)
-                                # corrupted detected here
-                                # if except have to remove in except
                                 self.adjustRotation(photo)
                                 self.makeThumbnail(photo)
                                 res = self.dao.addFileToAlbum(photo)

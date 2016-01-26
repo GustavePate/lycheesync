@@ -42,7 +42,7 @@ class ExifData:
     focal = None
     _takedate = None
     taketime = None
-    orientation = 0
+    orientation = 1
 
     def __str__(self):
         res = ""

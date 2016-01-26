@@ -206,49 +206,10 @@ class LycheeSyncer:
                 remove_file(thumb2path)
                 remove_file(bigpath)
 
-    def rotatephoto(self, photo, rotation):
-        # rotate main photo
-        img = Image.open(photo.destfullpath)
-        exif_data = None
-        if 'exif' in img.info:
-            exif_data = img.info['exif']
-        img2 = img.rotate(rotation, expand=True)
-        # TODO: change rotation exif tag before save
-        img2.save(photo.destfullpath, quality=99, exif=exif_data)
-        # rotate Thumbnails
-        img = Image.open(photo.thumbnailx2fullpath)
-        img2 = img.rotate(rotation, expand=True)
-        img2.save(photo.thumbnailx2fullpath, quality=99)
-        img = Image.open(photo.thumbnailfullpath)
-        img2.rotate(rotation, expand=True)
-        img2.save(photo.thumbnailfullpath, quality=99)
-
-    def exceptIfCorrupted(self, photo):
-
-        img = Image.open(photo.srcfullpath)
-        img.close()
-
-    def adjustRotation2(self, photo):
-        """
-        Rotates photos according to the exif orienttaion tag
-        Returns nothing
-        """
-        if photo.exif.orientation not in (0, 1):
-            # There is somthing to do
-            if photo.exif.orientation == 6:
-                # rotate 90° clockwise
-                self.rotatephoto(photo, -90)
-            elif photo.exif.orientation == 8:
-                # rotate 90° counterclockwise
-                self.rotatephoto(photo, 90)
-            elif photo.exif.orientation == 3:
-                # rotate 180°
-                self.rotatephoto(photo, 180)
-
     def adjustRotation(self, photo):
         """
-        Rotates photos according to the exif orienttaion tag
-        Returns nothing
+        Rotates photos according to the exif orientaion tag
+        Returns nothing DOIT BEFORE THUMBNAILS !!!
         """
 
         if photo.exif.orientation != 1:
@@ -498,7 +459,6 @@ class LycheeSyncer:
             self.reorderalbumids(albums)
             self.dao.reinitAlbumAutoIncrement()
 
-        # TODO: sanity check
         if self.conf['sanity']:
 
             logger.info("************ SANITY CHECK *************")

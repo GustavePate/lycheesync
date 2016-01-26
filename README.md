@@ -21,10 +21,6 @@ If you have read the documentation below and it still doesn't work as expected f
 
 Complete logs for the last run can be found in `logs/lycheesync.log`, if it's relevant, please attach them to your issue.
 
-# TODO
-
-* Check logs
-
 ## Context
 
 This project was created to synchronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).

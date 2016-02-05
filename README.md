@@ -40,7 +40,7 @@ You can choose between 3 behaviours:
 
 ## What's new
 
-See [changlog](./doc/changelog.md)
+See [changelog](./doc/changelog.md)
 
 ## Install
 

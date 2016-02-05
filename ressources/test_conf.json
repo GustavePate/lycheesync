@@ -1,0 +1,12 @@
+{
+    "db":"lychee_ci",
+    "dbUser":"lychee_ci",
+    "dbPassword":"lychee_ci",
+    "dbHost":"localhost",
+    "thumbQuality":80,
+    "publicAlbum": 0,
+    "lycheepath": "/tmp/lychee",
+    "testphotopath": "./tmptest",
+    "testlib": "./tests/pics",
+    "conf": "./ressources/test_conf.json"
+}

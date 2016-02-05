@@ -7,17 +7,29 @@ branches:
 python:
   - "2.7"
   - "3.4"
+  - "3.5"
 
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: 
+    - pip install -r requirements.txt
+    - pip freeze
+    - pip install coveralls
 
 services:
-      - mysql
+    - mysql
+
+before_install:
+    - sudo apt-get install python-dev python3-dev
 
 before_script:
-  - mysql -e 'create database lychee;'
-  - mysql -e "create user 'lychee'@'localhost' IDENTIFIED BY 'lychee';"
-  - mysql -e "GRANT ALL ON lychee.* TO 'lychee'@'localhost';"
+  - mysql -u root -e 'create database lychee_ci DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;'
+  - mysql -u root  -e "create user 'lychee_ci'@'localhost' IDENTIFIED BY 'lychee_ci';"
+  - mysql -u root -e "GRANT ALL ON lychee_ci.* TO 'lychee_ci'@'localhost';"
 
 # command to run tests
-script: make test
+script: 
+    coverage run -m --source ./lycheesync py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
+
+after_sucess:
+  - ls
+  - coveralls

@@ -1,0 +1,46 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s;%(asctime)s; %(name)s; %(message)s"
+        }
+    },
+
+    "handlers": {
+        "stream_handler": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout"
+
+        },
+
+        "basic_file_handler":{
+            "class": "logging.FileHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "filename": "logs/lycheesync.log",
+            "mode" : "w",
+            "encoding": "utf-8"
+
+        }
+    },
+
+    "loggers": {
+        "lycheesync": {
+            "level": "DEBUG",
+            "propagate": "no"
+        },
+        "__main__": {
+            "level": "DEBUG",
+            "propagate": "no"
+        }
+    },
+
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["stream_handler", "basic_file_handler"]
+    }
+}

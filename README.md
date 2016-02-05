@@ -1,49 +1,29 @@
-# Changelog
+# Lycheesync
 
-## trunk
+[![Build Status](https://travis-ci.org/GustavePate/lycheesync.svg)](https://travis-ci.org/GustavePate/lycheesync)
 
-- don't lower case album name
+Lycheesync is a command line tool to synchronise a directory containing photos with Lychee.
+* Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.
+* Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online)
 
-## v3.0.1
-- change versioning to match lychee's
+## WARNING: Breaking changes
 
+Sorry for the inconvenience but Lycheesync has change a lot in the last weeks.
+I added a few dependencies and remove others.
+As an exemple the mysql driver has changed, so...
+Check the install Chapter !
 
-## v2.7.1
-- change versioning to match lychee's
-- don't import duplicated files
-- handle corrupted files correctly
-- unicode directory name supported
+PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 will still be supported in the following months.
 
-## v2.6
-- change versioning to match lychee's
-- lychee 2.6 support
-- fixed some permission problem: give the photo files the same group and owner than lychee uploads directory + rwx permission for group and user
-- added an *update mode* to fix problem experienced by those who used lycheesync with a lychee 2.6 before this version. To update your lychee db an photo repository, just add the -u switch to your usual call (you can run it anyway, it won't break anything:)
+# Issue / logs
 
-`python main.py srcdir lycheepath conf -u`
+If you have read the documentation below and it still doesn't work as expected for you, feel free to submit a github issue.
 
-## v1.3
-- lychee 2.5 support
+Complete logs for the last run can be found in `logs/lycheesync.log`, if it's relevant, please attach them to your issue.
 
+## Context
 
-## v1.2
-- added exif orientation support which was not totally fixed in luchee 2.0 ;)
-- a photo containing 'star' or 'cover' in its filename will be automatically starred, thus making it the album cover
-- photo titles now equals original filenames
-
-## v1.1
-- added suport for lychee 2.1
-- removed exif orientation support (fixed in lychee 2.0)
-- added takedate and taketime in photo description in order to be able to use the sort by description functionality of lychee 2.0
-- albums display order is "sorted by name"
-- album date is now the max takedate/taketime of its photos if exif data exists (if no, import date is used)
-
-## v1.0
-- initial version
-
-# Context
-
-This project was created to syncronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).
+This project was created to synchronize an [owncloud](http://owncloud.org/) photo repositories and [Lychee](http://lychee.electerious.com/).
 It turns out it can, totally or partially, enslave Lychee with any given directory structure.
 
 The program is simple it scans a directory for files and subdirectories:
@@ -57,29 +37,58 @@ You can choose between 3 behaviours:
 - **Keep existing Lychee albums and photos** The program will try to know if a photo in the
   source directory has already been imported in Lychee and does nothing in this case, this is the default behaviour
 
-# Install
 
-First you have to install the following dependencies:
-- python 2.7
-- mysql bindings for python
-- PIL
-- dateutils
-- git
+## What's new
 
-On debian based Linux:
+See [changlog](./doc/changelog.md)
 
-`sudo apt-get install imagemagick python python-mysqldb python-imaging python-dateutil git`
+## Install
 
-
-Then retrieve the project:
+### Retrieve the project
 
 `git clone https://github.com/GustavePate/lycheesync`
 
-Finally, adjust the `conf.json` file to you use case.
+### Install dependencies
 
-# Basic usage
+Then you have to install the following dependencies:
 
-## Configuration
+- python 2.7, 3.4 or 3.5 (python 3 prefered !)
+- pillow
+- dateutils
+- [pymysql](https://github.com/PyMySQL/PyMySQL)
+- [click](http://click.pocoo.org/)
+
+
+#### Using a virtual env (the GOOD way)
+
+On debian based Linux
+
+    sudo apt-get install python3-dev python3.4-venv libjpeg-dev zlib1g-dev
+    cd /path/to/lycheesync
+    pyvenv-3.4 ./venv3.4
+    . ./venv3.4/bin/activate
+    which pip # should give you a path in your newly created ./venv3.4 dir
+    # if not execute: curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
+    pip install -r requirements.txt
+
+And wait for compilation to finish ;)
+
+#### Using the distro package manager (the BAD way)
+
+On debian based Linux
+
+    sudo apt-get install python3-dev python3 python3-pymysql python3-click python3-pil python3-dateutil libjpeg-dev
+
+PS: Depending on your distro version, you may need to activate universe repository for you distribution first.
+
+### Adjust configuration
+
+Finally, adjust the `ressources/conf.json` file to you use case.
+Explanations in next chapter.
+
+## Basic usage
+
+### Configuration
 
 The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
@@ -97,17 +106,16 @@ publicAlbum should be set to 1 if you want to make public all your photos.
 }
 ```
 
-## Command line parameters
+### Command line parameters
 
-
-The basic usage is `python main.py srcdir lycheepath conf`
+The basic usage is `python -m lycheesync.sync srcdir lycheepath conf`
 
 Where:
-- `srcdir` is the directory containing photos you want to add to leeche
-- `lycheepath` is the path were you installed Lychee (usually /var/ww/lychee)
-- `conf` is the full path to your configuration file
+- `srcdir` is the directory containing photos you want to add to Lychee
+- `lycheepath` is the path were you installed Lychee (usually `/var/www/lychee`)
+- `conf` is the full path to your configuration file (usually `./ressources/conf.json`)
 
-## Explanation
+### Explanation
 
 The default mod is a **merge** mode.
 
@@ -155,7 +163,7 @@ The resulting lychee structure will be:
 ```
 
 
-## Counters
+### Counters
 
 At the end of the script a few counters will be displayed in order to keep you informed of what have been done.
 
@@ -165,33 +173,44 @@ Created albums:  4
 10 photos imported on 10 discovered
 ```
 
-#  Advanced usage
+##  Advanced usage
+
+### Command line switches
 
 You can choose between the following options to adjust the program behaviour:
 
 - `-v` **verbose mode**. A little more output
-- `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to
-  be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
+- `-r` **replace album mode**. If a pre-existing album is found in Lychee that match a soon to be imported album. The pre-existing album is removed before hand. Usefull if you want to have lychee in slave mode only for a few albums
 - `-d` **drop all mode**. Everything in Lychee is dropped before import. Usefull to make lychee a slave of another repository
 - `-l` **link mode**. Don't copy files from source folder to lychee directory structure, just create symbolic links (thumbnails will however be created in lychee's directory structure)
 - `-s` **sort mode**. Sort album by name in lychee. Could be usefull if your album names start with the date (YYYYMMDD).
+- `-c` `--sanitycheck` **sanity check mode**. Will remove empty album, orphan files, broken links...
 
 
+### Choose your album cover
+
+Add `_star` at the end of one filename in a directory and this photo will be stared, making it your album cover. Ex: `P1000274_star.JPG`
+
+### Using crontab to automate synchronization
+
+Add this line in your crontab (`crontab -e`) to synchronize a photo directory to your lychee installation every day at 2 am.
+
+    0 2 * * * cd /path/to/lycheesync && . ./venv3.4/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -d > /tmp/lycheesync.out.log 2>&1
 
 
-# Technical doc
+## Technical doc
 
 This code is pep8 compliant and well documented, if you want to contribute, thanks to
 keep it this way.
 
 This project files are:
-* main.py: argument parsing and conf reading, defer work to lycheesyncer
-* lycheesyncer: logic and filesystem operations
-* lycheedao: database operations
-* lycheemodel: a lychee photo representation, manage exif tag parsing too
-* conf.json: the configuration file
+* lycheesync/sync.py: argument parsing and conf reading, defer work to lycheesyncer
+* lycheesync/lycheesyncer: logic and filesystem operations
+* lycheesync/lycheedao: database operations
+* lycheesync/lycheemodel: a lychee photo representation, manage exif tag parsing too
+* ressources/conf.json: the configuration file
 
 
 # Licence
 
-[MIT License](./LICENSE)
+[MIT License](./doc/LICENSE)

@@ -1,9 +1,10 @@
 # Changelog
 
-## v3.0.8
+## v3.0.9
 
 *Warning* this is a breaking release new python packages must be installed (see the Install section in ReadMe)
 
+- Tested against Lychee 3.0.9
 - automated testing
 - travis ci
 - compatibility with python 3
@@ -12,6 +13,7 @@
 - make use of the DateTimeOriginal exif tag
 - dependency change: switch to a pure python mysql driver [pymysql](https://github.com/PyMySQL/PyMySQL)
 - dependency change: use [click](http://click.pocoo.org/) to parse arguments
+- new dependency: [pexif](https://github.com/hMatoba/Piexif) Thanks to @hMatoba for his work !
 
 ## v3.0.1
 - change versioning to match lychee's

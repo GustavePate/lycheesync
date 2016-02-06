@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/GustavePate/lycheesync.svg)](https://travis-ci.org/GustavePate/lycheesync)
 
+[![Coverage Status](https://coveralls.io/repos/github/GustavePate/lycheesync/badge.svg?branch=master)](https://coveralls.io/github/GustavePate/lycheesync?branch=master)
+
 Lycheesync is a command line tool to synchronise a directory containing photos with Lychee.
 * Lycheesync is meant to be used on the same server that run Lychee. If your photo source directory is on another computer, use synchronize tools like rsync or owncloud.
 * Lycheesync is often meant to be run regulary and automatically, use cron for this (or monitor [filesystem events](https://github.com/seb-m/pyinotify) if you want your photos really fast online)

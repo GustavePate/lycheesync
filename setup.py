@@ -11,7 +11,7 @@ reqs = [
 
 setup(
     name="lycheesync",
-    version="0.0.1",
+    version="3.0.9",
     author="Gustave Pate",
     author_email="gustave.pate@fake.com",
     description="Photo synchronization utility for Lychee",

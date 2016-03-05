@@ -195,7 +195,11 @@ class LycheePhoto:
             self.height = float(h)
 
             if hasattr(img, '_getexif'):
-                exifinfo = img._getexif()
+                try:
+                    exifinfo = img._getexif()
+                except Exception as e:
+                    exifinfo = None
+                    logger.warn('Could not obtain exif info for image: %s', e)
                 # exifinfo = img.info['exif']
                 # logger.debug(exifinfo)
                 if exifinfo is not None:

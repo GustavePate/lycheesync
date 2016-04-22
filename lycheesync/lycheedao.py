@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import pymysql
 import datetime
+import time
 import re
 import logging
 from dateutil.parser import parse
@@ -282,9 +283,10 @@ class LycheeDAO:
         - album: the album properties list, at least the name should be specified
         Returns the created albumid or None
         """
-        album['id'] = None
+        album['id'] = ('%.4f'%time.time()).replace('.','')
 
-        query = ("insert into lychee_albums (title, sysstamp, public, password) values ('{}',{},'{}',NULL)".format(
+        query = ("insert into lychee_albums (id, title, sysstamp, public, password) values ({},'{}',{},'{}',NULL)".format(
+            album['id'],
             album['name'],
             datetime.datetime.now().strftime('%s'),
             str(self.conf["publicAlbum"]))
@@ -294,8 +296,8 @@ class LycheeDAO:
         try:
             cur = self.db.cursor()
             logger.debug("try to createAlbum: %s", query)
-            cur.execute("insert into lychee_albums (title, sysstamp, public, password) values (%s,%s,%s,NULL)", (album[
-                        'name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
+            cur.execute("insert into lychee_albums (id, title, sysstamp, public, password) values (%s,%s,%s,%s,NULL)",
+                        (album['id'], album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
             cur.execute("select id from lychee_albums where title=%s", (album['name']))

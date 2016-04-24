@@ -14,6 +14,7 @@ import time
 import sys
 import logging
 import piexif
+import fnmatch
 
 logger = logging.getLogger(__name__)
 
@@ -361,6 +362,11 @@ class LycheeSyncer:
             # if a there is at least one photo in the files
             if any([self.isAPhoto(f) for f in files]):
                 album['path'] = root
+
+                # Skip any albums that matches one of the exluded patterns
+                if any([True for pattern in self.conf['excludeAlbums'] if fnmatch.fnmatch(root, pattern)]):
+                    logger.info("Skipping excluded album {}".format(root))
+                    continue
 
                 # don't know what to do with theses photo
                 # and don't wan't to create a default album

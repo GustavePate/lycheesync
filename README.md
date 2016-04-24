@@ -93,6 +93,7 @@ Explanations in next chapter.
 The configuration file is straight-forward.
 Simply enter your Lychee DB configuration.
 publicAlbum should be set to 1 if you want to make public all your photos.
+excludeAlbums is a list of patterns which albums not to include. The example below will not import the album `/home/snowden/albums/secret` and any directory named `.DAV` or `temp`:
 
 
 ```json
@@ -102,7 +103,12 @@ publicAlbum should be set to 1 if you want to make public all your photos.
     "dbPassword":"cheely",
     "dbHost":"localhost",
     "thumbQuality":80,
-    "publicAlbum": 0
+    "publicAlbum": 0,
+    "excludeAlbums": [
+        "/home/snowden/albums/secret",
+        "*/.DAV",
+        "*/temp"
+    ]
 }
 ```
 

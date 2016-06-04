@@ -15,7 +15,6 @@ from PIL.ExifTags import TAGS
 import datetime
 import logging
 from dateutil.parser import parse
-from lycheesync.utils.utility import getUniqTimeBasedId
 
 logger = logging.getLogger(__name__)
 
@@ -133,9 +132,10 @@ class LycheePhoto:
             sha1.update(f.read())
             self.checksum = sha1.hexdigest()
 
-    def __init__(self, conf, photoname, album):
+    def __init__(self, id, conf, photoname, album):
         # Parameters storage
         self.conf = conf
+        self.id = id
         self.originalname = photoname
         self.originalpath = album['path']
         self.albumid = album['id']
@@ -144,18 +144,6 @@ class LycheePhoto:
         # if star in file name, photo is starred
         if ('star' in self.originalname) or ('cover' in self.originalname):
             self.star = 1
-
-        # Compute Photo ID
-        self.id = str(getUniqTimeBasedId())
-        # not precise enough
-        length = len(self.id)
-        if length < 14:
-            missing_char = 14 - length
-            r = random.random()
-            r = str(r)
-            # last missing_char char
-            filler = r[-missing_char:]
-            self.id = self.id + filler
 
         assert len(self.id) == 14, "id {} is not 14 character long: {}".format(self.id, str(len(self.id)))
 

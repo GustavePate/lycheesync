@@ -422,7 +422,8 @@ class LycheeSyncer:
                                     root,
                                     f))
                             # corruption detected here by launching exception
-                            photo = LycheePhoto(self.conf, f, album)
+                            pid = self.dao.getUniqPhotoId()
+                            photo = LycheePhoto(pid, self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
                                 res = self.copyFileToLychee(photo)
                                 self.adjustRotation(photo)

@@ -15,6 +15,7 @@ from PIL.ExifTags import TAGS
 import datetime
 import logging
 from dateutil.parser import parse
+from lycheesync.utils.utility import getUniqTimeBasedId
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class LycheePhoto:
                 # timestamp = the_date.timestamp()
                 timestamp = time.mktime(the_date.timetuple())
 
-            except Exception as e:
+            except Exception:
                 logger.warn('model date impossible to parse: ' + str(value))
                 timestamp = epoch_now
         else:
@@ -145,7 +146,7 @@ class LycheePhoto:
             self.star = 1
 
         # Compute Photo ID
-        self.id = str(int(time.time()))
+        self.id = str(getUniqTimeBasedId())
         # not precise enough
         length = len(self.id)
         if length < 14:

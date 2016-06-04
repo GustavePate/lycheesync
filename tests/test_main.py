@@ -414,7 +414,7 @@ class TestClass:
         # no import
         assert tu.count_fs_photos() == 0, "there are photos in fs"
         assert tu.count_db_photos() == 0, "there are photos in db"
-        assert tu.album_exists_in_db("corrupted_file") == 1, "corrupted_album not in db"
+        assert tu.album_exists_in_db("corrupted_file"), "corrupted_album not in db"
 
     def test_empty_album(self):
         # load 1 empty album

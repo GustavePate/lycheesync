@@ -381,7 +381,7 @@ class TestUtils:
         return (res / 2)
 
     def album_exists_in_db(self, a_name):
-        return self.get_album_id(a_name)
+        return (self.get_album_id(a_name) is not None)
 
     def get_album_id(self, a_name):
         res = None

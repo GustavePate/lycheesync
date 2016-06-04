@@ -4,9 +4,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import pymysql
 import datetime
-import time
 import re
 import logging
+from lycheesync.utils.utility import getUniqTimeBasedId
 from dateutil.parser import parse
 
 logger = logging.getLogger(__name__)
@@ -283,7 +283,7 @@ class LycheeDAO:
         - album: the album properties list, at least the name should be specified
         Returns the created albumid or None
         """
-        album['id'] = ('%.4f'%time.time()).replace('.','')
+        album['id'] = str(getUniqTimeBasedId())
 
         query = ("insert into lychee_albums (id, title, sysstamp, public, password) values ({},'{}',{},'{}',NULL)".format(
             album['id'],
@@ -296,8 +296,8 @@ class LycheeDAO:
         try:
             cur = self.db.cursor()
             logger.debug("try to createAlbum: %s", query)
-            cur.execute("insert into lychee_albums (id, title, sysstamp, public, password) values (%s,%s,%s,%s,NULL)",
-                        (album['id'], album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
+            # duplicate of previous query to use driver quote protection features
+            cur.execute("insert into lychee_albums (id, title, sysstamp, public, password) values (%s,%s,%s,%s,NULL)", (album['id'], album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
             cur.execute("select id from lychee_albums where title=%s", (album['name']))
@@ -359,7 +359,7 @@ class LycheeDAO:
             cur = self.db.cursor()
             cur.execute(query)
             self.db.commit()
-            logger.debug("photo dropped: %s", album_id)
+            logger.debug("photo dropped: %s", photo_id)
             res = True
         except Exception as e:
             logger.exception(e)

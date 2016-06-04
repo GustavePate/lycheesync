@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `lychee_albums`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lychee_albums` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(14) NOT NULL,
   `title` varchar(100) NOT NULL DEFAULT '',
   `description` varchar(1000) DEFAULT '',
   `sysstamp` int(11) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE `lychee_log` (
   `line` int(11) NOT NULL,
   `text` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +99,7 @@ CREATE TABLE `lychee_photos` (
   `size` varchar(20) NOT NULL,
   `iso` varchar(15) NOT NULL,
   `aperture` varchar(20) NOT NULL,
-  `make` varchar(50) DEFAULT NULL,
+  `make` varchar(50) NOT NULL,
   `model` varchar(50) NOT NULL,
   `shutter` varchar(30) NOT NULL,
   `focal` varchar(20) NOT NULL,

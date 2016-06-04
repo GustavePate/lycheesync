@@ -6,7 +6,8 @@ import pymysql
 import datetime
 import re
 import logging
-from lycheesync.utils.utility import getUniqTimeBasedId
+import time
+import random
 from dateutil.parser import parse
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,40 @@ class LycheeDAO:
         except Exception as e:
             logger.error(e)
             raise
+
+    def getUniqPhotoId(self):
+        id = self.getUniqTimeBasedId()
+        nbtry = 1
+        while (self.photoIdExists(id)):
+            id = self.getUniqTimeBasedId()
+            nbtry += 1
+            if (nbtry == 5):
+                raise Exception("didn't manage to create uniq id")
+        return id
+
+    def getUniqAlbumId(self):
+        id = self.getUniqTimeBasedId()
+        nbtry = 1
+        while (self.albumIdExists(id)):
+            id = self.getUniqTimeBasedId()
+            nbtry += 1
+            if (nbtry == 5):
+                raise Exception("didn't manage to create uniq id")
+        return id
+
+    def getUniqTimeBasedId(self):
+        # Compute Photo ID
+        id = str(int(time.time()))
+        # not precise enough
+        length = len(id)
+        if length < 14:
+            missing_char = 14 - length
+            r = random.random()
+            r = str(r)
+            # last missing_char char
+            filler = r[-missing_char:]
+            id = id + filler
+        return id
 
     def getAlbumNameDBWidth(self):
         res = 50  # default value
@@ -220,6 +255,20 @@ class LycheeDAO:
         finally:
             return album_names
 
+    def photoIdExists(self, photoid):
+        res = None
+        try:
+            cur = self.db.cursor()
+            cur.execute("select id from lychee_photos where id=%s", (photoid))
+            row = cur.fetchall()
+            if len(row) != 0:
+                logger.debug("photoExistsById %s", row)
+                res = row[0]['id']
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
     def photoExistsByName(self, photo_name):
         res = None
         try:
@@ -283,7 +332,7 @@ class LycheeDAO:
         - album: the album properties list, at least the name should be specified
         Returns the created albumid or None
         """
-        album['id'] = str(getUniqTimeBasedId())
+        album['id'] = str(self.getUniqAlbumId())
 
         query = ("insert into lychee_albums (id, title, sysstamp, public, password) values ({},'{}',{},'{}',NULL)".format(
             album['id'],

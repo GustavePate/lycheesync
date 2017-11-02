@@ -416,6 +416,24 @@ class LycheeDAO:
         finally:
             return res
 
+    def get_all_photos_titles(self, album_id):
+        """
+        Lists all photos in leeche db (used to delete all files)
+        Return a photo url list
+        """
+        selquery = "select title from lychee_photos where album={}".format(album_id)
+        res = set()
+        try:
+            cur = self.db.cursor()
+            cur.execute(selquery)
+            rows = cur.fetchall()
+            res = {row['title'] for row in rows}
+        except Exception as e:
+            logger.exception(e)
+        finally:
+            return res
+
+
     def get_all_photos(self, album_id=None):
         """
         Lists all photos in leeche db (used to delete all files)

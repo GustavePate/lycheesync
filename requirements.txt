@@ -1,6 +1,6 @@
 pymysql==0.7.1
 click==6.2
-pillow==3.0.0
+pillow==4.3.0
 python-dateutil
 pytest==2.7.3
 pytest-cov==2.2.0

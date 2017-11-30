@@ -129,6 +129,57 @@ class LycheeSyncer:
         img.save(destimage, quality=99)
         return destimage
 
+
+    def makeFastThumbnail(self, photo):
+        """
+        Make the 2 thumbnails needed by Lychee for a given photo
+        and store their path in the LycheePhoto object
+        Parameters:
+        - photo: a valid LycheePhoto object
+        returns nothing
+        """
+        # set  thumbnail size
+        sizes = [(200, 200), (400, 400)]
+        # insert @2x in big thumbnail file name
+        filesplit = os.path.splitext(photo.url)
+        destfiles = [photo.url, ''.join([filesplit[0], "@2x", filesplit[1]]).lower()]
+        # compute destination path
+        destpath = os.path.join(self.conf["lycheepath"], "uploads", "thumb")
+        
+        destimage0 = os.path.join(destpath, destfiles[0])
+        destimage1 = os.path.join(destpath, destfiles[1])
+
+        try:
+            img = Image.open(photo.destfullpath)
+        except Exception as e:
+            logger.exception(e)
+            logger.error("ioerror (corrupted file?): " + photo.srcfullpath)
+            raise
+
+        img.draft(None, sizes[1])
+        x, y = img.size
+        if x >= y:
+                left = int((x - y) / 2)
+                upper = 0
+                right = y + left
+                lower = y
+        else:
+                upper = int((y - x) / 2)
+                left = 0
+                lower = x + upper
+                right = x
+
+        img = img.resize(sizes[1], Image.BICUBIC, (left, upper, right, lower))
+        #img.thumbnail(sizes[1])
+        img.save(destimage1, quality=60)
+        img.thumbnail(sizes[0])
+        img.save(destimage0, quality=60)
+        #img.close()
+
+        photo.thumbnailfullpath = destimage0
+        photo.thumbnailx2fullpath = destimage1
+	
+
     def makeThumbnail(self, photo):
         """
         Make the 2 thumbnails needed by Lychee for a given photo
@@ -408,6 +459,8 @@ class LycheeSyncer:
 
                     createdalbums += 1
 
+                photos_titles = self.dao.get_all_photos_titles(album['id'])
+
                 # Albums are created or emptied, now take care of photos
                 for f in sorted(files):
 
@@ -421,13 +474,19 @@ class LycheeSyncer:
                                 os.path.join(
                                     root,
                                     f))
+                            # Fast elimination of existing photos
+                            if f in photos_titles:
+                                logger.debug("Photo quickly eliminated")
+                                continue
+                            
                             # corruption detected here by launching exception
                             pid = self.dao.getUniqPhotoId()
                             photo = LycheePhoto(pid, self.conf, f, album)
                             if not(self.dao.photoExists(photo)):
                                 res = self.copyFileToLychee(photo)
-                                self.adjustRotation(photo)
-                                self.makeThumbnail(photo)
+                                # self.adjustRotation(photo)
+                                # self.makeThumbnail(photo)
+                                self.makeFastThumbnail(photo)
                                 res = self.dao.addFileToAlbum(photo)
                                 # increment counter
                                 if res:

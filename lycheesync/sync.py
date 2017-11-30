@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 @click.option('-d', '--dropdb', 'exclusive_mode', flag_value='delete',
               default=False, help='delete mode exclusive with replace and normal mode')
 @click.option('-s', '--sort_album_by_name', is_flag=True, help='Sort album by name')
-@click.option('-c', '--sanitycheck', is_flag=True, help='Sort album by name')
+@click.option('-c', '--sanitycheck', is_flag=True, help='Sanity check mode')
 @click.option('-l', '--link', is_flag=True, help="Don't copy files create link instead")
 @click.option('-u26', '--updatedb26', is_flag=True,
               help="Update lycheesync added data in lychee db to the lychee 2.6.2 required values")
@@ -39,6 +39,10 @@ logger = logging.getLogger(__name__)
 # checks file existence and attributes
 # @click.argument('file2', type=click.Path(exists=True, file_okay=True, dir_okay=False, writable=False, readable=True, resolve_path=True))
 def main(verbose, exclusive_mode, sort_album_by_name, sanitycheck, link, updatedb26, imagedirpath, lycheepath, confpath):
+    perform_sync(verbose, exclusive_mode, sort_album_by_name, sanitycheck, link, updatedb26, imagedirpath, lycheepath, confpath)
+
+
+def perform_sync(verbose, exclusive_mode, sort_album_by_name, sanitycheck, link, updatedb26, imagedirpath, lycheepath, confpath):
     """Lycheesync
 
     A script to synchronize any directory containing photos with Lychee.

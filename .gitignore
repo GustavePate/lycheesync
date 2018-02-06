@@ -35,7 +35,7 @@ nosetests.xml
 .pydevproject
 
 tmptest/
-venv3.4/*
+venv3.*/*
 venv2.7/*
 test/*
 logs/*

@@ -76,6 +76,7 @@ class LycheePhoto:
     description = ""
     url = ""
     public = 0  # private by default
+    medium = 0  # do not make medium thumbnail by default
     type = ""
     width = 0
     height = 0
@@ -140,6 +141,9 @@ class LycheePhoto:
         self.originalpath = album['path']
         self.albumid = album['id']
         self.albumname = album['name']
+
+        self.public = self.conf["publicAlbum"];
+        self.medium = self.conf["mediumThumb"];
 
         # if star in file name, photo is starred
         if ('star' in self.originalname) or ('cover' in self.originalname):
@@ -317,6 +321,7 @@ class LycheePhoto:
         res += "description:" + str(self.description) + "\n"
         res += "url:" + str(self.url) + "\n"
         res += "public:" + str(self.public) + "\n"
+        res += "medium:" + str(self.medium) + "\n"
         res += "type:" + str(self.type) + "\n"
         res += "width:" + str(self.width) + "\n"
         res += "height:" + str(self.height) + "\n"

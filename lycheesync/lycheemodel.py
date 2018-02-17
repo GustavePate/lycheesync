@@ -335,11 +335,10 @@ class LycheePhoto:
                     self._str_datetime = takedate + " " + taketime
 
                     self.description = self._str_datetime
-
-
         except IOError as e:
-            # logger.debug('ioerror (corrupted ?): ' + self.srcfullpath)
             raise e
+        except Exception:
+            logging.warn("some exif data won't be available for %s, report a bug with complete stack trace on github please ", self.srcfullpath)
 
     def __str__(self):
         res = ""

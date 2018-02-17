@@ -416,6 +416,28 @@ class TestClass:
         assert tu.count_db_photos() == 0, "there are photos in db"
         assert tu.album_exists_in_db("corrupted_file"), "corrupted_album not in db"
 
+    def test_issue73(self):
+        # load 1 album with a corrupted file
+        tu = TestUtils()
+        assert tu.is_env_clean(tu.conf['lycheepath']), "env not clean"
+        # load unicode album name
+        tu.load_photoset("issue73_rounded_values")
+        # launch lycheesync
+        src = tu.conf['testphotopath']
+        lych = tu.conf['lycheepath']
+        conf = tu.conf['conf']
+
+        # run
+        runner = CliRunner()
+        result = runner.invoke(main, [src, lych, conf, '-d', '-v'])
+        # no crash
+        assert result.exit_code == 0, "process result is ok"
+
+        # no import
+        assert tu.count_fs_photos() == 1, "there are photos in fs"
+        assert tu.count_db_photos() == 1, "there are photos in db"
+        assert tu.album_exists_in_db("issue73_rounded_values"), "photo not in db"
+
     def test_empty_album(self):
         # load 1 empty album
         tu = TestUtils()
@@ -803,7 +825,7 @@ class TestClass:
             # DB orphan photo in db
             tu._exec_sql(
                 db,
-                "insert into lychee_photos (id, title, url, tags, public, type, width, height, size, iso, aperture, model, shutter, focal, star, thumbUrl,album, medium) values (2525, 'orphan', 'one-cut-lychee.jpg', '',  1, 'jpg', 500, 500, '2323px', '100', 'F5.5', 'FZ5', '1s', 'F2', 0, 'thumburl.jpg', 666, 0)")
+                "insert into lychee_photos (id, title, url, tags, public, type, width, height, size, iso, aperture, model, shutter, focal, star, thumbUrl,album, medium, make) values (2525, 'orphan', 'one-cut-lychee.jpg', '',  1, 'jpg', 500, 500, '2323px', '100', 'F5.5', 'FZ5', '1s', 'F2', 0, 'thumburl.jpg', 666, 0, 'panasonic')")
 
         finally:
             db.close()

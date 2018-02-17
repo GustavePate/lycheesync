@@ -11,7 +11,7 @@
     "handlers": {
         "stream_handler": {
             "class": "logging.StreamHandler",
-            "level": "INFO",
+            "level": "DEBUG",
             "formatter": "simple",
             "stream": "ext://sys.stdout"
 

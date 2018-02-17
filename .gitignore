@@ -33,9 +33,10 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.python-version
 
 tmptest/
-venv3.4/*
+venv3.*/*
 venv2.7/*
 test/*
 logs/*

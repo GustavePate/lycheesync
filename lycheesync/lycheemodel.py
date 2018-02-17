@@ -4,10 +4,6 @@ from __future__ import unicode_literals
 from __future__ import print_function
 import time
 import hashlib
-import random
-import math
-import decimal
-from fractions import Fraction
 import os
 import mimetypes
 from PIL import Image
@@ -168,7 +164,13 @@ class LycheePhoto:
         # Auto file some properties
         self.type = mimetypes.guess_type(self.originalname, False)[0]
         self.size = os.path.getsize(self.srcfullpath)
-        self.size = str(self.size / 1024) + " KB"
+        logger.debug(type(self.size))
+        size_kb = int(self.size / 1024)
+        if (size_kb > 1024):
+            self.size = "{:.2f}".format(size_kb / 1024) + " Mo"
+        else:
+            self.size = str(size_kb) + " Ko"
+
         # Default date
         takedate = datetime.date.today().isoformat()
         taketime = datetime.datetime.now().strftime('%H:%M:%S')
@@ -198,73 +200,90 @@ class LycheePhoto:
                             self.exif.orientation = value
                         if decode == "Make":
                             self.exif.make = value
-                        if decode == "MaxApertureValue":
-                            aperture = math.sqrt(2) ** value[0]
-                            try:
-                                aperture = decimal.Decimal(aperture).quantize(
-                                    decimal.Decimal('.1'),
-                                    rounding=decimal.ROUND_05UP)
-                            except Exception as e:
-                                logger.debug("aperture only a few digit after comma: {}".format(aperture))
-                                logger.debug(e)
-                            self.exif.aperture = aperture
+                        if decode == "FNumber":
+                            self.exif.aperture = "{0:.1f}".format(value[0] / value[1])
+
+                        # if decode == "MaxApertureValue":
+                        #     logger.info("raw aperture: %s %s %s", value[0], value[1], len(value))
+                        #     aperture = math.sqrt(2) ** value[0]
+                        #     try:
+                        #         aperture = decimal.Decimal(aperture).quantize(
+                        #             decimal.Decimal('.1'),
+                        #             rounding=decimal.ROUND_05UP)
+                        #     except Exception as e:
+                        #         logger.debug("aperture only a few digit after comma: {}".format(aperture))
+                        #         logger.debug(e)
+                        #     logger.info("aperture: %s %s", aperture, type(aperture))
+                        #     self.exif.aperture = "{0:.2f}".format(aperture)
+                        #     logger.info("corrected aperture: %s", self.exif.aperture)
                         if decode == "FocalLength":
-                            self.exif.focal = value[0]
+                            self.exif.focal = "{0:.1f}".format(value[0] / value[1])
                         if decode == "ISOSpeedRatings":
-                            self.exif.iso = value[0]
+                            if isinstance(value, list):
+                                self.exif.iso = value[0]
+                            else:
+                                self.exif.iso = value
                         if decode == "Model":
                             self.exif.model = value
                         if decode == "ExposureTime":
-                            self.exif.exposure = value[0]
-                        if decode == "ShutterSpeedValue":
-                            s = value[0]
-                            s = 2 ** s
-                            s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
-                            if s <= 1:
-                                s = decimal.Decimal(
-                                    1 /
-                                    float(s)).quantize(
-                                    decimal.Decimal('0.1'),
-                                    rounding=decimal.ROUND_05UP)
+                            if isinstance(value, list):
+                                self.exif.exposure = "{0:.1f}".format(value[0] / value[1])
                             else:
-                                s = "1/" + str(s)
-                            self.exif.shutter = str(s) + " s"
+                                logging.warn("exposure not readable for %s", self.srcfullpath)
+                        # if decode == "ShutterSpeedValue":
+                        #     s = value[0]
+                        #     s = 2 ** s
+                        #     s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
+                        #     if s <= 1:
+                        #         s = decimal.Decimal(
+                        #             1 /
+                        #             float(s)).quantize(
+                        #             decimal.Decimal('0.1'),
+                        #             rounding=decimal.ROUND_05UP)
+                        #     else:
+                        #         s = "1/" + str(s)
+                        #     self.exif.shutter = str(s) + " s"
 
                         if decode == "DateTimeOriginal":
                             try:
-                                self.exif.takedate = value[0].split(" ")[0]
+                                self.exif.takedate = value.split(" ")[0]
+                                # logger.debug(" Read DateTimeOriginal -> takedate: " + str(value) + " " + str(self.exif.takedate))
                             except Exception as e:
                                 logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTimeOriginal":
                             try:
-                                self.exif.taketime = value[0].split(" ")[1]
+                                # TODO bug here on yyyy:mm:dd hh:mm:ss format
+                                self.exif.taketime = value.split(" ")[1]
+                                # logger.debug(" Read DateTimeOriginal -> taketime: " + str(value))
                             except Exception as e:
                                 logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.takedate is None:
                             try:
                                 self.exif.takedate = value.split(" ")[0]
+                                # logger.debug(" Read DateTime -> takedate: " + str(value))
                             except Exception as e:
                                 logger.warn('DT invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.taketime is None:
                             try:
                                 self.exif.taketime = value.split(" ")[1]
+                                # logger.debug(" Read DateTime -> taketime: " + str(value))
                             except Exception as e:
                                 logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                     # compute shutter speed
 
-                    if not(self.exif.shutter) and self.exif.exposure:
-                        if self.exif.exposure < 1:
-                            e = str(Fraction(self.exif.exposure).limit_denominator())
-                        else:
-                            e = decimal.Decimal(
-                                self.exif.exposure).quantize(
-                                decimal.Decimal('0.01'),
-                                rounding=decimal.ROUND_05UP)
-                        self.exif.shutter = e
+                    # if not(self.exif.shutter) and self.exif.exposure:
+                    #     if self.exif.exposure < 1:
+                    #         e = str(Fraction(self.exif.exposure).limit_denominator())
+                    #     else:
+                    #         e = decimal.Decimal(
+                    #             self.exif.exposure).quantize(
+                    #             decimal.Decimal('0.01'),
+                    #             rounding=decimal.ROUND_05UP)
+                    #     self.exif.shutter = e
 
                     if self.exif.shutter:
                         self.exif.shutter = str(self.exif.shutter) + " s"
@@ -282,12 +301,13 @@ class LycheePhoto:
                         self.exif.focal = ""
 
                     if self.exif.aperture:
-                        self.exif.aperture = 'F' + str(self.exif.aperture)
+                        self.exif.aperture = 'F/' + str(self.exif.aperture)
                     else:
                         self.exif.aperture = ""
 
                     # compute takedate / taketime
                     if self.exif.takedate:
+                        # logger.debug("final takedate " + self.exif.takedate)
                         takedate = self.exif.takedate.replace(':', '-')
                         taketime = '00:00:00'
 
@@ -300,8 +320,10 @@ class LycheePhoto:
 
                     self.description = self._str_datetime
 
+                    # logger.debug("final date " + self._str_datetime)
+
         except IOError as e:
-            logger.debug('ioerror (corrupted ?): ' + self.srcfullpath)
+            # logger.debug('ioerror (corrupted ?): ' + self.srcfullpath)
             raise e
 
     def __str__(self):

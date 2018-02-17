@@ -48,6 +48,7 @@ class TestUtils:
 
     def make_fake_lychee_fs(self, path):
 
+        logger.info("make fake lychee fs")
         if not(os.path.isdir(os.path.join(path, 'uploads', 'big'))):
             uploads = os.path.join(path, 'uploads')
             os.mkdir(path)
@@ -63,6 +64,7 @@ class TestUtils:
 
     def is_env_clean(self, path):
         check = []
+        logger.info("is env clean")
         try:
             folders = {}
             folders['big'] = os.path.join(path, 'uploads', 'big')
@@ -113,8 +115,9 @@ class TestUtils:
                 with self.db.cursor() as cursor:
                     cursor.execute(sql)
                 self.db.commit()
+                logger.info('drop database: ok')
             except Exception as e:
-                logger.exception(e)
+                logger.warn('drop database: ko', e)
             finally:
                 self.db.close()
 
@@ -147,6 +150,7 @@ class TestUtils:
 
     def make_fake_lychee_db(self):
 
+        logger.info("make fake lychee db")
         # connect to db
         self.db = pymysql.connect(host=self.cb.conf['dbHost'],
                                   user=self.cb.conf['dbUser'],
@@ -159,8 +163,9 @@ class TestUtils:
             with self.db.cursor() as cursor:
                 cursor.execute(sql)
             self.db.commit()
+            logger.info('db created')
         except Exception as e:
-            logger.exception(e)
+            logger.exception('db already exists', e)
         finally:
             self.db.close()
 
@@ -195,8 +200,12 @@ class TestUtils:
         try:
             username = "foo"
             password = "bar"
-            b64_username = base64.b64encode(username)
-            b64_password = base64.b64encode(password)
+            usernameb = bytearray()
+            passwordb = bytearray()
+            usernameb.extend(username.encode())
+            usernameb.extend(username.encode())
+            b64_username = base64.b64encode(usernameb)
+            b64_password = base64.b64encode(passwordb)
             qry = "insert into lychee_settings (`key`, `value`) values ('username', %s)"
             with db.cursor() as cursor:
                 try:
@@ -260,7 +269,8 @@ class TestUtils:
 
             else:
                 logger.info(path + ' not a dir, create it')
-                os.mkdir(path)
+                os.makedirs(path, mode=0o777, exist_ok=True)
+
         except Exception as e:
             logger.exception(e)
 

@@ -31,7 +31,7 @@ class LycheeDAO:
         try:
             self.conf = conf
             if 'dbSocket' in self.conf:
-                logger.debug("Connection to db in SOCKET mode")
+                # logger.debug("Connection to db in SOCKET mode")
                 logger.error("host: %s", self.conf['dbHost'])
                 logger.error("user: %s", self.conf['dbUser'])
                 logger.error("password: %s", self.conf['dbPassword'])
@@ -45,7 +45,7 @@ class LycheeDAO:
                                           unix_socket=self.conf['dbSocket'],
                                           cursorclass=pymysql.cursors.DictCursor)
             else:
-                logger.debug("Connection to db in NO SOCKET mode")
+                # logger.debug("Connection to db in NO SOCKET mode")
                 self.db = pymysql.connect(host=self.conf['dbHost'],
                                           user=self.conf['dbUser'],
                                           passwd=self.conf['dbPassword'],
@@ -64,6 +64,11 @@ class LycheeDAO:
         except Exception as e:
             logger.error(e)
             raise
+
+    def sqlProtect(self, str):
+        res = str.replace('"', '\\"')
+        res = res.replace("'", "\\'")
+        return res
 
     def getUniqPhotoId(self):
         id = self.getUniqTimeBasedId()
@@ -148,7 +153,7 @@ class LycheeDAO:
             if max is None:
                 max = -1
 
-            logger.debug("min max album id: %s to %s", min, max)
+            # logger.debug("min max album id: %s to %s", min, max)
 
             res = min, max
         except Exception as e:
@@ -190,7 +195,7 @@ class LycheeDAO:
             cur.execute(photo_query)
             cur.execute(album_query)
             self.db.commit()
-            logger.debug("album id changed: " + str(oldid) + " to " + str(newid))
+            # logger.debug("album id changed: " + str(oldid) + " to " + str(newid))
         except Exception as e:
             logger.exception(e)
             logger.error("album id changed: " + str(oldid) + " to " + str(newid))
@@ -211,7 +216,7 @@ class LycheeDAO:
         for row in rows:
             self.albumslist[row['title']] = row['id']
 
-        logger.debug("album list in db:" + str(self.albumslist))
+        # logger.debug("album list in db:" + str(self.albumslist))
         return self.albumslist
 
     def albumIdExists(self, album_id):
@@ -233,7 +238,7 @@ class LycheeDAO:
         Parameters: an album properties list. At least the name should be specified
         Returns None or the albumid if it exists
         """
-        logger.debug("exists ? " + str(album))
+        # logger.debug("exists ? " + str(album))
         if album['name'] in self.albumslist.keys():
             return self.albumslist[album['name']]
         else:
@@ -262,7 +267,7 @@ class LycheeDAO:
             cur.execute("select id from lychee_photos where id=%s", (photoid))
             row = cur.fetchall()
             if len(row) != 0:
-                logger.debug("photoExistsById %s", row)
+                # logger.debug("photoExistsById %s", row)
                 res = row[0]['id']
         except Exception as e:
             logger.exception(e)
@@ -276,7 +281,7 @@ class LycheeDAO:
             cur.execute("select id from lychee_photos where title=%s", (photo_name))
             row = cur.fetchall()
             if len(row) != 0:
-                logger.debug("photoExistsByName %s", row)
+                # logger.debug("photoExistsByName %s", row)
                 res = row[0]['id']
         except Exception as e:
             logger.exception(e)
@@ -334,19 +339,13 @@ class LycheeDAO:
         """
         album['id'] = str(self.getUniqAlbumId())
 
-        query = ("insert into lychee_albums (id, title, sysstamp, public, password) values ({},'{}',{},'{}',NULL)".format(
-            album['id'],
-            album['name'],
-            datetime.datetime.now().strftime('%s'),
-            str(self.conf["publicAlbum"]))
-        )
-
         cur = None
         try:
             cur = self.db.cursor()
-            logger.debug("try to createAlbum: %s", query)
+            # logger.debug("try to createAlbum: %s", query)
             # duplicate of previous query to use driver quote protection features
-            cur.execute("insert into lychee_albums (id, title, sysstamp, public, password) values (%s,%s,%s,%s,NULL)", (album['id'], album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
+            cur.execute("insert into lychee_albums (id, title, sysstamp, public, password) values (%s,%s,%s,%s,NULL)", (album[
+                        'id'], album['name'], datetime.datetime.now().strftime('%s'), str(self.conf["publicAlbum"])))
             self.db.commit()
 
             cur.execute("select id from lychee_albums where title=%s", (album['name']))
@@ -379,7 +378,7 @@ class LycheeDAO:
                 res.append(row['url'])
             cur.execute(query)
             self.db.commit()
-            logger.debug("album photos erased: ", album_id)
+            # logger.debug("album photos erased: ", album_id)
         except Exception as e:
             logger.exception(e)
             logger.error("eraseAlbum")
@@ -393,7 +392,7 @@ class LycheeDAO:
             cur = self.db.cursor()
             cur.execute(query)
             self.db.commit()
-            logger.debug("album dropped: %s", album_id)
+            # logger.debug("album dropped: %s", album_id)
             res = True
         except Exception as e:
             logger.exception(e)
@@ -408,7 +407,7 @@ class LycheeDAO:
             cur = self.db.cursor()
             cur.execute(query)
             self.db.commit()
-            logger.debug("photo dropped: %s", photo_id)
+            # logger.debug("photo dropped: %s", photo_id)
             res = True
         except Exception as e:
             logger.exception(e)
@@ -488,35 +487,44 @@ class LycheeDAO:
             stamp = datetime.datetime.now().strftime('%s')
 
         query = ("insert into lychee_photos " +
-                 "(id, url, public, type, width, height, " +
+                 "(id, url, " +
+                 "public, type, " +
+                 "width, height, " +
                  "size, star, " +
-                 "thumbUrl, album,iso, aperture, make, " +
-                 "model, shutter, focal, takestamp, " +
-                 "description, title, checksum) " +
+                 "thumbUrl, album, " +
+                 "iso, aperture, make, " +
+                 "model, shutter, focal, " +
+                 "takestamp, description, title, " +
+                 " checksum) " +
                  "values " +
-                 "({}, '{}', {}, '{}', {}, {}, " +
+                 "({}, '{}', " +
+                 "{}, '{}', " +
+                 "{}, {}, " +
                  "'{}', {}, " +
-                 "'{}', '{}', '{}', '{}'," +
-                 " '{}', " +
-                 "'{}', '{}', '{}', '{}', " +
-                 "'{}', %s, '{}')"
-                 ).format(photo.id, photo.url, self.conf["publicAlbum"], photo.type, photo.width, photo.height,
+                 "'{}', '{}', " +
+                 "'{}', '{}', '{}', " +
+                 "'{}', '{}', '{}', " +
+                 "'{}', '{}', '{}', " +
+                 "'{}')"
+                 ).format(photo.id, photo.url,
+                          self.conf["publicAlbum"], photo.type,
+                          photo.width, photo.height,
                           photo.size, photo.star,
                           photo.thumbUrl, photo.albumid,
-                          photo.exif.iso,
-                          photo.exif.aperture,
-                          photo.exif.make,
-                          photo.exif.model, photo.exif.shutter, photo.exif.focal, stamp,
-                          photo.description, photo.checksum)
+                          photo.exif.iso, photo.exif.aperture, photo.exif.make,
+                          photo.exif.model, photo.exif.shutter, photo.exif.focal,
+                          stamp, self.sqlProtect(photo.description), self.sqlProtect(photo.originalname),
+                          photo.checksum)
+        logger.debug(query)
         try:
-            logger.debug(query)
+            # logger.debug(query)
             cur = self.db.cursor()
-            res = cur.execute(query, (photo.originalname))
+            res = cur.execute(query)
             self.db.commit()
         except Exception as e:
             logger.exception(e)
-            logger.error("addFileToAlbum : %s", photo)
             logger.error("addFileToAlbum while executing: %s", cur._last_executed)
+            logger.error("addFileToAlbum : %s", photo)
             res = False
         finally:
             return res
@@ -530,7 +538,7 @@ class LycheeDAO:
                 cur = self.db.cursor()
                 cur.execute(qry)
                 self.db.commit()
-                logger.debug("reinit auto increment to %s", str(max + 1))
+                # logger.debug("reinit auto increment to %s", str(max + 1))
             except Exception as e:
                 logger.exception(e)
 

@@ -45,13 +45,25 @@ def carriagereturn(request):
 
 @pytest.fixture(scope="session")
 def initdb_and_fs(request):
-    pass
-    #  print("#FIXTURE: init db and fs")
-    # tu = TestUtils()
+
+    if request.config.getoption('confpath') is not None:
+        print("Launch test with conf:", pytest.config.getoption('confpath', default=None))
+        conf_path = request.config.getoption('confpath')
+        # previously returns a list, get the string
+        if len(request.config.getoption('confpath')) > 0:
+            conf_path = request.config.getoption('confpath')[0]
+
+    if os.path.exists(conf_path):
+        with open(conf_path, 'rt') as f:
+            conf = json.load(f)
+
+    logger.info("#FIXTURE: init db and fs")
+    tu = TestUtils()
+
     # Impossible because conf not loaded
-    # tu.make_fake_lychee_db()
-    # tu.drop_db()
-    # tu.make_fake_lychee_fs(tu.conf['lycheepath'])
+    tu.drop_db()
+    tu.make_fake_lychee_db()
+    tu.make_fake_lychee_fs(tu.conf['lycheepath'])
 
 
 @pytest.fixture(scope="session")
@@ -75,18 +87,14 @@ def confborg(request):
     """
     print("#FIXTURE: confborg")
 
-    def run_only_at_session_end():
-        print("\n ********** End of test session **********")
-    request.addfinalizer(run_only_at_session_end)
-
     print("********** Test session init **********")
 
-    if pytest.config.getoption('confpath') is not None:
+    if request.config.getoption('confpath') is not None:
         print("Launch test with conf:", pytest.config.getoption('confpath', default=None))
-        conf_path = pytest.config.getoption('confpath')
+        conf_path = request.config.getoption('confpath')
         # previously returns a list, get the string
-        if len(pytest.config.getoption('confpath')) > 0:
-            conf_path = pytest.config.getoption('confpath')[0]
+        if len(request.config.getoption('confpath')) > 0:
+            conf_path = request.config.getoption('confpath')[0]
 
     if os.path.exists(conf_path):
         with open(conf_path, 'rt') as f:

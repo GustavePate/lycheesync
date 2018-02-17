@@ -364,9 +364,10 @@ class LycheeSyncer:
                 album['path'] = root
 
                 # Skip any albums that matches one of the exluded patterns
-                if any([True for pattern in self.conf['excludeAlbums'] if fnmatch.fnmatch(root, pattern)]):
-                    logger.info("Skipping excluded album {}".format(root))
-                    continue
+                if 'excludeAlbums' in self.conf:
+                    if any([True for pattern in self.conf['excludeAlbums'] if fnmatch.fnmatch(album['path'], pattern)]):
+                        logger.info("Skipping excluded album {}".format(root))
+                        continue
 
                 # don't know what to do with theses photo
                 # and don't wan't to create a default album
@@ -404,7 +405,7 @@ class LycheeSyncer:
                         logger.error("didn't manage to create album for: " + album['relpath'])
                         continue
                     else:
-                        logger.info("############ Album created: %s", album['name'])
+                        logger.info("##### Album created: %s", album['name'])
 
                     createdalbums += 1
 

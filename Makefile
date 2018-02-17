@@ -8,7 +8,7 @@ test:
 	# py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
 
 testdev:
-	py.test -c ./ressources/pytest.ini --cov=lycheesync --pep8  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_issue73
+	py.test -c ./ressources/pytest.ini --cov=lycheesync --pep8  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_shutter_speed
 
 test_travis_like:
 	coverage run -m --source ./lycheesync py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json

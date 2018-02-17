@@ -11,6 +11,7 @@ from PIL.ExifTags import TAGS
 import datetime
 import logging
 from dateutil.parser import parse
+from fractions import Fraction
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +165,6 @@ class LycheePhoto:
         # Auto file some properties
         self.type = mimetypes.guess_type(self.originalname, False)[0]
         self.size = os.path.getsize(self.srcfullpath)
-        logger.debug(type(self.size))
         size_kb = int(self.size / 1024)
         if (size_kb > 1024):
             self.size = "{:.2f}".format(size_kb / 1024) + " Mo"
@@ -201,11 +201,15 @@ class LycheePhoto:
                         if decode == "Make":
                             self.exif.make = value
                         if decode == "FNumber":
-                            if isinstance(value, list):
-                                if(len(value) == 2):
-                                    self.exif.aperture = "{0:.1f}".format(value[0] / value[1])
-                            elif isinstance(value, tuple):
-                                self.exif.aperture = list(value)[0]
+                            try:
+                                logger.debug("aperture: %s", value)
+                                if isinstance(value, list):
+                                    if(len(value) == 2):
+                                        self.exif.aperture = "{0:.1f}".format(value[0] / value[1])
+                                elif isinstance(value, tuple):
+                                    self.exif.aperture = list(value)[0]
+                            except Exception:
+                                logger.exception("apperture not readable for %s", self.srcfullpath)
 
                         # if decode == "MaxApertureValue":
                         #     logger.info("raw aperture: %s %s %s", value[0], value[1], len(value))
@@ -221,23 +225,54 @@ class LycheePhoto:
                         #     self.exif.aperture = "{0:.2f}".format(aperture)
                         #     logger.info("corrected aperture: %s", self.exif.aperture)
                         if decode == "FocalLength":
-                            if isinstance(value, list):
-                                self.exif.focal = "{0:.1f}".format(value[0] / value[1])
-                            else:
-                                logging.warn("focal not readable for %s", self.srcfullpath)
+                            try:
+                                if isinstance(value, tuple):
+                                    value = list(value)
+
+                                if isinstance(value, list):
+                                    if len(value) > 1:
+                                        self.exif.focal = "{0:.1f}".format(value[0] / value[1])
+                                    else:
+                                        self.exif.focal = value[0]
+                                else:
+                                    logger.warn("focal not readable for %s", self.srcfullpath)
+                            except Exception:
+                                logger.exception("focal not readable for %s", self.srcfullpath)
+
                         if decode == "ISOSpeedRatings":
-                            if isinstance(value, list):
-                                self.exif.iso = value[0]
-                            else:
-                                self.exif.iso = value
+
+                            try:
+                                if isinstance(value, tuple):
+                                    self.exif.iso = list(value)[0]
+                                elif isinstance(value, list):
+                                    self.exif.iso = value[0]
+                                else:
+                                    self.exif.iso = value
+                            except Exception:
+                                logger.exception("ISO not readable for %s", self.srcfullpath)
+
                         if decode == "Model":
                             self.exif.model = value
                         if decode == "ExposureTime":
-                            if isinstance(value, list):
-                                self.exif.exposure = "{0:.1f}".format(value[0] / value[1])
-                            else:
-                                logging.warn("exposure not readable for %s", self.srcfullpath)
+                            logger.debug("exposuretime: %s", value)
+                            try:
+                                if isinstance(value, tuple):
+                                    value = list(value)
+
+                                if isinstance(value, list):
+                                    if len(value) > 1:
+                                        self.exif.exposure = "{0:.1f}".format(value[0] / value[1])
+                                    else:
+                                        self.exif.exposure = value[0]
+                                        if self.exif.exposure < 1:
+                                            self.exif.exposure = str(Fraction(self.exif.exposure).limit_denominator())
+                                else:
+                                    logging.warn("exposuretime not readable for %s", self.srcfullpath)
+                            except Exception:
+                                logger.exception("exposuretime not readable for %s", self.srcfullpath)
+
                         # if decode == "ShutterSpeedValue":
+                        #    logger.debug('YAAAAAAAAAAAAAAAAAAAAAA shutter: %s', value)
                         #     s = value[0]
                         #     s = 2 ** s
                         #     s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
@@ -251,6 +286,18 @@ class LycheePhoto:
                         #         s = "1/" + str(s)
                         #     self.exif.shutter = str(s) + " s"
 
+                    # compute shutter speed
+
+                    # if not(self.exif.shutter) and self.exif.exposure:
+                    #     if self.exif.exposure < 1:
+                    #         e = str(Fraction(self.exif.exposure).limit_denominator())
+                    #     else:
+                    #         e = decimal.Decimal(
+                    #             self.exif.exposure).quantize(
+                    #             decimal.Decimal('0.01'),
+                    #             rounding=decimal.ROUND_05UP)
+                    #     self.exif.shutter = e
+
                         if decode == "DateTimeOriginal":
                             try:
                                 if (isinstance(value, str)):
@@ -260,9 +307,17 @@ class LycheePhoto:
                                 elif (isinstance(value, tuple)):
                                     self.exif.takedate = list(value)[0].split(" ")[0]
                                 else:
-                                    logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+                                    logger.warn(
+                                        'invalid takedate: ' +
+                                        str(value) +
+                                        ' for ' +
+                                        self.srcfullpath)
                             except Exception as e:
-                                logger.exception('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+                                logger.exception(
+                                    'invalid takedate: ' +
+                                    str(value) +
+                                    ' for ' +
+                                    self.srcfullpath)
 
                         if decode == "DateTimeOriginal":
                             try:
@@ -273,7 +328,11 @@ class LycheePhoto:
                                 elif (isinstance(value, tuple)):
                                     self.exif.taketime = list(value)[0].split(" ")[1]
                                 else:
-                                    logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
+                                    logger.warn(
+                                        'invalid taketime: ' +
+                                        str(value) +
+                                        ' for ' +
+                                        self.srcfullpath)
                             except Exception as e:
                                 logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
@@ -288,18 +347,6 @@ class LycheePhoto:
                                 self.exif.taketime = value.split(" ")[1]
                             except Exception as e:
                                 logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
-
-                    # compute shutter speed
-
-                    # if not(self.exif.shutter) and self.exif.exposure:
-                    #     if self.exif.exposure < 1:
-                    #         e = str(Fraction(self.exif.exposure).limit_denominator())
-                    #     else:
-                    #         e = decimal.Decimal(
-                    #             self.exif.exposure).quantize(
-                    #             decimal.Decimal('0.01'),
-                    #             rounding=decimal.ROUND_05UP)
-                    #     self.exif.shutter = e
 
                     if self.exif.shutter:
                         self.exif.shutter = str(self.exif.shutter) + " s"
@@ -338,7 +385,9 @@ class LycheePhoto:
         except IOError as e:
             raise e
         except Exception:
-            logging.warn("some exif data won't be available for %s, report a bug with complete stack trace on github please ", self.srcfullpath)
+            logging.warn(
+                "some exif data won't be available for %s, report a bug with complete stack trace on github please ",
+                self.srcfullpath)
 
     def __str__(self):
         res = ""

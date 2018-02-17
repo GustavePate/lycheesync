@@ -665,6 +665,12 @@ class TestClass:
 
         photos = tu.get_photos(tu.get_album_id('rotation'))
         for p in photos:
+            logger.info(
+                "iso: %s shutter: %s focal: %s aperture: %s",
+                p['iso'],
+                p['shutter'],
+                p['focal'],
+                p['aperture'])
             if p['title'] == 'P1010319.JPG':
                 assert p['shutter'] == '1/60 s', "shutter {} not equal 1/60 s".format(p['shutter'])
                 assert p['focal'] == '4.9 mm', "focal {} not equal 4.9 mm".format(p['focal'])

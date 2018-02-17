@@ -30,7 +30,7 @@
 
     "loggers": {
         "lycheesync": {
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": "no"
         },
         "__main__": {
@@ -40,7 +40,7 @@
     },
 
     "root": {
-        "level": "DEBUG",
+        "level": "INFO",
         "handlers": ["stream_handler", "basic_file_handler"]
     }
 }

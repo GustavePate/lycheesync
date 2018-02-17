@@ -13,7 +13,7 @@ I added a few dependencies and remove others.
 As an exemple the mysql driver has changed, so...
 Check the install Chapter !
 
-PS: I strongly recommand to use python3.4 with a virtualenv even if python2.7 will still be supported in the following months.
+PS: I strongly recommand to use latest python3 with a some kind of virtualenv even if python2.7 will still be supported in the following months.
 
 # Issue / logs
 
@@ -52,7 +52,7 @@ See [changelog](./doc/changelog.md)
 
 Then you have to install the following dependencies:
 
-- python 2.7, 3.4 or 3.5 (python 3 prefered !)
+- python 2.7, 3.4, 3.5 or 3.6 (latest python 3 prefered !)
 - pillow
 - dateutils
 - [pymysql](https://github.com/PyMySQL/PyMySQL)
@@ -63,10 +63,10 @@ Then you have to install the following dependencies:
 
 On debian based Linux
 
-    sudo apt-get install python3-dev python3.4-venv libjpeg-dev zlib1g-dev
+    sudo apt-get install python3-dev python3.5-venv libjpeg-dev zlib1g-dev
     cd /path/to/lycheesync
-    pyvenv-3.4 ./venv3.4
-    . ./venv3.4/bin/activate
+    pyvenv-3.5 ./venv3.5
+    . ./venv3.5/bin/activate
     which pip # should give you a path in your newly created ./venv3.4 dir
     # if not execute: curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
     pip install -r requirements.txt
@@ -201,7 +201,7 @@ Add `_star` at the end of one filename in a directory and this photo will be sta
 
 Add this line in your crontab (`crontab -e`) to synchronize a photo directory to your lychee installation every day at 2 am.
 
-    0 2 * * * cd /path/to/lycheesync && . ./venv3.4/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -d > /tmp/lycheesync.out.log 2>&1
+    0 2 * * * cd /path/to/lycheesync && . ./venv3.5/bin/activate && python -m lycheesync.sync /path/to/photo_directory/ /var/www/path/to/lychee/ ./ressources/conf.json -d > /tmp/lycheesync.out.log 2>&1
 
 
 ## Technical doc
@@ -216,6 +216,9 @@ This project files are:
 * lycheesync/lycheemodel: a lychee photo representation, manage exif tag parsing too
 * ressources/conf.json: the configuration file
 
+Make sure the tests are green before pulling a request.
+
+Thanks !
 
 # Licence
 

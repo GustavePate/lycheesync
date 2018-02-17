@@ -10,7 +10,6 @@ from lycheesync.lycheemodel import LycheePhoto
 from lycheesync.utils.configuration import ConfBorg
 from PIL import Image
 import datetime
-import time
 import sys
 import logging
 import piexif
@@ -22,9 +21,8 @@ logger = logging.getLogger(__name__)
 def remove_file(path):
     try:
         os.remove(path)
-    except Exception as e:
+    except Exception:
         logger.warn("problem removing: " + path)
-        logger.debug(e)
 
 
 class LycheeSyncer:
@@ -238,7 +236,10 @@ class LycheeSyncer:
                         img = img.rotate(90, expand=True)
                     else:
                         if orientation != 1:
-                            logger.warn("Orientation not defined {} for photo {}".format(orientation, photo.title))
+                            logger.warn(
+                                "Orientation not defined {} for photo {}".format(
+                                    orientation,
+                                    photo.title))
 
                     if orientation in [5, 6, 7, 8]:
                         # invert width and height
@@ -293,10 +294,7 @@ class LycheeSyncer:
                     if datelist is not None and len(datelist) > 0:
                         newdate = max(datelist)
                         self.dao.updateAlbumDate(a['id'], newdate)
-                        logger.debug(
-                            "album %s sysstamp changed to: %s ", a['name'], str(
-                                time.strftime(
-                                    '%Y-%m-%d %H:%M:%S', time.localtime(newdate))))
+
             except Exception as e:
                 logger.exception(e)
                 logger.error("updating album date for album:" + a['name'], e)
@@ -365,7 +363,8 @@ class LycheeSyncer:
 
                 # Skip any albums that matches one of the exluded patterns
                 if 'excludeAlbums' in self.conf:
-                    if any([True for pattern in self.conf['excludeAlbums'] if fnmatch.fnmatch(album['path'], pattern)]):
+                    if any(
+                            [True for pattern in self.conf['excludeAlbums'] if fnmatch.fnmatch(album['path'], pattern)]):
                         logger.info("Skipping excluded album {}".format(root))
                         continue
 
@@ -416,12 +415,9 @@ class LycheeSyncer:
                         try:
                             discoveredphotos += 1
                             error = False
-                            logger.debug(
-                                "**** Trying to add to lychee album %s: %s",
-                                album['name'],
-                                os.path.join(
-                                    root,
-                                    f))
+                            logger.info("**** Adding %s to lychee album: %s",
+                                        os.path.join(root, f),
+                                        album['name'])
                             # corruption detected here by launching exception
                             pid = self.dao.getUniqPhotoId()
                             photo = LycheePhoto(pid, self.conf, f, album)
@@ -452,12 +448,9 @@ class LycheeSyncer:
                             error = True
                         finally:
                             if not(error):
-                                logger.info(
-                                    "**** Successfully added %s to lychee album %s",
-                                    os.path.join(
-                                        root,
-                                        f),
-                                    album['name'])
+                                logger.info("**** Successfully added %s to lychee album: %s",
+                                            os.path.join(root, f),
+                                            album['name'])
 
                 a = album.copy()
                 albums.append(a)
@@ -517,7 +510,6 @@ class LycheeSyncer:
             for root, dirs, files in os.walk(os.path.join(self.conf['lycheepath'], 'uploads', 'big')):
 
                 for f in files:
-                    logger.debug("check orphan: %s", f)
                     file_name = os.path.basename(f)
                     # check if DB photo exists
                     if not self.dao.photoExistsByName(file_name):

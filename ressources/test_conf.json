@@ -5,6 +5,7 @@
     "dbHost":"localhost",
     "thumbQuality":80,
     "publicAlbum": 0,
+    "mediumThumb": 1,
     "excludeAlbums": [],
     "lycheepath": "/tmp/lychee",
     "testphotopath": "./tmptest",

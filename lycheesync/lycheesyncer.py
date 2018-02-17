@@ -92,7 +92,7 @@ class LycheeSyncer:
             album['id'] = self.dao.createAlbum(album)
         return album['id']
 
-    def thumbIt(self, res, photo, destinationpath, destfile):
+    def thumbIt(self, res, photo, destinationpath, destfile, crop):
         """
         Create the thumbnail of a given photo
         Parameters:
@@ -103,19 +103,6 @@ class LycheeSyncer:
         Returns the fullpath of the thuumbnail
         """
 
-        if photo.width > photo.height:
-            delta = photo.width - photo.height
-            left = int(delta / 2)
-            upper = 0
-            right = int(photo.height + left)
-            lower = int(photo.height)
-        else:
-            delta = photo.height - photo.width
-            left = 0
-            upper = int(delta / 2)
-            right = int(photo.width)
-            lower = int(photo.width + upper)
-
         destimage = os.path.join(destinationpath, destfile)
         try:
             img = Image.open(photo.destfullpath)
@@ -124,10 +111,42 @@ class LycheeSyncer:
             logger.error("ioerror (corrupted file?): " + photo.srcfullpath)
             raise
 
-        img = img.crop((left, upper, right, lower))
+        if (crop):
+            if photo.width > photo.height:
+                delta = photo.width - photo.height
+                left = int(delta / 2)
+                upper = 0
+                right = int(photo.height + left)
+                lower = int(photo.height)
+            else:
+                delta = photo.height - photo.width
+                left = 0
+                upper = int(delta / 2)
+                right = int(photo.width)
+                lower = int(photo.width + upper)
+
+            img = img.crop((left, upper, right, lower))
+
         img.thumbnail(res, Image.ANTIALIAS)
-        img.save(destimage, quality=99)
+        img.save(destimage, quality=90)
         return destimage
+
+    def makeMedium(self, photo):
+        """
+        Make medium photo used by Lychee for a given photo
+        and store their path in the LycheePhoto object
+        Parameters:
+        - photo: a valid LycheePhoto object
+        returns nothing
+        """
+        # set  medium photo size
+        size = 1920, 1080
+        # set medium photo file name
+        destfile = photo.url
+        # compute destination path
+        destpath = os.path.join(self.conf["lycheepath"], "uploads", "medium")
+        # make medium photo
+        photo.mediumfullpath = self.thumbIt(size, photo, destpath, destfile, False)
 
     def makeThumbnail(self, photo):
         """
@@ -145,8 +164,13 @@ class LycheeSyncer:
         # compute destination path
         destpath = os.path.join(self.conf["lycheepath"], "uploads", "thumb")
         # make thumbnails
-        photo.thumbnailfullpath = self.thumbIt(sizes[0], photo, destpath, destfiles[0])
-        photo.thumbnailx2fullpath = self.thumbIt(sizes[1], photo, destpath, destfiles[1])
+        photo.thumbnailfullpath = self.thumbIt(sizes[0], photo, destpath, destfiles[0], True)
+        photo.thumbnailx2fullpath = self.thumbIt(sizes[1], photo, destpath, destfiles[1], True)
+
+        # make medium thumbnail if required
+        if (photo.medium):
+            self.makeMedium(photo)
+
 
     def copyFileToLychee(self, photo):
         """
@@ -199,12 +223,14 @@ class LycheeSyncer:
         for url in filelist:
             if self.isAPhoto(url):
                 thumbpath = os.path.join(self.conf["lycheepath"], "uploads", "thumb", url)
+                mediumpath = os.path.join(self.conf["lycheepath"], "uploads", "medium", url)
                 filesplit = os.path.splitext(url)
                 thumb2path = ''.join([filesplit[0], "@2x", filesplit[1]]).lower()
                 thumb2path = os.path.join(self.conf["lycheepath"], "uploads", "thumb", thumb2path)
                 bigpath = os.path.join(self.conf["lycheepath"], "uploads", "big", url)
                 remove_file(thumbpath)
                 remove_file(thumb2path)
+                remove_file(mediumpath)
                 remove_file(bigpath)
 
     def adjustRotation(self, photo):

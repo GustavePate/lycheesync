@@ -6,6 +6,7 @@
     "dbSocket":"/var/run/mysqld/mysqld.sock",
     "thumbQuality":80,
     "publicAlbum": 0,
+    "mediumThumb": 1,
     "excludeAlbums": [
     ]
 }

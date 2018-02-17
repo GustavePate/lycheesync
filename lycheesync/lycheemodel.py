@@ -217,7 +217,10 @@ class LycheePhoto:
                         #     self.exif.aperture = "{0:.2f}".format(aperture)
                         #     logger.info("corrected aperture: %s", self.exif.aperture)
                         if decode == "FocalLength":
-                            self.exif.focal = "{0:.1f}".format(value[0] / value[1])
+                            if isinstance(value, list):
+                                self.exif.focal = "{0:.1f}".format(value[0] / value[1])
+                            else:
+                                logging.warn("focal not readable for %s", self.srcfullpath)
                         if decode == "ISOSpeedRatings":
                             if isinstance(value, list):
                                 self.exif.iso = value[0]

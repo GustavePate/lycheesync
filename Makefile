@@ -8,6 +8,9 @@ test:
 	# py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
 
 testdev:
-	py.test -c ./ressources/pytest.ini --cov=lycheesync --pep8  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_album_date
+	py.test -c ./ressources/pytest.ini --cov=lycheesync --pep8  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json  -k test_issue73
+
+test_travis_like:
+	coverage run -m --source ./lycheesync py.test -c ./ressources/pytest.ini  --showlocals  --duration=3 -v  -s --confpath=${PWD}/ressources/test_conf.json
 
 

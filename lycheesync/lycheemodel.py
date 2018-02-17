@@ -249,30 +249,39 @@ class LycheePhoto:
 
                         if decode == "DateTimeOriginal":
                             try:
-                                self.exif.takedate = value.split(" ")[0]
-                                # logger.debug(" Read DateTimeOriginal -> takedate: " + str(value) + " " + str(self.exif.takedate))
+                                if (isinstance(value, str)):
+                                    self.exif.takedate = value.split(" ")[0]
+                                elif (isinstance(value, list)):
+                                    self.exif.takedate = value[0].split(" ")[0]
+                                elif (isinstance(value, tuple)):
+                                    self.exif.takedate = list(value)[0].split(" ")[0]
+                                else:
+                                    logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
                             except Exception as e:
-                                logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
+                                logger.exception('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTimeOriginal":
                             try:
-                                # TODO bug here on yyyy:mm:dd hh:mm:ss format
-                                self.exif.taketime = value.split(" ")[1]
-                                # logger.debug(" Read DateTimeOriginal -> taketime: " + str(value))
+                                if (isinstance(value, str)):
+                                    self.exif.taketime = value.split(" ")[1]
+                                elif (isinstance(value, list)):
+                                    self.exif.taketime = value[0].split(" ")[1]
+                                elif (isinstance(value, tuple)):
+                                    self.exif.taketime = list(value)[0].split(" ")[1]
+                                else:
+                                    logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
                             except Exception as e:
                                 logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.takedate is None:
                             try:
                                 self.exif.takedate = value.split(" ")[0]
-                                # logger.debug(" Read DateTime -> takedate: " + str(value))
                             except Exception as e:
                                 logger.warn('DT invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
                         if decode == "DateTime" and self.exif.taketime is None:
                             try:
                                 self.exif.taketime = value.split(" ")[1]
-                                # logger.debug(" Read DateTime -> taketime: " + str(value))
                             except Exception as e:
                                 logger.warn('DT invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 

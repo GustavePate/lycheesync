@@ -201,7 +201,11 @@ class LycheePhoto:
                         if decode == "Make":
                             self.exif.make = value
                         if decode == "FNumber":
-                            self.exif.aperture = "{0:.1f}".format(value[0] / value[1])
+                            if isinstance(value, list):
+                                if(len(value) == 2):
+                                    self.exif.aperture = "{0:.1f}".format(value[0] / value[1])
+                            elif isinstance(value, tuple):
+                                self.exif.aperture = list(value)[0]
 
                         # if decode == "MaxApertureValue":
                         #     logger.info("raw aperture: %s %s %s", value[0], value[1], len(value))
@@ -332,7 +336,6 @@ class LycheePhoto:
 
                     self.description = self._str_datetime
 
-                    # logger.debug("final date " + self._str_datetime)
 
         except IOError as e:
             # logger.debug('ioerror (corrupted ?): ' + self.srcfullpath)

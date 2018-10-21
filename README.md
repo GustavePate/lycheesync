@@ -168,6 +168,10 @@ The resulting lychee structure will be:
     |_a3p1.jpg
 ```
 
+### Album description
+
+If a `desc.txt` file is present at the root of an album directory, its content will be the description of the album.
+
 
 ### Counters
 

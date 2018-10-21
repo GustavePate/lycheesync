@@ -353,6 +353,7 @@ class LycheeSyncer:
             # Init album data
             album['id'] = None
             album['name'] = None
+            album['description'] = None
             album['path'] = None
             album['relpath'] = None  # path relative to srcdir
             album['photos'] = []  # path relative to srcdir
@@ -380,6 +381,12 @@ class LycheeSyncer:
                 # albumnames start at srcdir (to avoid absolute path albumname)
                 album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
                 album['name'] = self.getAlbumNameFromPath(album)
+
+                # check for desc.txt file existence
+                if (os.path.exists(album['path']+"/desc.txt")):
+                    fp = open(album['path']+"/desc.txt", "r")
+                    album['description'] = fp.read()
+                    fp.close()
 
                 if len(album['name']) > album_name_max_width:
                     logger.warn("album name too long, will be truncated " + album['name'])

@@ -78,6 +78,7 @@ class LycheePhoto:
     height = 0
     size = ""
     star = 0  # no star by default
+    tags = ""
     thumbUrl = ""
     srcfullpath = ""
     destfullpath = ""
@@ -129,7 +130,7 @@ class LycheePhoto:
             sha1.update(f.read())
             self.checksum = sha1.hexdigest()
 
-    def __init__(self, id, conf, photoname, album):
+    def __init__(self, id, conf, photoname, album, tags):
         # Parameters storage
         self.conf = conf
         self.id = id
@@ -137,6 +138,7 @@ class LycheePhoto:
         self.originalpath = album['path']
         self.albumid = album['id']
         self.albumname = album['name']
+        self.tags = tags
 
         # if star in file name, photo is starred
         if ('star' in self.originalname) or ('cover' in self.originalname):
@@ -240,7 +242,6 @@ class LycheePhoto:
                                 logger.exception("focal not readable for %s", self.srcfullpath)
 
                         if decode == "ISOSpeedRatings":
-
                             try:
                                 if isinstance(value, tuple):
                                     self.exif.iso = list(value)[0]

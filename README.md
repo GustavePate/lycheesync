@@ -172,6 +172,11 @@ The resulting lychee structure will be:
 
 If a `desc.txt` file is present at the root of an album directory, its content will be the description of the album.
 
+### Photo tags
+
+If a `.txt` file that has the same name as the picture is present in its folder, its content is going to be interpreted as tags for the pictures. The expected format is as following :
+`tag1, tag2, tag3`
+
 
 ### Counters
 

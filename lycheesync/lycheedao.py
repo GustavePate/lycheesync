@@ -490,7 +490,7 @@ class LycheeDAO:
                  "(id, url, " +
                  "public, type, " +
                  "width, height, " +
-                 "size, star, " +
+                 "size, star, tags, " +
                  "thumbUrl, album, " +
                  "iso, aperture, make, " +
                  "model, shutter, focal, " +
@@ -500,7 +500,7 @@ class LycheeDAO:
                  "({}, '{}', " +
                  "{}, '{}', " +
                  "{}, {}, " +
-                 "'{}', {}, " +
+                 "'{}', {}, '{}', " +
                  "'{}', '{}', " +
                  "'{}', '{}', '{}', " +
                  "'{}', '{}', '{}', " +
@@ -509,7 +509,7 @@ class LycheeDAO:
                  ).format(photo.id, photo.url,
                           self.conf["publicAlbum"], photo.type,
                           photo.width, photo.height,
-                          photo.size, photo.star,
+                          photo.size, photo.star, photo.tags,
                           photo.thumbUrl, photo.albumid,
                           photo.exif.iso, photo.exif.aperture, photo.exif.make,
                           photo.exif.model, photo.exif.exposure, photo.exif.focal,

@@ -425,9 +425,15 @@ class LycheeSyncer:
                             logger.info("**** Adding %s to lychee album: %s",
                                         os.path.join(root, f),
                                         album['name'])
+                            # check if tags are stored for a given photo
+                            tags = ""
+                            if os.path.isfile(os.path.join(root, os.path.splitext(f)[0] + ".txt")):
+                                fp = open(os.path.join(root, os.path.splitext(f)[0] + ".txt"), "r")
+                                tags = fp.read()
+                                fp.close()
                             # corruption detected here by launching exception
                             pid = self.dao.getUniqPhotoId()
-                            photo = LycheePhoto(pid, self.conf, f, album)
+                            photo = LycheePhoto(pid, self.conf, f, album, tags)
                             if not(self.dao.photoExists(photo)):
                                 res = self.copyFileToLychee(photo)
                                 self.adjustRotation(photo)

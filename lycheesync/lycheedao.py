@@ -255,6 +255,21 @@ class LycheeDAO:
         finally:
             return album_names
 
+    def getAlbumIdFromName(self, title, parent_id = "NULL"):
+        id = ""
+        try:
+            query = ("select id from albums where parent_id" + ("=" + parent_id if (parent_id!= "NULL") else " is NULL") + " and title='" + title + "'")
+            cur = self.db.cursor()
+            cur.execute(query)
+            rows = cur.fetchall()
+            id = rows[0]['id']
+        except Exception as e:
+            album_names = ''
+            logger.error('impossible to execute ' + query)
+            logger.exception(e)
+        finally:
+            return id
+
     def photoIdExists(self, photoid):
         res = None
         try:
@@ -334,9 +349,10 @@ class LycheeDAO:
         """
         album['id'] = str(self.getUniqAlbumId())
 
-        query = ("insert into albums (id, title, created_at, public, password) values ({},'{}',{},'{}',NULL)".format(
+        query = ("insert into albums (id, title, parent_id, created_at, public, password) values ({},'{}',{},'{}','{}',NULL)".format(
             album['id'],
             album['name'],
+            album['parent_id'],
             datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
             str(self.conf["publicAlbum"]))
         )
@@ -346,7 +362,11 @@ class LycheeDAO:
             cur = self.db.cursor()
             logger.debug("try to createAlbum: %s", query)
             # duplicate of previous query to use driver quote protection features
-            cur.execute("insert into albums (id, title, created_at, updated_at, public, password, description) values (%s,%s,%s,%s,%s,NULL,'')", (album['id'], album['name'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), str(self.conf["publicAlbum"])))
+            if album['parent_id']=="0":
+                query = "insert into albums (id, title, parent_id, created_at, updated_at, public, password, description) values ({},'{}',NULL,'{}','{}','{}',NULL,'')".format(album['id'], album['name'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), str(self.conf["publicAlbum"]))
+            else:
+                query = "insert into albums (id, title, parent_id, created_at, updated_at, public, password, description) values ({},'{}','{}','{}','{}','{}',NULL,'')".format(album['id'], album['name'], album['parent_id'], datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), str(self.conf["publicAlbum"]))
+            cur.execute(query)
             self.db.commit()
 
             cur.execute("select id from albums where title=%s", (album['name']))

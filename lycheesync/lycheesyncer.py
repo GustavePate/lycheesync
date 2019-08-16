@@ -381,7 +381,6 @@ class LycheeSyncer:
                 album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
                 # album['name'] = self.getAlbumNameFromPath(album)
                 album['name'] = (album['relpath'].split(os.sep))[-1]
-		
                 album['parent_id']="0"
                 if (len(album['relpath'].split(os.sep)) != 1):
                     #Get parent_id
@@ -394,7 +393,7 @@ class LycheeSyncer:
                             album['parent_id'] = tmpparentid
                         else:
                             tmp = self.dao.getAlbumIdFromName(name, "NULL" if name==path[0] else tmpparentid)
-                            if tmp==False:
+                            if tmp==0:
                                 albumtmp={}
                                 albumtmp['name']=name
                                 albumtmp['parent_id']=tmpparentid

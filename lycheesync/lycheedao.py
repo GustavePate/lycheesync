@@ -258,9 +258,9 @@ class LycheeDAO:
             return album_names
 
     def getAlbumIdFromName(self, title, parent_id = "NULL"):
-        id = False
+        id = 0
         try:
-            query = ("select id from albums where parent_id" + ("=" + parent_id if (parent_id!= "NULL") else " is NULL") + " and title='" + title + "'")
+            query = ("select id from albums where parent_id" + ("=" + str(parent_id) if (parent_id!= "NULL") else " is NULL") + " and title='" + title + "'")
             cur = self.db.cursor()
             cur.execute(query)
             rows = cur.fetchall()

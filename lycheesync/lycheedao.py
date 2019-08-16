@@ -70,6 +70,7 @@ class LycheeDAO:
         nbtry = 1
         while (self.photoIdExists(id)):
             id = self.getUniqTimeBasedId()
+            time.sleep(1)
             nbtry += 1
             if (nbtry == 5):
                 raise Exception("didn't manage to create uniq id")
@@ -80,6 +81,7 @@ class LycheeDAO:
         nbtry = 1
         while (self.albumIdExists(id)):
             id = self.getUniqTimeBasedId()
+            time.sleep(1)
             nbtry += 1
             if (nbtry == 5):
                 raise Exception("didn't manage to create uniq id")
@@ -90,8 +92,8 @@ class LycheeDAO:
         id = str(int(time.time()))
         # not precise enough
         length = len(id)
-        if length < 14:
-            missing_char = 14 - length
+        if length < 10:
+            missing_char = 10 - length
             r = random.random()
             r = str(r)
             # last missing_char char
@@ -256,13 +258,14 @@ class LycheeDAO:
             return album_names
 
     def getAlbumIdFromName(self, title, parent_id = "NULL"):
-        id = ""
+        id = False
         try:
             query = ("select id from albums where parent_id" + ("=" + parent_id if (parent_id!= "NULL") else " is NULL") + " and title='" + title + "'")
             cur = self.db.cursor()
             cur.execute(query)
             rows = cur.fetchall()
-            id = rows[0]['id']
+            if len(rows) != 0:
+                id = rows[0]['id']
         except Exception as e:
             album_names = ''
             logger.error('impossible to execute ' + query)

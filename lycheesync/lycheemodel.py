@@ -145,7 +145,7 @@ class LycheePhoto:
         if ('star' in self.originalname) or ('cover' in self.originalname):
             self.star = 1
 
-        assert len(self.id) == 14, "id {} is not 14 character long: {}".format(self.id, str(len(self.id)))
+        assert len(self.id) == 10, "id {} is not 10 character long: {}".format(self.id, str(len(self.id)))
 
         # Compute file storage url
         m = hashlib.md5()

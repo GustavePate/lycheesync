@@ -24,13 +24,13 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/ `lychee_ci` /*!40100 DEFAULT CHARACTER 
 USE `lychee_ci`;
 
 --
--- Table structure for table `lychee_albums`
+-- Table structure for table `albums`
 --
 
-DROP TABLE IF EXISTS `lychee_albums`;
+DROP TABLE IF EXISTS `albums`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lychee_albums` (
+CREATE TABLE `albums` (
   `id` bigint(14) NOT NULL,
   `title` varchar(100) NOT NULL DEFAULT '',
   `description` varchar(1000) DEFAULT '',
@@ -44,12 +44,12 @@ CREATE TABLE `lychee_albums` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `lychee_albums`
+-- Dumping data for table `albums`
 --
 
-LOCK TABLES `lychee_albums` WRITE;
-/*!40000 ALTER TABLE `lychee_albums` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lychee_albums` ENABLE KEYS */;
+LOCK TABLES `albums` WRITE;
+/*!40000 ALTER TABLE `albums` DISABLE KEYS */;
+/*!40000 ALTER TABLE `albums` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -80,13 +80,13 @@ LOCK TABLES `lychee_log` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `lychee_photos`
+-- Table structure for table `photos`
 --
 
-DROP TABLE IF EXISTS `lychee_photos`;
+DROP TABLE IF EXISTS `photos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `lychee_photos` (
+CREATE TABLE `photos` (
   `id` bigint(14) NOT NULL,
   `title` varchar(100) NOT NULL DEFAULT '',
   `description` varchar(1000) DEFAULT '',
@@ -114,12 +114,12 @@ CREATE TABLE `lychee_photos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `lychee_photos`
+-- Dumping data for table `photos`
 --
 
-LOCK TABLES `lychee_photos` WRITE;
-/*!40000 ALTER TABLE `lychee_photos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lychee_photos` ENABLE KEYS */;
+LOCK TABLES `photos` WRITE;
+/*!40000 ALTER TABLE `photos` DISABLE KEYS */;
+/*!40000 ALTER TABLE `photos` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

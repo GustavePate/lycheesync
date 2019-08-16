@@ -379,7 +379,29 @@ class LycheeSyncer:
                 # Fill in other album properties
                 # albumnames start at srcdir (to avoid absolute path albumname)
                 album['relpath'] = os.path.relpath(album['path'], self.conf['srcdir'])
-                album['name'] = self.getAlbumNameFromPath(album)
+                # album['name'] = self.getAlbumNameFromPath(album)
+                album['name'] = (album['relpath'].split(os.sep))[-1]
+                album['parent_id']="0"
+                if (len(album['relpath'].split(os.sep)) != 1):
+                    #Get parent_id
+                    path = album['relpath'].split(os.sep)
+
+                    tmpparentid = "0"
+
+                    for name in path:
+                        if name==path[-1]:
+                            album['parent_id'] = tmpparentid
+                        else:
+                            tmp = self.dao.getAlbumIdFromName(name, "NULL" if name==path[0] else tmpparentid)
+                            if tmp==0:
+                                albumtmp={}
+                                albumtmp['name']=name
+                                albumtmp['parent_id']=tmpparentid
+                                tmpparentid=self.createAlbum(albumtmp)
+                            else:
+                                tmpparentid=tmp
+                                
+                
 
                 if len(album['name']) > album_name_max_width:
                     logger.warn("album name too long, will be truncated " + album['name'])

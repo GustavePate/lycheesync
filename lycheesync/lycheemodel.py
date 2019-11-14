@@ -241,7 +241,7 @@ class LycheePhoto:
 
                         if decode == "DateTimeOriginal":
                             try:
-                                self.exif.taketime = value[0].split(" ")[1]
+                                self.exif.taketime = value.split(" ")[1]
                             except Exception as e:
                                 logger.warn('invalid taketime: ' + str(value) + ' for ' + self.srcfullpath)
 

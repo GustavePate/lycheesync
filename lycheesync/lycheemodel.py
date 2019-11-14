@@ -211,7 +211,7 @@ class LycheePhoto:
                         if decode == "FocalLength":
                             self.exif.focal = value[0]
                         if decode == "ISOSpeedRatings":
-                            self.exif.iso = value[0]
+                            self.exif.iso = value
                         if decode == "Model":
                             self.exif.model = value
                         if decode == "ExposureTime":
@@ -219,20 +219,23 @@ class LycheePhoto:
                         if decode == "ShutterSpeedValue":
                             s = value[0]
                             s = 2 ** s
-                            s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
-                            if s <= 1:
-                                s = decimal.Decimal(
-                                    1 /
-                                    float(s)).quantize(
-                                    decimal.Decimal('0.1'),
-                                    rounding=decimal.ROUND_05UP)
-                            else:
-                                s = "1/" + str(s)
+                            try:
+                                s = decimal.Decimal(s).quantize(decimal.Decimal('1'), rounding=decimal.ROUND_05UP)
+                                if s <= 1:
+                                    s = decimal.Decimal(
+                                        1 /
+                                        float(s)).quantize(
+                                        decimal.Decimal('0.1'),
+                                        rounding=decimal.ROUND_05UP)
+                                else:
+                                    s = "1/" + str(s)
+                            exception (decimal.InvalidOperation, ValueError):
+                                s = 0
                             self.exif.shutter = str(s) + " s"
 
                         if decode == "DateTimeOriginal":
                             try:
-                                self.exif.takedate = value[0].split(" ")[0]
+                                self.exif.takedate = value.split(" ")[0]
                             except Exception as e:
                                 logger.warn('invalid takedate: ' + str(value) + ' for ' + self.srcfullpath)
 
